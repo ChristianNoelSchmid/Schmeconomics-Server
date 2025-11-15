@@ -1,0 +1,58 @@
+using Microsoft.AspNetCore.Mvc;
+using Schmeconomics.Api.Auth;
+
+namespace Schmeconomics.Api.Controllers;
+
+[ApiController]
+[Route("[controller]")]
+public class AuthController(
+    IAuthService _authService
+) : ControllerBase
+{
+    [HttpPost("SignIn")]
+    public async Task<IActionResult> SignIn(
+        SignInRequest request,
+        CancellationToken stopToken = default)
+    {
+        // Get the IP address from the request
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        
+        // Sign in the user
+        var authModel = await _authService.SignInAsync(request.Name, request.Password, ipAddress, stopToken);
+        
+        // Add refresh token to response cookies
+        Response.Cookies.Append(
+            "refreshToken",
+            authModel.RefreshToken,
+            new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTime.UtcNow.AddMonths(1)
+            });
+        
+        // Return access token in the response body
+        return Ok(new { accessToken = authModel.AccessToken });
+    }
+
+    [HttpPost("SignOut")]
+    public async Task<IActionResult> SignOut(
+        CancellationToken stopToken = default)
+    {
+        // Get the IP address from the request
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        
+        // Get refresh token from cookies
+        if (Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            // Revoke the refresh token
+            await _authService.SignOutAsync(refreshToken, ipAddress, stopToken);
+            
+            // Remove the cookie
+            Response.Cookies.Delete("refreshToken");
+        }
+        
+        return Ok();
+    }
+}
