@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
 using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
-using Schmeconomics.Api.Tokens;
+using Schmeconomics.Api.Tokens.AuthTokens;
 
 namespace Schmeconomics.Api.UnitTests;
 
@@ -16,7 +16,7 @@ public class AuthTokenProviderTests
     private const string TEST_ISSUER = "TEST_ISSUER";
     private const string TEST_AUDIENCE = "TEST_AUDIENCE";
 
-    private static readonly AuthTokenProviderConfig s_config = new AuthTokenProviderConfig
+    private static readonly JwtAuthTokenProviderConfig s_config = new JwtAuthTokenProviderConfig
     {
         HashAlgorithm = JwtHashAlgorithm.HmacSha256,
         Issuer = TEST_ISSUER,
@@ -39,7 +39,7 @@ public class AuthTokenProviderTests
     }
     private static readonly DateTime TEST_DATE_TIME = DateTime.UtcNow;
 
-    private AuthTokenProvider _tokenProvider = default!;
+    private JwtAuthTokenProvider _tokenProvider = default!;
     private IDateTimeProvider _dateTimeProvider = default!;
     private ISecretsProvider _secretsProvider = default!;
 
@@ -50,7 +50,7 @@ public class AuthTokenProviderTests
         _dateTimeProvider.UtcNow.Returns(TEST_DATE_TIME);
         _secretsProvider = Substitute.For<ISecretsProvider>();
         _secretsProvider.GetSecretsAsync().Returns(TEST_SECRET_BYTES_ITERATOR());
-        _tokenProvider = new AuthTokenProvider(Options.Create(s_config), _dateTimeProvider, _secretsProvider);
+        _tokenProvider = new JwtAuthTokenProvider(Options.Create(s_config), _dateTimeProvider, _secretsProvider);
     }
 
     [TestMethod]
@@ -121,7 +121,7 @@ public class AuthTokenProviderTests
         var jwtToken = CreateTestJwtToken(claims: []);
         _dateTimeProvider.UtcNow.Returns(TEST_DATE_TIME + TimeSpan.FromDays(30));
 
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderJwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
+        await Assert.ThrowsExceptionAsync<AuthTokenProviderException.JwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
     }
 
     [TestMethod]
@@ -131,7 +131,7 @@ public class AuthTokenProviderTests
         var jwtToken = CreateTestJwtToken(claims: [], audience: "INVALID_AUDIENCE");
         _dateTimeProvider.UtcNow.Returns(TEST_DATE_TIME + TimeSpan.FromDays(30));
 
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderJwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
+        await Assert.ThrowsExceptionAsync<AuthTokenProviderException.JwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
     }
 
     [TestMethod]
@@ -141,7 +141,7 @@ public class AuthTokenProviderTests
         var jwtToken = CreateTestJwtToken(claims: [], issuer: "INVALID_ISSUER");
         _dateTimeProvider.UtcNow.Returns(TEST_DATE_TIME + TimeSpan.FromDays(30));
 
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderJwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
+        await Assert.ThrowsExceptionAsync<AuthTokenProviderException.JwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
     }
 
     [TestMethod]
@@ -174,7 +174,7 @@ public class AuthTokenProviderTests
         );
 
         _secretsProvider.GetSecretsAsync().Returns(TEST_SECRET_BYTES_ITERATOR_2());
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderJwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
+        await Assert.ThrowsExceptionAsync<AuthTokenProviderException.JwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
     }
 
     [TestMethod]

@@ -4,6 +4,8 @@ using NSubstitute;
 using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Tokens;
+using Schmeconomics.Api.Tokens.AuthTokens;
+using Schmeconomics.Api.Tokens.RefreshTokens;
 using Schmeconomics.Entities;
 
 namespace Schmeconomics.Api.UnitTests;
@@ -50,7 +52,7 @@ public sealed class RefreshTokenProviderTests
     [TestMethod]
     public async Task CreateNewTokenAsyncCreatesNewTokenAndInputsIntoDatabase()
     {
-        var token = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
+        var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
 
         var familyTokens = await _dbContext.RefreshTokenFamilies.ToListAsync();
         Assert.AreEqual(1, familyTokens.Count);
@@ -60,22 +62,22 @@ public sealed class RefreshTokenProviderTests
         Assert.AreEqual(TEST_DATE_TIME + s_config.RefreshTokenLifetime, familyToken.ExpiresOnUtc);
         Assert.AreEqual(1, familyToken.Id);
         Assert.AreEqual(TEST_USER_ID, familyToken.UserId);
-        Assert.AreEqual(token.Split('.')[0], familyToken.FamilyToken);
-        Assert.AreEqual(token.Split('.')[1], familyToken.ActiveToken);
+        Assert.AreEqual(tokenModel.Token.Split('.')[0], familyToken.FamilyToken);
+        Assert.AreEqual(tokenModel.Token.Split('.')[1], familyToken.ActiveToken);
     }
 
     [TestMethod]
     public async Task CreateFromTokenAsyncCreatesNewActiveTokenAndUpdatesFamilyTokenInDatabase()
     {
         // Create the initial token
-        var token = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
+        var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
 
         // Update the date time provider to return 5 seconds into the future, in order
         // to check expiration set
         var futureTime = TEST_DATE_TIME + TimeSpan.FromSeconds(5);
         _dateTimeProvider.UtcNow.Returns(futureTime);
 
-        var newToken = await _refreshTokenProvider.CreateFromTokenAsync(token, TEST_IP_ADDRESS);
+        var newTokenModel = await _refreshTokenProvider.CreateFromTokenAsync(tokenModel.Token, TEST_IP_ADDRESS);
 
         var familyTokens = await _dbContext.RefreshTokenFamilies.ToListAsync();
         Assert.AreEqual(1, familyTokens.Count);
@@ -90,14 +92,14 @@ public sealed class RefreshTokenProviderTests
         Assert.AreEqual(TEST_USER_ID, familyToken.UserId);
 
         // The prior token and active token should both have the same family token
-        Assert.AreEqual(token.Split('.')[0], familyToken.FamilyToken);
-        Assert.AreEqual(newToken.Split('.')[0], familyToken.FamilyToken);
-        Assert.AreEqual(newToken.Split('.')[1], familyToken.ActiveToken);
+        Assert.AreEqual(tokenModel.Token.Split('.')[0], familyToken.FamilyToken);
+        Assert.AreEqual(newTokenModel.Token.Split('.')[0], familyToken.FamilyToken);
+        Assert.AreEqual(newTokenModel.Token.Split('.')[1], familyToken.ActiveToken);
     }
 
     public async Task CreateNewTokenAsyncThrowsExceptionWhenNonexistantTokenIsProvided()
     {
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderUserIdNotFoundException>(
+        await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.UserIdNotFound>(
             () => _refreshTokenProvider.CreateNewTokenAsync(Guid.NewGuid().ToString(), TEST_IP_ADDRESS)
         );
     }
@@ -105,18 +107,18 @@ public sealed class RefreshTokenProviderTests
     [TestMethod]
     public async Task CreateFromTokenAsyncThrowsExceptionWhenIncorrectTokenIsProvided()
     {
-        var token = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
-        var splits = token.Split(".");
+        var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
+        var splits = tokenModel.Token.Split(".");
 
         // Updating the family token should throw exception
         var malformedToken1 = $"{Convert.ToBase64String(TokenUtils.CreateRandomBytes(16))}.{splits[1]}";
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderRefreshTokenNotFoundException>(
+        await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenNotFound>(
             () => _refreshTokenProvider.CreateFromTokenAsync(malformedToken1, TEST_IP_ADDRESS)
         );
 
         // Updating the active token should throw exception
         var malformedToken2 = $"{splits[0]}.{Convert.ToBase64String(TokenUtils.CreateRandomBytes(16))}";
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderRefreshTokenDoesNotMatchException>(
+        await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenDoesNotMatch>(
             () => _refreshTokenProvider.CreateFromTokenAsync(malformedToken2, TEST_IP_ADDRESS)
         );
     }
@@ -132,7 +134,7 @@ public sealed class RefreshTokenProviderTests
                 Enumerable.Range(0, i)
                     .Select(_ => Convert.ToBase64String(TokenUtils.CreateRandomBytes(16)))
             );
-            await Assert.ThrowsExceptionAsync<AuthTokenProviderMalformedRefreshTokenException>(
+            await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.MalformedRefreshToken>(
                 () => _refreshTokenProvider.CreateFromTokenAsync(token, TEST_IP_ADDRESS)
             );
         }
@@ -141,28 +143,28 @@ public sealed class RefreshTokenProviderTests
     [TestMethod]
     public async Task CreateFromTokenAsyncThrowsExceptionWhenTokenIsStale()
     {
-        var token = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
+        var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
 
         // Token that is past expiration should throw exception
         _dateTimeProvider.UtcNow.Returns(TEST_DATE_TIME + TimeSpan.FromHours(2));
 
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderRefreshTokenStaleException>(
-            () => _refreshTokenProvider.CreateFromTokenAsync(token, TEST_IP_ADDRESS)
+        await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenStale>(
+            () => _refreshTokenProvider.CreateFromTokenAsync(tokenModel.Token, TEST_IP_ADDRESS)
         );
 
         // Token that is revoked should throw exception
-        var token2 = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
-        await _refreshTokenProvider.RevokeTokenAsync(token2, TEST_IP_ADDRESS);
+        var tokenModel2 = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
+        await _refreshTokenProvider.RevokeTokenAsync(tokenModel2.Token, TEST_IP_ADDRESS);
 
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderRefreshTokenStaleException>(
-            () => _refreshTokenProvider.CreateFromTokenAsync(token2, TEST_IP_ADDRESS)
+        await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenStale>(
+            () => _refreshTokenProvider.CreateFromTokenAsync(tokenModel2.Token, TEST_IP_ADDRESS)
         );
     }
 
     public async Task RevokeTokenAsyncRevokesFamilyToken()
     {
-        var token = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
-        await _refreshTokenProvider.RevokeTokenAsync(token, TEST_IP_ADDRESS);
+        var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
+        await _refreshTokenProvider.RevokeTokenAsync(tokenModel.Token, TEST_IP_ADDRESS);
 
         var familyTokens = await _dbContext.RefreshTokenFamilies.ToListAsync();
         Assert.AreEqual(1, familyTokens.Count);

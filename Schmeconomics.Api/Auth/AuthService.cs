@@ -16,12 +16,12 @@ public class AuthService(
     {
         // Get the user from the database that has the matching name
         var user = await _db.Users.Where(u => u.Name == name).FirstOrDefaultAsync(stopToken) 
-            ?? throw new ArgumentException("Invalid credentials");
+            ?? throw new AuthServiceException.UserNotFoundException(name);
 
         // Verify the input password is correct
         var verification = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
         if (verification == PasswordVerificationResult.Failed)
-            throw new ArgumentException("Invalid credentials");
+            throw new AuthServiceException.InvalidCredentialsException();
 
         // Create auth token
         var claims = new Dictionary<string, object>
@@ -49,28 +49,12 @@ public class AuthService(
         // Use the refresh token provider to create a new auth token from the refresh token
         var refreshedTokenResult = await _refreshTokenProvider.CreateFromTokenAsync(refreshToken, ipAddress, stopToken);
         
-        // Extract family token from refresh token to get user info
-        var splits = refreshToken.Split('.');
-        if (splits.Length != 2)
-            throw new ArgumentException("Invalid refresh token format");
-            
-        var familyToken = splits[0];
-        
-        // Get the refresh token family from database to extract user info
-        var tokenFamily = await _db.RefreshTokenFamilies
-            .Where(f => f.FamilyToken == familyToken)
-            .Include(f => f.User)
-            .FirstOrDefaultAsync(stopToken);
-            
-        if (tokenFamily == null || tokenFamily.User == null)
-            throw new ArgumentException("User not found for refresh token");
-        
         // Create new access token using the auth token provider
         var claims = new Dictionary<string, object>
         {
-            ["sub"] = tokenFamily.UserId,
-            ["name"] = tokenFamily.User.Name,
-            ["role"] = tokenFamily.User.Role.ToString()
+            ["sub"] = refreshedTokenResult.User.Id,
+            ["name"] = refreshedTokenResult.User.Name,
+            ["role"] = refreshedTokenResult.User.Role.ToString()
         };
 
         var accessToken = await _authTokenProvider.CreateAuthTokenAsync(claims, stopToken);

@@ -10,6 +10,13 @@ public class UserController (
     ICurrentUser _current
 ) : ControllerBase {
 
+    [HttpPost("CreateAdmin"), Microsoft.AspNetCore.Authorization.AllowAnonymous]
+    public async Task<IActionResult> CreateAdmin()
+    {
+        await _userService.CreateUserAsync("Admin", "admin");
+        return Ok();
+    }
+
     [HttpGet("/")]
     public IActionResult GetUser()
     {

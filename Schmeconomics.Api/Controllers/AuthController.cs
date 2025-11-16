@@ -29,7 +29,7 @@ public class AuthController(
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.UtcNow.AddMonths(1)
+                Expires = authModel.ExpiresOnUtc
             });
         
         // Return access token in the response body
@@ -56,8 +56,8 @@ public class AuthController(
         return Ok();
     }
     
-    [HttpPost("RefreshToken")]
-    public async Task<IActionResult> RefreshToken(CancellationToken stopToken = default)
+    [HttpPost("Refresh")]
+    public async Task<IActionResult> Refresh(CancellationToken stopToken = default)
     {
         // Get the IP address from the request
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -82,7 +82,7 @@ public class AuthController(
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddMonths(1)
+                    Expires = authModel.ExpiresOnUtc
                 });
             
             // Return access token in the response body

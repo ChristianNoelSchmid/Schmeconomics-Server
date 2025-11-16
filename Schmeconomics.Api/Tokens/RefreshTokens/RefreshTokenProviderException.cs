@@ -13,7 +13,7 @@ public abstract class RefreshTokenProviderException : Exception
         public int StatusCode => StatusCodes.Status500InternalServerError;
     }
 
-    public class UserIdNotFoundException(string userId, string ipAddress) : 
+    public class UserIdNotFound(string userId, string ipAddress) : 
         RefreshTokenProviderException($"User ID {userId} does not exist. IP address: `{ipAddress}`"),
         IWebErrorInfo
     {
@@ -22,7 +22,7 @@ public abstract class RefreshTokenProviderException : Exception
         public string ClientMessage => Message.Split('.')[0];
     }
 
-    public class MalformedRefreshTokenException(string token, string ipAddress) : 
+    public class MalformedRefreshToken(string token, string ipAddress) : 
         RefreshTokenProviderException($"Malformed refresh token: `{token}`. IP address: `{ipAddress}`"),
         IWebErrorInfo
     {
@@ -31,7 +31,7 @@ public abstract class RefreshTokenProviderException : Exception
         public string ServerMessage => Message;
     }
 
-    public class RefreshTokenNotFoundException(string token, string ipAddress) :
+    public class RefreshTokenNotFound(string token, string ipAddress) :
         RefreshTokenProviderException($"Refresh token not found: `{token}`. IP address: `{ipAddress}`"),
         IWebErrorInfo
     {
@@ -40,7 +40,7 @@ public abstract class RefreshTokenProviderException : Exception
         public string ServerMessage => Message;
     }
 
-    public class RefreshTokenStaleException(string token, string ipAddress) : 
+    public class RefreshTokenStale(string token, string ipAddress) : 
         RefreshTokenProviderException($"Refresh token is stale: `{token}`. IP address: `{ipAddress}`")
     {
         public int StatusCode => StatusCodes.Status400BadRequest;
@@ -48,7 +48,7 @@ public abstract class RefreshTokenProviderException : Exception
         public string ServerMessage => Message;
     }
 
-    public class RefreshTokenDoesNotMatchException(string token, string ipAddress) : 
+    public class RefreshTokenDoesNotMatch(string token, string ipAddress) : 
         RefreshTokenProviderException($"Refresh token does not match: `{token}`. IP address: `{ipAddress}`")
     {
         public int StatusCode => StatusCodes.Status400BadRequest;
