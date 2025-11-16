@@ -37,9 +37,10 @@ builder.Services.AddSwaggerGen(c =>
     } 
   });
 }
-);
+);;
 builder.Services.AddControllers();
 builder.Services.AddAuthorization();
+builder.Services.AddCors();
 
 // Add JWT authentication
 builder.Services.AddDbContext<SchmeconomicsDbContext>(
@@ -74,6 +75,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+if(app.Environment.IsProduction()) 
+{
+  app.UseHttpsRedirection();
+}
+
+app.UseCors();
+
 // Global exception handler
 app.UseExceptionHandler(appBuilder =>
 {
@@ -105,8 +113,8 @@ app.UseExceptionHandler(appBuilder =>
     });
 });
 
+app.MapControllers();
 app.UseMiddleware<JwtMiddleware>();
 app.UseAuthorization();
-app.MapControllers();
-app.UseHttpsRedirection();
+
 app.Run();

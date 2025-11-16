@@ -4,6 +4,7 @@ namespace Schmeconomics.Api.Tokens.RefreshTokens;
 
 public class DbRefreshTokenProviderConfig
 {
+    [Required]
     public required TimeSpan RefreshTokenLifetime { get; set; }
 
     [Required, Range(64, 256)]

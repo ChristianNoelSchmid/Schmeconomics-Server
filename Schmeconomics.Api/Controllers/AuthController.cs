@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Schmeconomics.Api.Auth;
 
@@ -5,6 +6,7 @@ namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[AllowAnonymous]
 public class AuthController(
     IAuthService _authService
 ) : ControllerBase
@@ -26,10 +28,12 @@ public class AuthController(
             authModel.RefreshToken,
             new CookieOptions
             {
+                // Domain = $"{Request.Scheme}://{Request.Host}",
+                Path = "/",
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = authModel.ExpiresOnUtc
+                Expires = authModel.ExpiresOnUtc,
             });
         
         // Return access token in the response body
@@ -79,10 +83,12 @@ public class AuthController(
                 authModel.RefreshToken,
                 new CookieOptions
                 {
+                    // Domain = $"{Request.Scheme}://{Request.Host}",
+                    Path = "/",
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = authModel.ExpiresOnUtc
+                    Expires = authModel.ExpiresOnUtc,
                 });
             
             // Return access token in the response body

@@ -4,7 +4,9 @@ using Schmeconomics.Api.Users;
 
 namespace Schmeconomics.Api.Controllers;
 
-[ApiController, Authorize(Role.User), Route("[controller]")]
+[ApiController]
+[Authorize(Role.User)]
+[Route("[controller]")]
 public class UserController (
     IUserService _userService,
     ICurrentUser _current
@@ -17,13 +19,13 @@ public class UserController (
         return Ok();
     }
 
-    [HttpGet("/")]
+    [HttpGet]
     public IActionResult GetUser()
     {
         return Ok(_current.User);
     }
 
-    [HttpGet("/ById/{id}")]
+    [HttpGet("ById/{id}")]
     public async Task<IActionResult> GetUserById(
         string id,
         CancellationToken stopToken
@@ -33,7 +35,7 @@ public class UserController (
         else return Ok(user);
     }
 
-    [HttpGet("/ByName/{name}")]
+    [HttpGet("ByName/{name}")]
     public async Task<IActionResult> GetUserByName(
         string name,
         CancellationToken stopToken
@@ -43,7 +45,7 @@ public class UserController (
         else return Ok(user);
     }
 
-    [HttpPost("/Create"), Authorize(Role.Admin)]
+    [HttpPost("Create"), Authorize(Role.Admin)]
     public async Task<IActionResult> CreateUser(
         CreateUserRequest request,
         CancellationToken stopToken
@@ -52,7 +54,7 @@ public class UserController (
         return Ok(user);
     }
 
-    [HttpDelete("/Delete/{userId}"), Authorize(Role.Admin)]
+    [HttpDelete("Delete/{userId}"), Authorize(Role.Admin)]
     public async Task<IActionResult> DeleteUser(
         string userId,
         CancellationToken stopToken
@@ -62,7 +64,7 @@ public class UserController (
         else return Ok(user);
     }
 
-    [HttpPut("/Update")]
+    [HttpPut("Update")]
     public async Task<IActionResult> UpdateUser(
         UpdateUserRequest request,
         CancellationToken stopToken
