@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.RefreshTokens;
 
 public class DbRefreshTokenProviderConfig
 {

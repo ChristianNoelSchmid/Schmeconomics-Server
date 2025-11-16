@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Entities;
 
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.RefreshTokens;
 
 public class DbRefreshTokenProvider(
     IOptions<DbRefreshTokenProviderConfig> _config,
@@ -14,7 +14,7 @@ public class DbRefreshTokenProvider(
     public async Task<RefreshTokenResult> CreateNewTokenAsync(string userId, string ipAddress, CancellationToken stopToken = default)
     {
         if (await _dbContext.Users.FindAsync([userId], stopToken) == null)
-            throw new TokenProviderException.UserIdNotFoundException(userId, ipAddress);
+            throw new RefreshTokenProviderException.UserIdNotFoundException(userId, ipAddress);
 
         var config = _config.Value;
         var familyToken = Convert.ToBase64String(TokenUtils.CreateRandomBytes(config.FamilyTokenLength));
@@ -37,7 +37,7 @@ public class DbRefreshTokenProvider(
         }
         catch (DbException ex)
         {
-            throw new TokenProviderException.DbException(ex);
+            throw new RefreshTokenProviderException.DbException(ex);
         }
 
         return new RefreshTokenResult($"{familyToken}.{activeToken}", newToken.ExpiresOnUtc);
@@ -51,7 +51,7 @@ public class DbRefreshTokenProvider(
         try
         {
             if (splits.Length != 2)
-                throw new TokenProviderException.MalformedRefreshTokenException(token, ipAddress);
+                throw new RefreshTokenProviderException.MalformedRefreshTokenException(token, ipAddress);
 
             var familyToken = await GetRefreshTokenFamilyAsync(splits[0], ipAddress, stopToken);
 
@@ -67,7 +67,7 @@ public class DbRefreshTokenProvider(
                 familyToken.ActiveToken = null;
                 familyToken.RevokedOnUtc = _dateTimeProvider.UtcNow;
 
-                throw new TokenProviderException.RefreshTokenDoesNotMatchException(token, ipAddress);
+                throw new RefreshTokenProviderException.RefreshTokenDoesNotMatchException(token, ipAddress);
             }
             else
             {
@@ -83,7 +83,7 @@ public class DbRefreshTokenProvider(
         }
         catch (DbException ex)
         {
-            throw new TokenProviderException.DbException(ex);
+            throw new RefreshTokenProviderException.DbException(ex);
         }
     }
 
@@ -95,7 +95,7 @@ public class DbRefreshTokenProvider(
         try
         {
             if (splits.Length != 2)
-                throw new TokenProviderException.MalformedRefreshTokenException(token, ipAddress);
+                throw new RefreshTokenProviderException.MalformedRefreshTokenException(token, ipAddress);
 
             var familyToken = await GetRefreshTokenFamilyAsync(splits[0], ipAddress, stopToken);
 
@@ -111,7 +111,7 @@ public class DbRefreshTokenProvider(
         }
         catch (DbException ex)
         {
-            throw new TokenProviderException.DbException(ex);
+            throw new RefreshTokenProviderException.DbException(ex);
         }
     }
 
@@ -120,11 +120,11 @@ public class DbRefreshTokenProvider(
         // Get the token whose family token matches the first segment of the provided token
         var tokenEntity = await _dbContext.RefreshTokenFamilies
             .FirstOrDefaultAsync(f => f.FamilyToken == familyToken, stopToken)
-                ?? throw new TokenProviderException.RefreshTokenNotFoundException(familyToken, ipAddress);
+                ?? throw new RefreshTokenProviderException.RefreshTokenNotFoundException(familyToken, ipAddress);
 
         // If the token is not active, or is past expiration, throw stale token exception
         if (tokenEntity.ActiveToken == null || tokenEntity.ExpiresOnUtc < _dateTimeProvider.UtcNow)
-            throw new TokenProviderException.RefreshTokenStaleException(familyToken, ipAddress);
+            throw new RefreshTokenProviderException.RefreshTokenStaleException(familyToken, ipAddress);
 
         return tokenEntity;
     }

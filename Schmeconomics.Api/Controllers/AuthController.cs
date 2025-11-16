@@ -55,4 +55,43 @@ public class AuthController(
         
         return Ok();
     }
+    
+    [HttpPost("RefreshToken")]
+    public async Task<IActionResult> RefreshToken(CancellationToken stopToken = default)
+    {
+        // Get the IP address from the request
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        
+        // Get refresh token from cookies
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken))
+        {
+            return BadRequest("Refresh token not found");
+        }
+        
+        try
+        {
+            // Refresh the token
+            var authModel = await _authService.RefreshTokenAsync(ipAddress, refreshToken, stopToken);
+            
+            // Add refresh token to response cookies (this will be a new refresh token)
+            Response.Cookies.Append(
+                "refreshToken",
+                authModel.RefreshToken,
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddMonths(1)
+                });
+            
+            // Return access token in the response body
+            return Ok(new { accessToken = authModel.AccessToken });
+        }
+        catch (ArgumentException ex)
+        {
+            // If refresh token is not found or invalid, return BadRequest
+            return BadRequest(ex.Message);
+        }
+    }
 }

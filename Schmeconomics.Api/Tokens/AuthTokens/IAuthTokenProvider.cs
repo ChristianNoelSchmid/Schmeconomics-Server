@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.AuthTokens;
 
 public interface IAuthTokenProvider
 {

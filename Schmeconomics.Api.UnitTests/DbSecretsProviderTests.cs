@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Schmeconomics.Api.JwtSecrets;
+using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Entities;
 

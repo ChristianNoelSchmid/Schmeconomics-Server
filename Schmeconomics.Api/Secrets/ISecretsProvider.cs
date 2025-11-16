@@ -1,4 +1,4 @@
-namespace Schmeconomics.Api.JwtSecrets;
+namespace Schmeconomics.Api.Secrets;
 
 public interface ISecretsProvider
 {

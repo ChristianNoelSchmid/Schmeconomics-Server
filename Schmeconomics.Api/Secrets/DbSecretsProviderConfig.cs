@@ -1,7 +1,7 @@
 
 using System.ComponentModel.DataAnnotations;
 
-namespace Schmeconomics.Api.JwtSecrets;
+namespace Schmeconomics.Api.Secrets;
 
 public class DbSecretsProviderConfig
 {

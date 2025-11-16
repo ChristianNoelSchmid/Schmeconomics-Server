@@ -1,12 +1,12 @@
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.AuthTokens;
 
 using System.ComponentModel.DataAnnotations;
 
 
 /// <summary>
-/// Configuration for the <see cref="AuthTokenProvider"/> class
+/// Configuration for the <see cref="JwtAuthTokenProvider"/> class
 /// </summary>
-public class AuthTokenProviderConfig
+public class JwtAuthTokenProviderConfig
 {
     /// <summary>
     /// Hashing algorithm to use for JWT generation

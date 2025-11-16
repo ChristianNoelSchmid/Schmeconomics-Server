@@ -1,7 +1,6 @@
-using System.Runtime.CompilerServices;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.AuthTokens;
 
 public enum JwtHashAlgorithm
 {

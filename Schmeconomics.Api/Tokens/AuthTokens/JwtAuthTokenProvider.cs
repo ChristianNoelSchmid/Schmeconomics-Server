@@ -2,23 +2,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Schmeconomics.Api.JwtSecrets;
+using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.AuthTokens;
 
 /// <summary>
 /// Core implementation of <see cref="IAuthTokenProvider"/>
 /// </summary>
-public class AuthTokenProvider : IAuthTokenProvider
+public class JwtAuthTokenProvider : IAuthTokenProvider
 {
     private JwtSecurityTokenHandler _tokenHandler = new();
-    private readonly IOptions<AuthTokenProviderConfig> _config;
+    private readonly IOptions<JwtAuthTokenProviderConfig> _config;
     private readonly IDateTimeProvider _dateTimeProvider;
     private readonly ISecretsProvider _secretsProvider;
 
-    public AuthTokenProvider(
-        IOptions<AuthTokenProviderConfig> config,
+    public JwtAuthTokenProvider(
+        IOptions<JwtAuthTokenProviderConfig> config,
         IDateTimeProvider dateTimeProvider,
         ISecretsProvider secretsProvider
     ) {
@@ -63,7 +63,7 @@ public class AuthTokenProvider : IAuthTokenProvider
         }
         catch (SecretProviderException secretException)
         {
-            throw new TokenProviderException.SecretProviderException(secretException);
+            throw new AuthTokenProviderException.SecretProviderException(secretException);
         }
     }
 
@@ -89,7 +89,7 @@ public class AuthTokenProvider : IAuthTokenProvider
             if (result.IsValid) return [.. result.ClaimsIdentity.Claims];
             else if (result.Exception != null) exception = result.Exception;
         }
-        if (exception != null) throw new TokenProviderException.JwtException(exception);
-        else throw new TokenProviderException.TokenInvalidException();
+        if (exception != null) throw new AuthTokenProviderException.JwtException(exception);
+        else throw new AuthTokenProviderException.TokenInvalidException();
     }
 }

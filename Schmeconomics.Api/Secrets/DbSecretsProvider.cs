@@ -6,7 +6,7 @@ using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Tokens;
 using Schmeconomics.Entities;
 
-namespace Schmeconomics.Api.JwtSecrets;
+namespace Schmeconomics.Api.Secrets;
 
 public class DbSecretsProvider(
     IOptions<DbSecretsProviderConfig> _config,
@@ -49,14 +49,14 @@ public class DbSecretsProvider(
                     // If end of Enumerator is reached, but count is 0, no
                     // records were found. This should never happen, since the background service
                     // should always ensure a current secret is generated.
-                    if (count == 0) throw new SecretProviderNoSecretEntryFound();
+                    if (count == 0) throw new SecretProviderException.NoSecretEntryFound();
                     // Otherwise, set count to -1 and continue
                     count = -1;
                 }
             }
             catch (DbException dbException)
             {
-                throw new TokenProviderException.DbException(dbException);
+                throw new SecretProviderException.DbException(dbException);
             }
             // If count is not -1, yield the current JwtConfig
             if (count != -1) yield return jwtConfigs.Current.SecretBytes;
@@ -87,7 +87,7 @@ public class DbSecretsProvider(
         }
         catch (DbException ex)
         {
-            throw new SecretProviderDbException(ex);
+            throw new SecretProviderException.DbException(ex);
         }
     }
 
@@ -118,7 +118,7 @@ public class DbSecretsProvider(
         }
         catch (DbException dbException)
         {
-            throw new SecretProviderDbException(dbException);
+            throw new SecretProviderException.DbException(dbException);
         }
     }
 

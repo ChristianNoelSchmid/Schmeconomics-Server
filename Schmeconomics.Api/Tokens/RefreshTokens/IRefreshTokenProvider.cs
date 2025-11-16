@@ -1,4 +1,4 @@
-namespace Schmeconomics.Api.Tokens;
+namespace Schmeconomics.Api.Tokens.RefreshTokens;
 
 public interface IRefreshTokenProvider
 {

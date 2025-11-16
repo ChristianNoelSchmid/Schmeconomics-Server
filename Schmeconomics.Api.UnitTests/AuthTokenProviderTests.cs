@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NSubstitute;
-using Schmeconomics.Api.JwtSecrets;
+using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Tokens;
 
