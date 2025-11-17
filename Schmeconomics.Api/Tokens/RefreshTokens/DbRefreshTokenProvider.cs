@@ -13,8 +13,8 @@ public class DbRefreshTokenProvider(
 ) : IRefreshTokenProvider {
     public async Task<RefreshTokenFamilyModel> CreateNewTokenAsync(string userId, string ipAddress, CancellationToken stopToken = default)
     {
-        if (await _dbContext.Users.FindAsync([userId], stopToken) == null)
-            throw new RefreshTokenProviderException.UserIdNotFound(userId, ipAddress);
+        var user = await _dbContext.Users.FindAsync([userId], stopToken) 
+            ?? throw new RefreshTokenProviderException.UserIdNotFound(userId, ipAddress);
 
         var config = _config.Value;
         var familyToken = Convert.ToBase64String(TokenUtils.CreateRandomBytes(config.FamilyTokenLength));
@@ -39,10 +39,6 @@ public class DbRefreshTokenProvider(
         {
             throw new RefreshTokenProviderException.DbException(ex);
         }
-
-        // Get the user to include in the model
-        var user = await _dbContext.Users.FindAsync([userId], stopToken) 
-            ?? throw new RefreshTokenProviderException.UserIdNotFound(userId, ipAddress);
 
         return new RefreshTokenFamilyModel($"{familyToken}.{activeToken}", newToken.ExpiresOnUtc, (UserModel)user);
     }

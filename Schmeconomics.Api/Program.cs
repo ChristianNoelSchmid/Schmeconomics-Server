@@ -38,7 +38,11 @@ builder.Services.AddSwaggerGen(c =>
   });
 }
 );;
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddAuthorization();
 builder.Services.AddCors();
 
@@ -53,8 +57,10 @@ builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 builder.Services.AddScoped<ISecretsProvider, DbSecretsProvider>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<ICurrentUser, CurrentUser>();
-builder.Services.AddScoped<ICurrentUserSetter, CurrentUser>();
+// Register `CurrentUser` that both a `ICurrentUser` and `ICurrentUserSetter` dependency can point to
+builder.Services.AddScoped<CurrentUser>();
+builder.Services.AddScoped<ICurrentUser>(provider => provider.GetRequiredService<CurrentUser>());
+builder.Services.AddScoped<ICurrentUserSetter>(provider => provider.GetRequiredService<CurrentUser>());
 
 builder.Services.AddOptionsWithValidateOnStart<JwtAuthTokenProviderConfig>()
     .Bind(builder.Configuration.GetRequiredSection(nameof(JwtAuthTokenProviderConfig)))

@@ -9,3 +9,9 @@ public interface IWebErrorInfo
     string? ServerMessage => null;
     string ClientMessage => "An internal server error has occurred";
 }
+
+public class WebException : Exception
+{
+    public int StatusCode { get; }
+    public string ClientMessage => "An internal server error has occurred";
+}
