@@ -65,7 +65,7 @@ public class AuthServiceTests
         var expectedRefreshToken = "test_refresh_token";
         var expectedExpiresOnUtc = TEST_DATE_TIME.AddHours(1);
         
-        _passwordHasher.VerifyHashedPassword(Arg.Any<User>(), TEST_PASSWORD, TEST_PASSWORD_HASH)
+        _passwordHasher.VerifyHashedPassword(Arg.Any<User>(), TEST_PASSWORD_HASH, TEST_PASSWORD)
             .Returns(PasswordVerificationResult.Success);
         
         _authTokenProvider.CreateAuthTokenAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>())
@@ -170,7 +170,7 @@ public class AuthServiceTests
             .Returns(Task.FromException<RefreshTokenFamilyModel>(new RefreshTokenProviderException.RefreshTokenNotFound(refreshToken, TEST_IP_ADDRESS)));
 
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenNotFound>(
+        await Assert.ThrowsExceptionAsync<AuthServiceException.RefreshTokenProviderException>(
             () => _authService.RefreshTokenAsync(TEST_IP_ADDRESS, refreshToken)
         );
     }

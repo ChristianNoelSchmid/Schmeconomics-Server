@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Schmeconomics.Entities;
@@ -14,7 +15,7 @@ public class UserService(
     public async Task<UserModel> CreateUserAsync(string name, string password, CancellationToken token)
     {
         if (await GetUserFromName(name, token) != null)
-            throw new UserServiceNameReuseException(name);
+            throw new UserServiceException.NameReuse(name);
         
         var user = new User { Id = Guid.NewGuid().ToString(), Name = name, };
         var passwordHash = _passwordHasher.HashPassword(user, password);
@@ -26,24 +27,38 @@ public class UserService(
             await _db.SaveChangesAsync(token);
             return (UserModel)user;
         }
-        catch (DbUpdateException ex)
+        catch (DbException ex)
         {
-            throw new UserServiceDbException(ex);
+            throw new UserServiceException.DbException(ex);
         }
     }
 
     public async Task<UserModel?> GetUserFromIdAsync(string id, CancellationToken token)
     {
-        var user = await _db.Users.FindAsync([id], token);
-        if (user != null) return (UserModel)user;
-        return null;
+        try 
+        {
+            var user = await _db.Users.FindAsync([id], token);
+            if (user != null) return (UserModel)user;
+            return null;
+        } 
+        catch(DbException ex)
+        {
+            throw new UserServiceException.DbException(ex);
+        }
     }
 
     public async Task<UserModel?> GetUserFromName(string name, CancellationToken token)
     {
-        var user = await _db.Users.Where(u => u.Name == name).FirstOrDefaultAsync(token);
-        if (user != null) return (UserModel)user;
-        return null;
+        try 
+        {
+            var user = await _db.Users.Where(u => u.Name == name).FirstOrDefaultAsync(token);
+            if(user != null) return (UserModel)user;
+            return null;
+        } 
+        catch(DbException ex)
+        {
+            throw new UserServiceException.DbException(ex);
+        }
     }
 
     public async Task<UserModel?> UpdateUserAsync(
@@ -58,7 +73,7 @@ public class UserService(
         if (name != null)
         {
             if (await GetUserFromName(name, stopToken) != null)
-                throw new UserServiceNameReuseException(name);
+                throw new UserServiceException.NameReuse(name);
 
             user.Name = name;
         }
@@ -74,9 +89,9 @@ public class UserService(
             await _db.SaveChangesAsync(stopToken);
             return (UserModel)user;
         }
-        catch (DbUpdateException ex)
+        catch (DbException ex)
         {
-            throw new UserServiceDbException(ex);
+            throw new UserServiceException.DbException(ex);
         }
     }
 
@@ -90,9 +105,9 @@ public class UserService(
             await _db.SaveChangesAsync(stopToken);
             return (UserModel)user;
         }
-        catch (DbUpdateException ex)
+        catch (DbException ex)
         {
-            throw new UserServiceDbException(ex);
+            throw new UserServiceException.DbException(ex);
         }
     }
 }

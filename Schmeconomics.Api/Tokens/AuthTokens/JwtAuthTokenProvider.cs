@@ -89,7 +89,8 @@ public class JwtAuthTokenProvider : IAuthTokenProvider
             if (result.IsValid) return [.. result.ClaimsIdentity.Claims];
             else if (result.Exception != null) exception = result.Exception;
         }
-        if (exception != null) throw new AuthTokenProviderException.JwtException(exception);
+        if (exception != null) 
+            throw new AuthTokenProviderException.JwtException(exception);
         else throw new AuthTokenProviderException.TokenInvalidException();
     }
 }

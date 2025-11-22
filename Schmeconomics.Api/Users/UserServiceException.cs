@@ -1,40 +1,28 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc;
+using System.Data.Common;
 
 namespace Schmeconomics.Api.Users;
 
-public abstract class UserServiceException : Exception, IWebErrorInfo
+public abstract class UserServiceException : Exception
 {
-    public int StatusCode { get; set; } = StatusCodes.Status500InternalServerError;
-    
     /// <inheritdoc />
     protected UserServiceException(string? message) : base(message) { }
 
     /// <inheritdoc />
     protected UserServiceException(string? message, Exception? innerException) : base(message, innerException) { }
 
-    int IWebErrorInfo.StatusCode => StatusCode;
-    string IWebErrorInfo.ServerMessage => Message;
-    string IWebErrorInfo.ClientMessage => Message;
-}
-
-public class UserServiceNameReuseException : UserServiceException
-{
-    private readonly string _reusedName;
-
-    public UserServiceNameReuseException(string reusedName) 
-        : base($"User with name {reusedName} already exists")
+    public class NameReuse(string reusedName) : 
+        UserServiceException($"User with name \"{reusedName}\" already exists"),
+        IWebErrorInfo
     {
-        _reusedName = reusedName;
-        StatusCode = StatusCodes.Status409Conflict;
+        public int StatusCode => StatusCodes.Status409Conflict;
+        public string ClientMessage => Message;
     }
-}
 
-public class UserServiceDbException : UserServiceException
-{
-    public UserServiceDbException(DbUpdateException ex) 
-        : base("A database error has occurred", ex)
+    public class DbException(System.Data.Common.DbException ex) : 
+        UserServiceException("A database error has occurred", ex),
+        IWebErrorInfo
     {
-        StatusCode = StatusCodes.Status500InternalServerError;
+        public int StatusCode => StatusCodes.Status500InternalServerError;
+        public string ServerMessage => Message;
     }
 }

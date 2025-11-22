@@ -1,5 +1,4 @@
 using Schmeconomics.Api.Users;
-using Schmeconomics.Entities;
 
 namespace Schmeconomics.Api.Tokens.RefreshTokens;
 
