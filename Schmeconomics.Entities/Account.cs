@@ -12,5 +12,7 @@ public class Account
     [Required, StringLength(255)]
     public string Name { get; set; } = string.Empty;
 
-    public IEnumerable<Category> Categories { get; } = [];
+    public ICollection<Category> Categories { get; } = [];
+    
+    public ICollection<AccountUser> AccountUsers { get; } = [];
 }
