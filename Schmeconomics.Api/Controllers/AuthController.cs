@@ -20,24 +20,33 @@ public class AuthController(
         var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         
         // Sign in the user
-        var authModel = await _authService.SignInAsync(request.Name, request.Password, ipAddress, stopToken);
+        var signInResult = await _authService.SignInAsync(request.Name, request.Password, ipAddress, stopToken);
         
-        // Add refresh token to response cookies
-        Response.Cookies.Append(
-            "refreshToken",
-            authModel.RefreshToken,
-            new CookieOptions
-            {
-                // Domain = $"{Request.Scheme}://{Request.Host}",
-                Path = "/",
-                HttpOnly = true,
-                Secure = true,
-                SameSite = SameSiteMode.Strict,
-                Expires = authModel.ExpiresOnUtc,
-            });
+        if(signInResult.IsOk) {
+            // Add refresh token to response cookies
+            Response.Cookies.Append(
+                "refreshToken",
+                signInResult.Value.RefreshToken,
+                new CookieOptions
+                {
+                    // Domain = $"{Request.Scheme}://{Request.Host}",
+                    Path = "/",
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = signInResult.Value.ExpiresOnUtc,
+                }
+            );
         
-        // Return access token in the response body
-        return Ok(new { accessToken = authModel.AccessToken });
+            // Return access token in the response body
+            return Ok(new { accessToken = signInResult.Value.AccessToken });
+        }
+
+        return signInResult.Error switch
+        {
+            AuthServiceError.UserNotFound => NotFound(signInResult.Error.Message),
+            AuthServiceError.PasswordVerificationFailed or _ => BadRequest(signInResult.Error!.Message),
+        };
     }
 
     [HttpPost("SignOut")]
@@ -72,32 +81,25 @@ public class AuthController(
             return BadRequest("Refresh token not found");
         }
         
-        try
-        {
-            // Refresh the token
-            var authModel = await _authService.RefreshTokenAsync(ipAddress, refreshToken, stopToken);
-            
-            // Add refresh token to response cookies (this will be a new refresh token)
-            Response.Cookies.Append(
-                "refreshToken",
-                authModel.RefreshToken,
-                new CookieOptions
-                {
-                    // Domain = $"{Request.Scheme}://{Request.Host}",
-                    Path = "/",
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Expires = authModel.ExpiresOnUtc,
-                });
-            
-            // Return access token in the response body
-            return Ok(new { accessToken = authModel.AccessToken });
-        }
-        catch (ArgumentException ex)
-        {
-            // If refresh token is not found or invalid, return BadRequest
-            return BadRequest(ex.Message);
-        }
+        // Refresh the token
+        var refreshTokenResult = await _authService.RefreshTokenAsync(ipAddress, refreshToken, stopToken);
+        var authModel = refreshTokenResult.Value!;
+        
+        // Add refresh token to response cookies (this will be a new refresh token)
+        Response.Cookies.Append(
+            "refreshToken",
+            authModel.RefreshToken,
+            new CookieOptions
+            {
+                // Domain = $"{Request.Scheme}://{Request.Host}",
+                Path = "/",
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = authModel.ExpiresOnUtc,
+            });
+        
+        // Return access token in the response body
+        return Ok(new { accessToken = authModel.AccessToken });
     }
 }

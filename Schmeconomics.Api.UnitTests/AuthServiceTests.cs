@@ -1,11 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using NSubstitute;
 using Schmeconomics.Api.Auth;
-using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Tokens.AuthTokens;
 using Schmeconomics.Api.Tokens.RefreshTokens;
@@ -80,26 +75,27 @@ public class AuthServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(expectedAccessToken, result.AccessToken);
-        Assert.AreEqual(expectedRefreshToken, result.RefreshToken);
-        Assert.AreEqual(expectedExpiresOnUtc, result.ExpiresOnUtc);
+        Assert.IsTrue(result.IsOk);
+        Assert.AreEqual(expectedAccessToken, result.Value.AccessToken);
+        Assert.AreEqual(expectedRefreshToken, result.Value.RefreshToken);
+        Assert.AreEqual(expectedExpiresOnUtc, result.Value.ExpiresOnUtc);
     }
 
     [TestMethod]
-    public async Task SignInAsync_WithInvalidCredentials_ThrowsInvalidCredentialsException()
+    public async Task SignInAsync_WithInvalidCredentials_ThrowsAuthServiceException()
     {
         // Arrange
         _passwordHasher.VerifyHashedPassword(Arg.Any<User>(), Arg.Any<string>(), Arg.Any<string>())
             .Returns(PasswordVerificationResult.Failed);
 
-        // Act & Assert
-        await Assert.ThrowsExceptionAsync<AuthServiceException.InvalidCredentialsException>(
-            () => _authService.SignInAsync(TEST_USER_NAME, TEST_PASSWORD, TEST_IP_ADDRESS)
-        );
+        // Act & Assert 
+        var result = await _authService.SignInAsync(TEST_USER_NAME, TEST_PASSWORD, TEST_IP_ADDRESS);
+
+        Assert.IsInstanceOfType<AuthServiceError.PasswordVerificationFailed>(result.Error);
     }
 
     [TestMethod]
-    public async Task SignInAsync_WithNonExistentUser_ThrowsUserNotFoundException()
+    public async Task SignInAsync_WithNonExistentUser_ThrowsUserNotFoundError()
     {
         // Arrange
         var nonExistentUserName = "NonExistentUser";
@@ -108,9 +104,9 @@ public class AuthServiceTests
             .Returns(PasswordVerificationResult.Failed);
 
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<AuthServiceException.UserNotFoundException>(
-            () => _authService.SignInAsync(nonExistentUserName, TEST_PASSWORD, TEST_IP_ADDRESS)
-        );
+        var result = await _authService.SignInAsync(nonExistentUserName, TEST_PASSWORD, TEST_IP_ADDRESS);
+        
+        Assert.IsInstanceOfType<AuthServiceError.UserNotFound>(result.Error);
     }
 
     [TestMethod]
@@ -155,13 +151,15 @@ public class AuthServiceTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(expectedAccessToken, result.AccessToken);
-        Assert.AreEqual(expectedRefreshToken, result.RefreshToken);
-        Assert.AreEqual(expectedExpiresOnUtc, result.ExpiresOnUtc);
+        Assert.IsTrue(result.IsOk);
+
+        Assert.AreEqual(expectedAccessToken, result.Value.AccessToken);
+        Assert.AreEqual(expectedRefreshToken, result.Value.RefreshToken);
+        Assert.AreEqual(expectedExpiresOnUtc, result.Value.ExpiresOnUtc);
     }
 
     [TestMethod]
-    public async Task RefreshTokenAsync_WithInvalidRefreshToken_ThrowsRefreshTokenProviderException()
+    public async Task RefreshTokenAsync_WithInvalidRefreshToken_ThrowsAuthServiceException()
     {
         // Arrange
         var refreshToken = "invalid_refresh_token";
@@ -170,7 +168,7 @@ public class AuthServiceTests
             .Returns(Task.FromException<RefreshTokenFamilyModel>(new RefreshTokenProviderException.RefreshTokenNotFound(refreshToken, TEST_IP_ADDRESS)));
 
         // Act & Assert
-        await Assert.ThrowsExceptionAsync<AuthServiceException.RefreshTokenProviderException>(
+        var ex = await Assert.ThrowsExceptionAsync<AuthServiceException.RefreshTokenProviderException>(
             () => _authService.RefreshTokenAsync(TEST_IP_ADDRESS, refreshToken)
         );
     }

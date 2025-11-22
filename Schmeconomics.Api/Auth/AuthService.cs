@@ -13,17 +13,17 @@ public class AuthService(
     IRefreshTokenProvider _refreshTokenProvider,
     IPasswordHasher<User> _passwordHasher
 ) : IAuthService {
-    public async Task<AuthModel> SignInAsync(string name, string password, string ipAddress, CancellationToken stopToken = default)
+    public async Task<Result<AuthModel>> SignInAsync(string name, string password, string ipAddress, CancellationToken stopToken = default)
     {
         try {
             // Get the user from the database that has the matching name
-            var user = await _db.Users.Where(u => u.Name == name).FirstOrDefaultAsync(stopToken) 
-                ?? throw new AuthServiceException.UserNotFoundException(name);
+            var user = await _db.Users.Where(u => u.Name == name).FirstOrDefaultAsync(stopToken);
+            if(user == null) return new AuthServiceError.UserNotFound(name);
 
             // Verify the input password is correct
             var verification = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
             if (verification == PasswordVerificationResult.Failed)
-                throw new AuthServiceException.InvalidCredentialsException();
+                return new AuthServiceError.PasswordVerificationFailed();
 
             // Create auth token
             var claims = new Dictionary<string, object>
@@ -54,10 +54,11 @@ public class AuthService(
         }
     }
 
-    public async Task SignOutAsync(string refreshToken, string ipAddress, CancellationToken stopToken = default)
+    public async Task<Result> SignOutAsync(string refreshToken, string ipAddress, CancellationToken stopToken = default)
     {
         try {
             await _refreshTokenProvider.RevokeTokenAsync(refreshToken, ipAddress, stopToken);
+            return Result.Ok();
         }
         catch (RefreshTokenProviderException ex)
         {
@@ -65,7 +66,7 @@ public class AuthService(
         }
     }
     
-    public async Task<AuthModel> RefreshTokenAsync(string ipAddress, string refreshToken, CancellationToken stopToken = default)
+    public async Task<Result<AuthModel>> RefreshTokenAsync(string ipAddress, string refreshToken, CancellationToken stopToken = default)
     {
         // Use the refresh token provider to create a new auth token from the refresh token
         try {

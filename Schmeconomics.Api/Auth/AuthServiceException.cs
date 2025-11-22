@@ -1,51 +1,29 @@
 
 namespace Schmeconomics.Api.Auth;
 
+public abstract class AuthServiceError(string message) : Error(message)
+{
+    public class UserNotFound(string userName) :
+        AuthServiceError($"User with name '{userName}' not found") { }
+
+    public class PasswordVerificationFailed() :
+        AuthServiceError("Password verification has failed");
+}
+
 public abstract class AuthServiceException : Exception
 {
-    protected AuthServiceException(string? message) : base(message) { }
-    protected AuthServiceException(string? message, Exception? innerException) : base(message, innerException) { }
+    /// <inheritdoc />
+    public AuthServiceException(string? message) : base(message) { }
 
-    public class UserNotFoundException(string name) : 
-        AuthServiceException($"User '{name}' not found"), 
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status404NotFound;
-        public string ServerMessage => Message;
-        public string ClientMessage => Message;
-    }
+    /// <inheritdoc />
+    public AuthServiceException(string? message, Exception? innerException) : base(message, innerException) { }
 
-    public class InvalidCredentialsException() : 
-        AuthServiceException("Invalid credentials"), 
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status401Unauthorized;
-        public string ServerMessage => Message;
-        public string ClientMessage => Message;
-    }
+    public class DbException(System.Data.Common.DbException ex)
+        : AuthServiceException("An database error occurred", ex);
 
-    public class AuthTokenProviderException(Tokens.AuthTokens.AuthTokenProviderException ex) :
-        AuthServiceException("An error occurred with the auth token provider", ex),
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status500InternalServerError;
-        public string ServerMessage => Message;
-    }
+    public class AuthTokenProviderException(Tokens.AuthTokens.AuthTokenProviderException ex) 
+        : AuthServiceException("An error occurred with the auth token provider", ex);
 
-    public class RefreshTokenProviderException(Tokens.RefreshTokens.RefreshTokenProviderException ex) :
-        AuthServiceException("An error occurred with the refresh token provider", ex),
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status500InternalServerError;
-        public string ServerMessage => Message;
-    }
-
-    public class DbException(System.Data.Common.DbException ex) : 
-        AuthServiceException("A database error occurred", ex),
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status500InternalServerError;
-        public string ServerMessage => Message;
-
-    }
+    public class RefreshTokenProviderException(Tokens.RefreshTokens.RefreshTokenProviderException ex)
+        : AuthServiceException("An error occurred with the refresh token provider", ex);
 }
