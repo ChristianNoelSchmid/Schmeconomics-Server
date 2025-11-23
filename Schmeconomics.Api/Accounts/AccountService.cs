@@ -1,7 +1,6 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Schmeconomics.Entities;
-using Schmeconomics.Api.Users;
 
 namespace Schmeconomics.Api.Accounts;
 
@@ -69,7 +68,7 @@ public class AccountService(
         }
     }
 
-    public async Task<Result> AssociateUserToAccountAsync(string accountId, string userId, CancellationToken token = default)
+    public async Task<Result> ToggleUserToAccountAsync(string accountId, string userId, CancellationToken token = default)
     {
         try
         {
@@ -82,16 +81,20 @@ public class AccountService(
             if (user == null) return new AccountServiceError.UserNotFound(userId);
             
             // Check if association already exists
-            if (await _db.AccountUsers
+            // If it does, remove it
+            var accountUser = await _db.AccountUsers
                 .Where(au => au.AccountId == accountId && au.UserId == userId)
-                .FirstOrDefaultAsync(token) != null)
+                .FirstOrDefaultAsync(token);
+
+            if(accountUser != null)
             {
-                // Association already exists, return success
-                return Result.Ok();
+                _db.AccountUsers.Remove(accountUser);
             }
-            
-            var accountUser = new AccountUser { AccountId = accountId, UserId = userId };
-            _db.AccountUsers.Add(accountUser);
+            else 
+            {
+                var newAccountUser = new AccountUser { AccountId = accountId, UserId = userId };
+                _db.AccountUsers.Add(newAccountUser);
+            }
             await _db.SaveChangesAsync(token);
             
             return Result.Ok();
