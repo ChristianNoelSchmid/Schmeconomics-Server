@@ -19,6 +19,9 @@ public class Category
     [Required]
     public int RefillValue { get; set; }
 
+    [Required]
+    public int Order { get; set; }
+
     [ForeignKey(nameof(Account))]
     public string AccountId { get; set; } = string.Empty;
 

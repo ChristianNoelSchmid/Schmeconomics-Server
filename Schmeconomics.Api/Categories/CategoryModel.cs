@@ -6,12 +6,14 @@ public record class CategoryModel(
     string Id,
     string Name,
     int Balance,
-    int RefillValue
+    int RefillValue,
+    int Order
 ) {
     public static explicit operator CategoryModel(Category from) => new(
         from.Id,
         from.Name,
         from.Balance,
-        from.RefillValue
+        from.RefillValue,
+        from.Order
     );
 }
