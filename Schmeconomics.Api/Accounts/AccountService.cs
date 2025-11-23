@@ -9,20 +9,20 @@ public class AccountService(
 ) : IAccountService {
     private readonly SchmeconomicsDbContext _db = db;
 
-    public async Task<Result<AccountModel>> GetAccountAsync(string id, CancellationToken token = default)
+    public async Task<Result<IEnumerable<AccountModel>>> GetAccountsForUserAsync(string userId, CancellationToken token = default)
     {
         try 
         {
-            var account = await _db.Accounts
+            var user = await _db.Users.FindAsync([userId], token);
+            if(user is null) return new AccountServiceError.UserNotFound(userId);
+
+            return await _db.Accounts
                 .Include(a => a.Categories)
                 .Include(a => a.AccountUsers)
                 .ThenInclude(au => au.User)
-                .Where(a => a.Id == id)
-                .FirstOrDefaultAsync(token);
-            
-            if (account == null) return new AccountServiceError.AccountNotFound(id);
-
-            return (AccountModel)account;
+                .Where(a => a.AccountUsers.Any(au => au.UserId == userId))
+                .Select(am => (AccountModel)am)
+                .ToListAsync(token);
         } 
         catch(DbException ex)
         {

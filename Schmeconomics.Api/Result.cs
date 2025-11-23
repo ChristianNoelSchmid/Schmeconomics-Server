@@ -25,9 +25,11 @@ public class Result<T>
     public static implicit operator Result<T>(Error error) => Err(error);
 
     [MemberNotNullWhen(true, nameof(Value))]
+    [MemberNotNullWhen(false, nameof(Error))]
     public bool IsOk => Value != null;
 
     [MemberNotNullWhen(true, nameof(Error))]
+    [MemberNotNullWhen(false, nameof(Value))]
     public bool IsError => Error != null;
 }
 
@@ -36,6 +38,7 @@ public class Result
     public Error? Error { get; private set; }
     private Result() {}
 
+    [MemberNotNullWhen(false, nameof(Error))]
     public bool IsOk => Error == null;
 
     [MemberNotNullWhen(true, nameof(Error))]

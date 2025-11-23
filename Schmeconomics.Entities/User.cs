@@ -7,7 +7,6 @@ namespace Schmeconomics.Entities;
 [Index(nameof(Name))]
 public class User
 {
-
     [Required, Key]
     public string Id { get; set; } = string.Empty;
     
@@ -19,4 +18,6 @@ public class User
 
     [Required, StringLength(255)]
     public string PasswordHash { get; set; } = string.Empty;
+    
+    public ICollection<AccountUser> AccountUsers { get; set;} = [];
 }

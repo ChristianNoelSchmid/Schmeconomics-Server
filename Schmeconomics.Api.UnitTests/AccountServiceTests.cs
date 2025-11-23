@@ -52,33 +52,40 @@ public class AccountServiceTests
     }
 
     [TestMethod]
-    public async Task GetAccountAsync_WithValidId_ReturnsAccount()
+    public async Task GetAccountsForUserAsync_WithValidUserId_ReturnsAccounts()
     {
+        // Arrange
+        // Add user to account association
+        var accountUser = new AccountUser
+        {
+            AccountId = TEST_ACCOUNT_ID,
+            UserId = TEST_USER_ID
+        };
+        _dbContext.AccountUsers.Add(accountUser);
+        await _dbContext.SaveChangesAsync();
+
         // Act
-        var result = await _accountService.GetAccountAsync(TEST_ACCOUNT_ID);
+        var result = await _accountService.GetAccountsForUserAsync(TEST_USER_ID);
 
         // Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsOk);
         Assert.IsNotNull(result.Value);
-        Assert.AreEqual(TEST_ACCOUNT_ID, result.Value.Id);
-        Assert.AreEqual(TEST_ACCOUNT_NAME, result.Value.Name);
+        Assert.AreEqual(1, result.Value.Count());
+        Assert.AreEqual(TEST_ACCOUNT_ID, result.Value.First().Id);
+        Assert.AreEqual(TEST_ACCOUNT_NAME, result.Value.First().Name);
     }
 
     [TestMethod]
-    public async Task GetAccountAsync_WithInvalidId_ReturnsAccountNotFound()
+    public async Task GetAccountsForUserAsync_WithInvalidUserId_ReturnsUserNotFoundError()
     {
-        // Arrange
-        var invalidAccountId = "invalid-id";
-
         // Act
-        var result = await _accountService.GetAccountAsync(invalidAccountId);
+        var result = await _accountService.GetAccountsForUserAsync("invalid-user-id");
 
         // Assert
         Assert.IsNotNull(result);
         Assert.IsTrue(result.IsError);
-        Assert.IsInstanceOfType<AccountServiceError.AccountNotFound>(result.Error);
-        Assert.AreEqual($"Account with id '{invalidAccountId}' not found", result.Error.Message);
+        Assert.IsInstanceOfType<AccountServiceError.UserNotFound>(result.Error);
     }
 
     [TestMethod]
