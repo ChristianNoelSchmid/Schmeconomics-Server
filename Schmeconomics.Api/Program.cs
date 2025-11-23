@@ -6,7 +6,6 @@ using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Users;
 using Schmeconomics.Entities;
-using Schmeconomics.Api;
 using Schmeconomics.Api.Tokens.AuthTokens;
 using Schmeconomics.Api.Tokens.RefreshTokens; // Added for WebException
 
@@ -97,15 +96,7 @@ app.UseExceptionHandler(appBuilder =>
         
         // Check if the exception implements IWebErrorInfo
         int statusCode = StatusCodes.Status500InternalServerError;
-        string? serverMessage = null;
         string clientMessage = "An internal server error occurred.";
-
-        if (exception is IWebErrorInfo webErrorInfo)
-        {
-            statusCode = webErrorInfo.StatusCode;
-            serverMessage = webErrorInfo.ServerMessage;
-            clientMessage = webErrorInfo.ClientMessage;
-        }
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";

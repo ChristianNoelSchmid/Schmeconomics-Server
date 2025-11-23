@@ -8,8 +8,7 @@ public abstract class AuthTokenProviderException : Exception
     protected AuthTokenProviderException(string? message, Exception? innerException) : base(message, innerException) { }
 
     public class JwtException(Exception ex) :
-        AuthTokenProviderException("Failed to authorize JWT", ex),
-        IWebErrorInfo
+        AuthTokenProviderException("Failed to authorize JWT", ex)
     {
         public int StatusCode => StatusCodes.Status401Unauthorized;
         public string ClientMessage => Message;

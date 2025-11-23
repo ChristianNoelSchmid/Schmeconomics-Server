@@ -11,18 +11,8 @@ public abstract class UserServiceException : Exception
     protected UserServiceException(string? message, Exception? innerException) : base(message, innerException) { }
 
     public class NameReuse(string reusedName) : 
-        UserServiceException($"User with name \"{reusedName}\" already exists"),
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status409Conflict;
-        public string ClientMessage => Message;
-    }
+        UserServiceException($"User with name \"{reusedName}\" already exists");
 
     public class DbException(System.Data.Common.DbException ex) : 
-        UserServiceException("A database error has occurred", ex),
-        IWebErrorInfo
-    {
-        public int StatusCode => StatusCodes.Status500InternalServerError;
-        public string ServerMessage => Message;
-    }
+        UserServiceException("A database error has occurred", ex);
 }

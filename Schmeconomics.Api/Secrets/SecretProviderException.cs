@@ -8,14 +8,8 @@ public abstract class SecretProviderException : Exception
     protected SecretProviderException(string? message, Exception? innerException) : base(message, innerException) { }
 
     public class DbException(System.Data.Common.DbException ex)
-        : SecretProviderException("A database error has occurred", ex), IWebErrorInfo {
-        public string ServerMessage => Message;
-        public int StatusCode => StatusCodes.Status500InternalServerError;
-    }
+        : SecretProviderException("A database error has occurred", ex);
 
     public class NoSecretEntryFound() 
-        : SecretProviderException("No secret entries found in data source") {
-        public string ServerMessage => Message;
-        public int StatusCode => StatusCodes.Status500InternalServerError;
-    }
+        : SecretProviderException("No secret entries found in data source");
 }
