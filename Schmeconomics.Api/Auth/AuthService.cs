@@ -12,7 +12,7 @@ public class AuthService(
     IAuthTokenProvider _authTokenProvider,
     IRefreshTokenProvider _refreshTokenProvider,
     IPasswordHasher<User> _passwordHasher
-) : IAuthService {
+) : IAuthService { 
     public async Task<Result<AuthModel>> SignInAsync(string name, string password, string ipAddress, CancellationToken stopToken = default)
     {
         try {

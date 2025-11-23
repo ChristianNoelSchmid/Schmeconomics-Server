@@ -64,6 +64,9 @@ namespace Schmeconomics.Entities.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("Order")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("RefillValue")
                         .HasColumnType("INTEGER");
 
@@ -179,13 +182,13 @@ namespace Schmeconomics.Entities.Migrations
             modelBuilder.Entity("Schmeconomics.Entities.AccountUser", b =>
                 {
                     b.HasOne("Schmeconomics.Entities.Account", "Account")
-                        .WithMany()
+                        .WithMany("AccountUsers")
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Schmeconomics.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("AccountUsers")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -230,7 +233,14 @@ namespace Schmeconomics.Entities.Migrations
 
             modelBuilder.Entity("Schmeconomics.Entities.Account", b =>
                 {
+                    b.Navigation("AccountUsers");
+
                     b.Navigation("Categories");
+                });
+
+            modelBuilder.Entity("Schmeconomics.Entities.User", b =>
+                {
+                    b.Navigation("AccountUsers");
                 });
 #pragma warning restore 612, 618
         }

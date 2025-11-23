@@ -12,6 +12,29 @@ public class UserService(
     private readonly SchmeconomicsDbContext _db = db;
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
 
+    public async Task<Result> CreateAdminUser()
+    {
+        try 
+        {
+            var user = new User { 
+                Id = Guid.NewGuid().ToString(), 
+                Name = "Admin",
+                Role = Role.Admin,
+            };
+            var hash = _passwordHasher.HashPassword(user, "admin");
+            user.PasswordHash = hash;
+
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+            return Result.Ok();
+        }
+        catch(DbException ex)
+        {
+            throw new UserServiceException.DbException(ex);
+        }
+    }
+
+
     public async Task<UserModel> CreateUserAsync(string name, string password, CancellationToken token)
     {
         if (await GetUserFromName(name, token) != null)

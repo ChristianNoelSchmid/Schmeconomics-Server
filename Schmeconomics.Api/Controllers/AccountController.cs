@@ -13,11 +13,11 @@ public class AccountController(
     ICurrentUser _currentUser
 ) : ControllerBase
 {
-    [HttpGet]
+    [HttpGet("Get")]
     [Authorize(Role.User)]
     public async Task<IActionResult> GetAccountsForUserAsync(
-        CancellationToken stopToken = default)
-    {
+        CancellationToken stopToken = default
+    ) {
         if (_currentUser.User == null)
             return Unauthorized();
             
@@ -26,7 +26,7 @@ public class AccountController(
         else return NotFound(accounts.Error);
     }
 
-    [HttpGet]
+    [HttpGet("All")]
     public async Task<IActionResult> GetAllAccountsAsync(
         CancellationToken stopToken = default)
     {
@@ -35,7 +35,7 @@ public class AccountController(
         return Ok(accounts.Value);
     }
 
-    [HttpPost]
+    [HttpPost("Create")]
     public async Task<IActionResult> CreateAccountAsync(
         string name,
         CancellationToken stopToken = default)
@@ -61,7 +61,7 @@ public class AccountController(
         };
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("Delete/{id}")]
     public async Task<IActionResult> DeleteAccountAsync(
         string id,
         CancellationToken stopToken = default)
@@ -73,7 +73,7 @@ public class AccountController(
         
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("Update/{id}")]
     public async Task<IActionResult> UpdateAccountAsync(
         string id,
         UpdateAccountRequest request,

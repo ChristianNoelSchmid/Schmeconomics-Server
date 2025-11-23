@@ -7,7 +7,9 @@ using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Users;
 using Schmeconomics.Entities;
 using Schmeconomics.Api.Tokens.AuthTokens;
-using Schmeconomics.Api.Tokens.RefreshTokens; // Added for WebException
+using Schmeconomics.Api.Tokens.RefreshTokens;
+using Schmeconomics.Api.Accounts;
+using Schmeconomics.Api.Categories; // Added for WebException
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,6 +58,8 @@ builder.Services.AddScoped<IDateTimeProvider, DateTimeProvider>();
 builder.Services.AddScoped<ISecretsProvider, DbSecretsProvider>();
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 // Register `CurrentUser` that both a `ICurrentUser` and `ICurrentUserSetter` dependency can point to
 builder.Services.AddScoped<CurrentUser>();
 builder.Services.AddScoped<ICurrentUser>(provider => provider.GetRequiredService<CurrentUser>());

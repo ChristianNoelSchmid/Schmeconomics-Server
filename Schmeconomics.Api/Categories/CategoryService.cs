@@ -9,25 +9,6 @@ public class CategoryService(
 ) : ICategoryService {
     private readonly SchmeconomicsDbContext _db = db;
 
-    public async Task<Result<IEnumerable<CategoryModel>>> GetCategoriesForAccountAsync(string accountId, CancellationToken token = default)
-    {
-        try 
-        {
-            var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new CategoryServiceError.AccountNotFound(accountId);
-
-            return await _db.Categories
-                .Where(c => c.AccountId == accountId)
-                .OrderBy(c => c.Order)
-                .Select(cm => (CategoryModel)cm)
-                .ToListAsync(token);
-        } 
-        catch(DbException ex)
-        {
-            throw new CategoryServiceException.DbException(ex);
-        }
-    }
-
     public async Task<Result<CategoryModel>> CreateCategoryAsync(string accountId, string name, int balance, int refillValue, CancellationToken token = default)
     {
         try
@@ -116,35 +97,34 @@ public class CategoryService(
         }
     }
 
-    public async Task<Result> UpdateCategoriesOrderAsync(string accountId, IEnumerable<CategoryModel> categories, CancellationToken token = default)
+    public async Task<Result> UpdateCategoryOrdersAsync(string accountId, IReadOnlyList<string> categoryIds, CancellationToken token = default)
     {
         try
         {
             // Check if account exists
-            var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new CategoryServiceError.AccountNotFound(accountId);
+            var account = await _db.Accounts
+                .Include(a => a.Categories)
+                .Where(a => a.Id == accountId)
+                .FirstOrDefaultAsync(token);
 
-            // Get all categories for the account to verify we have all of them
-            var existingCategories = await _db.Categories
-                .Where(c => c.AccountId == accountId)
-                .ToListAsync(token);
+            if(account is null) 
+            {
+                return new CategoryServiceError.AccountNotFound(accountId);
+            }
 
             // Check if all existing categories are included in the provided list
-            var existingCategoryIds = new HashSet<string>(existingCategories.Select(c => c.Id));
-            var providedCategoryIds = new HashSet<string>(categories.Select(c => c.Id));
-
-            if (!existingCategoryIds.SetEquals(providedCategoryIds))
+            if (account.Categories.Select(c => c.Id).Except(categoryIds).Any())
             {
                 return new CategoryServiceError.MissingCategories();
             }
 
             // Update the order for each category
-            foreach (var categoryModel in categories)
+            for(int i = 0; i < categoryIds.Count; i += 1)
             {
-                var category = existingCategories.FirstOrDefault(c => c.Id == categoryModel.Id);
-                if (category != null)
+                var category = account.Categories.FirstOrDefault(c => c.Id == categoryIds[i]);
+                if (category != null) 
                 {
-                    category.Order = categoryModel.Order;
+                    category.Order = i;
                 }
             }
 

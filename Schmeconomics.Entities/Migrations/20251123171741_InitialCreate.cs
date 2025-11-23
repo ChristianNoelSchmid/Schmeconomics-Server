@@ -59,6 +59,7 @@ namespace Schmeconomics.Entities.Migrations
                     Name = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
                     Balance = table.Column<int>(type: "INTEGER", nullable: false),
                     RefillValue = table.Column<int>(type: "INTEGER", nullable: false),
+                    Order = table.Column<int>(type: "INTEGER", nullable: false),
                     AccountId = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>

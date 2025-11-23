@@ -203,4 +203,4 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 
-**/app.db
+**/app.db*

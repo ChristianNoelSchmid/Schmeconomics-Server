@@ -15,11 +15,11 @@ public class UserController (
     [HttpPost("CreateAdmin"), Microsoft.AspNetCore.Authorization.AllowAnonymous]
     public async Task<IActionResult> CreateAdmin()
     {
-        await _userService.CreateUserAsync("Admin", "admin");
+        await _userService.CreateAdminUser();
         return Ok();
     }
 
-    [HttpGet]
+    [HttpGet("Current")]
     public IActionResult GetUser()
     {
         return Ok(_current.User);
