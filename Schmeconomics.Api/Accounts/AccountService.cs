@@ -30,22 +30,6 @@ public class AccountService(
         }
     }
 
-    public async Task<Result<IEnumerable<AccountModel>>> GetAllAccountsAsync(CancellationToken token = default)
-    {
-        try 
-        {
-            return await _db.Accounts
-                .Include(a => a.Categories)
-                .Include(a => a.AccountUsers)
-                .ThenInclude(au => au.User)
-                .Select(am => (AccountModel)am)
-                .ToListAsync(token);
-        } 
-        catch(DbException ex)
-        {
-            throw new AccountServiceException.DbException(ex);
-        }
-    }
 
     public async Task<Result<AccountModel>> CreateAccountAsync(string name, CancellationToken token = default)
     {
@@ -58,6 +42,15 @@ public class AccountService(
             var account = new Account { Id = Guid.NewGuid().ToString(), Name = name };
             
             _db.Accounts.Add(account);
+            
+            // Add all admin users to the account
+            var adminUsers = await _db.Users
+                .Where(u => u.Role == Role.Admin)
+                .Select(u => new AccountUser { AccountId = account.Id, UserId = u.Id })
+                .ToListAsync(token);
+            
+            _db.AccountUsers.AddRange(adminUsers);
+            
             await _db.SaveChangesAsync(token);
 
             return (AccountModel)account;
@@ -88,6 +81,12 @@ public class AccountService(
 
             if(accountUser != null)
             {
+                // Check if the user being removed is an Admin
+                if (user.Role == Role.Admin)
+                {
+                    return new AccountServiceError.AdminUserCannotBeRemovedFromAccount();
+                }
+                
                 _db.AccountUsers.Remove(accountUser);
             }
             else 

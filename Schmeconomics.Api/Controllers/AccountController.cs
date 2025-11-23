@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using Schmeconomics.Api.Accounts;
 using Schmeconomics.Api.Auth;
@@ -13,7 +14,7 @@ public class AccountController(
     ICurrentUser _currentUser
 ) : ControllerBase
 {
-    [HttpGet("Get")]
+    [HttpGet("All")]
     [Authorize(Role.User)]
     public async Task<IActionResult> GetAccountsForUserAsync(
         CancellationToken stopToken = default
@@ -26,14 +27,6 @@ public class AccountController(
         else return NotFound(accounts.Error);
     }
 
-    [HttpGet("All")]
-    public async Task<IActionResult> GetAllAccountsAsync(
-        CancellationToken stopToken = default)
-    {
-        var accounts = await _accountService.GetAllAccountsAsync(stopToken);
-        
-        return Ok(accounts.Value);
-    }
 
     [HttpPost("Create")]
     public async Task<IActionResult> CreateAccountAsync(

@@ -12,6 +12,9 @@ public abstract class AccountServiceError(string message) : Error(message)
 
     public class AccountAlreadyExists(string accountName) :
         AccountServiceError($"Account with name '{accountName}' already exists") { }
+        
+    public class AdminUserCannotBeRemovedFromAccount() : 
+        AccountServiceError("an admin user cannot be removed from an account");
 }
 
 public abstract class AccountServiceException : Exception
