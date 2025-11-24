@@ -25,5 +25,5 @@ public class Category
     [ForeignKey(nameof(Account))]
     public string AccountId { get; set; } = string.Empty;
 
-    public Account? Account { get; set; } = new();
+    public Account? Account { get; set; } 
 }

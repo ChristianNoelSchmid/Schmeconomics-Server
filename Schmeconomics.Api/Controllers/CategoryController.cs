@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Schmeconomics.Api.Auth;
 using Schmeconomics.Api.Categories;
-using Schmeconomics.Api.Users;
 
 namespace Schmeconomics.Api.Controllers;
 
@@ -9,18 +8,13 @@ namespace Schmeconomics.Api.Controllers;
 [Route("[controller]")]
 [Authorize(Role.Admin)]
 public class CategoryController(
-    ICategoryService _categoryService,
-    ICurrentUser _currentUser
-) : ControllerBase
-{
+    ICategoryService _categoryService
+) : ControllerBase {
     [HttpPost("Create")]
     public async Task<IActionResult> CreateCategoryAsync(
         CreateCategoryRequest request,
-        CancellationToken stopToken = default)
-    {
-        if (_currentUser.User == null)
-            return Unauthorized();
-            
+        CancellationToken stopToken = default
+    ) {
         // Override the AccountId from the request with the one from route to ensure consistency
         var category = await _categoryService.CreateCategoryAsync(
             request.AccountId, 
@@ -39,9 +33,6 @@ public class CategoryController(
         string id,
         CancellationToken stopToken = default
     ) {
-        if (_currentUser.User == null)
-            return Unauthorized();
-            
         var result = await _categoryService.DeleteCategoryAsync(id, stopToken);
         
         if (result.IsOk) return Ok();
@@ -54,9 +45,6 @@ public class CategoryController(
         UpdateCategoryRequest request,
         CancellationToken stopToken = default
     ) {
-        if (_currentUser.User == null)
-            return Unauthorized();
-            
         var category = await _categoryService.UpdateCategoryAsync(id, request.Name, request.Balance, request.RefillValue, stopToken);
         
         if (category.IsOk) return Ok(category.Value);
@@ -72,9 +60,6 @@ public class CategoryController(
         UpdateCategoriesOrderRequest request,
         CancellationToken stopToken = default
     ) {
-        if (_currentUser.User == null)
-            return Unauthorized();
-            
         var result = await _categoryService.UpdateCategoryOrdersAsync(request.AccountId, request.CategoryIds, stopToken);
         
         if (result.IsOk) return Ok();

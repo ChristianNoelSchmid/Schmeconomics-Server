@@ -11,7 +11,7 @@ using Schmeconomics.Entities;
 namespace Schmeconomics.Entities.Migrations
 {
     [DbContext(typeof(SchmeconomicsDbContext))]
-    [Migration("20251123171741_InitialCreate")]
+    [Migration("20251123232755_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
