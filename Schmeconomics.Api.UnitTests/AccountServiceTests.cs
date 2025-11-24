@@ -11,6 +11,8 @@ public class AccountServiceTests
     private static readonly string TEST_ACCOUNT_NAME = "Test Account";
     private static readonly string TEST_USER_ID = Guid.NewGuid().ToString();
     private static readonly string TEST_USER_NAME = "Test User";
+    private static readonly string TEST_ADMIN_USER_ID = Guid.NewGuid().ToString();
+    private static readonly string TEST_ADMIN_USER_NAME = "Test Admin User";
     private static readonly string TEST_ACCOUNT_ID_2 = Guid.NewGuid().ToString();
     private static readonly string TEST_ACCOUNT_NAME_2 = "Test Account 2";
 
@@ -31,6 +33,14 @@ public class AccountServiceTests
             Role = Role.User
         };
 
+        var adminUser = new User
+        {
+            Id = TEST_ADMIN_USER_ID,
+            Name = TEST_ADMIN_USER_NAME,
+            PasswordHash = "hashed_password",
+            Role = Role.Admin
+        };
+
         var account = new Account
         {
             Id = TEST_ACCOUNT_ID,
@@ -44,6 +54,7 @@ public class AccountServiceTests
         };
 
         _dbContext.Users.Add(user);
+        _dbContext.Users.Add(adminUser);
         _dbContext.Accounts.Add(account);
         _dbContext.Accounts.Add(account2);
         await _dbContext.SaveChangesAsync();
@@ -89,21 +100,6 @@ public class AccountServiceTests
     }
 
     [TestMethod]
-    public async Task GetAllAccountsAsync_ReturnsAllAccounts()
-    {
-        // Act
-        var result = await _accountService.GetAllAccountsAsync();
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.IsTrue(result.IsOk);
-        Assert.IsNotNull(result.Value);
-        Assert.AreEqual(2, result.Value.Count());
-        Assert.IsTrue(result.Value.Any(a => a.Id == TEST_ACCOUNT_ID));
-        Assert.IsTrue(result.Value.Any(a => a.Id == TEST_ACCOUNT_ID_2));
-    }
-
-    [TestMethod]
     public async Task CreateAccountAsync_WithUniqueName_CreatesAccount()
     {
         // Arrange
@@ -122,6 +118,14 @@ public class AccountServiceTests
         var createdAccount = await _dbContext.Accounts.FirstOrDefaultAsync(a => a.Name == newAccountName);
         Assert.IsNotNull(createdAccount);
         Assert.AreEqual(newAccountName, createdAccount.Name);
+        
+        // Verify that all admin users were added to the account
+        var accountUsers = await _dbContext.AccountUsers
+            .Where(au => au.AccountId == createdAccount.Id)
+            .ToListAsync();
+        Assert.IsNotNull(accountUsers);
+        Assert.AreEqual(1, accountUsers.Count); // Only the admin user should be added
+        Assert.AreEqual(TEST_ADMIN_USER_ID, accountUsers[0].UserId);
     }
 
     [TestMethod]
@@ -170,6 +174,21 @@ public class AccountServiceTests
         var accountUser = await _dbContext.AccountUsers
             .FirstOrDefaultAsync(au => au.AccountId == TEST_ACCOUNT_ID && au.UserId == TEST_USER_ID);
         Assert.IsNull(accountUser);
+    }
+
+    [TestMethod]
+    public async Task ToggleUserToAccountAsync_WithAdminUser_CannotRemoveAdminFromAccount()
+    {
+        // Arrange - Add admin user to account first
+        await _accountService.ToggleUserToAccountAsync(TEST_ACCOUNT_ID, TEST_ADMIN_USER_ID);
+
+        // Act - try to remove the admin user from the account
+        var result = await _accountService.ToggleUserToAccountAsync(TEST_ACCOUNT_ID, TEST_ADMIN_USER_ID);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.IsError);
+        Assert.IsInstanceOfType<AccountServiceError.AdminUserCannotBeRemovedFromAccount>(result.Error);
     }
 
     [TestMethod]
