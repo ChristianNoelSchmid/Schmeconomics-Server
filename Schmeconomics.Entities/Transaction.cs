@@ -22,5 +22,10 @@ public class Transaction {
     [MaxLength(255)]
     public string? Notes { get; set; }
 
+    [Required, ForeignKey(nameof(Account))]
+    public string AccountId { get; set; } = string.Empty;
+
     public Category? Category { get; set; }
+    
+    public Account? Account { get; set; }
 }
