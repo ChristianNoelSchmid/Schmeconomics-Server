@@ -14,6 +14,9 @@ public class Transaction {
     public string CategoryId { get; set; } = string.Empty;
 
     [Required]
+    public DateTime TimestampUtc { get; set;} = DateTime.UtcNow;
+
+    [Required]
     public int Amount { get; set; }
 
     [MaxLength(255)]
