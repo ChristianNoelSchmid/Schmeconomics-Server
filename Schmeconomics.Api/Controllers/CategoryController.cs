@@ -65,4 +65,15 @@ public class CategoryController(
         if (result.IsOk) return Ok();
         else return BadRequest(result.Error.Message);
     }
+
+    [HttpPut("UpdateRefillValues")]
+    public async Task<IActionResult> UpdateCategoriesRefillValuesAsync(
+        UpdateCategoriesRefillValueRequest request,
+        CancellationToken stopToken = default
+    ) {
+        var result = await _categoryService.UpdateCategoryRefillValuesAsync(request.AccountId, request.RefillValues, stopToken);
+        
+        if (result.IsOk) return Ok();
+        else return BadRequest(result.Error.Message);
+    }
 }

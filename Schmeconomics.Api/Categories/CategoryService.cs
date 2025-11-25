@@ -136,4 +136,47 @@ public class CategoryService(
             throw new CategoryServiceException.DbException(ex);
         }
     }
+
+    public async Task<Result> UpdateCategoryRefillValuesAsync(string accountId, IReadOnlyList<CategoryRefillValueUpdate> refillValues, CancellationToken token = default)
+    {
+        try
+        {
+            // Check if account exists
+            var account = await _db.Accounts
+                .Include(a => a.Categories)
+                .Where(a => a.Id == accountId)
+                .FirstOrDefaultAsync(token);
+
+            if(account is null) 
+            {
+                return new CategoryServiceError.AccountNotFound(accountId);
+            }
+
+            // Get the category IDs from the refill values
+            var providedCategoryIds = refillValues.Select(r => r.CategoryId).ToList();
+            
+            // Check if all existing categories are included in the provided list
+            if (account.Categories.Select(c => c.Id).Except(providedCategoryIds).Any())
+            {
+                return new CategoryServiceError.MissingCategories();
+            }
+
+            // Update refill values for each category
+            foreach (var refillValueUpdate in refillValues)
+            {
+                var category = account.Categories.FirstOrDefault(c => c.Id == refillValueUpdate.CategoryId);
+                if (category != null) 
+                {
+                    category.RefillValue = refillValueUpdate.RefillValue;
+                }
+            }
+
+            await _db.SaveChangesAsync(token);
+            return Result.Ok();
+        }
+        catch(DbException ex)
+        {
+            throw new CategoryServiceException.DbException(ex);
+        }
+    }
 }
