@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
 using Schmeconomics.Api.Auth;
 using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
@@ -9,36 +8,15 @@ using Schmeconomics.Entities;
 using Schmeconomics.Api.Tokens.AuthTokens;
 using Schmeconomics.Api.Tokens.RefreshTokens;
 using Schmeconomics.Api.Accounts;
-using Schmeconomics.Api.Categories; // Added for WebException
+using Schmeconomics.Api.Categories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-  c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
-    In = ParameterLocation.Header, 
-    Description = "Please insert JWT with Bearer into field",
-    Name = "Authorization",
-    Type = SecuritySchemeType.ApiKey 
-  });
-  c.AddSecurityRequirement(new OpenApiSecurityRequirement {
-   { 
-     new OpenApiSecurityScheme 
-     { 
-       Reference = new OpenApiReference 
-       { 
-         Type = ReferenceType.SecurityScheme,
-         Id = "Bearer" 
-       } 
-      },
-      new string[] { } 
-    } 
-  });
-}
-);;
+builder.Services.AddOpenApi();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -80,8 +58,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.MapOpenApi();
 }
 
 if(app.Environment.IsProduction()) 

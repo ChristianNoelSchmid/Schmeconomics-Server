@@ -4,6 +4,7 @@ namespace Schmeconomics.Api.Accounts;
 
 public interface IAccountService
 {
+    Task<Result<bool>> UserBelongsToAccountAsync(string userId, string accountId, CancellationToken token = default);
     Task<Result<IEnumerable<AccountModel>>> GetAccountsForUserAsync(string userId, CancellationToken token = default);
     // Removed GetAllAccountsAsync method
     Task<Result<AccountModel>> CreateAccountAsync(string name, CancellationToken token = default);

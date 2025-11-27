@@ -15,6 +15,7 @@ public class AccountController(
 {
     [HttpGet("All")]
     [Authorize(Role.User)]
+    [ProducesResponseType<IEnumerable<AccountModel>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAccountsForUserAsync(
         CancellationToken stopToken = default
     ) {
@@ -28,6 +29,7 @@ public class AccountController(
 
 
     [HttpPost("Create")]
+    [ProducesResponseType<AccountModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateAccountAsync(
         string name,
         CancellationToken stopToken = default)
@@ -66,6 +68,7 @@ public class AccountController(
     }
 
     [HttpPut("Update/{id}")]
+    [ProducesResponseType<AccountModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateAccountAsync(
         string id,
         UpdateAccountRequest request,

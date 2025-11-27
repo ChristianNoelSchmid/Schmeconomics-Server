@@ -1,0 +1,69 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "run-schmeconomics.api",
+      "type": "shell",
+      "command": "dotnet run",
+      "options": {
+        "cwd": "${workspaceFolder}/Schmeconomics.Api/",
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": ".*"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*Application started.*",
+          "endsPattern": ".*Now listening on.*"
+        }
+      },
+    },
+    {
+      "label": "wait-for-api",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "echo 'Waiting for API...'; ",
+        "until curl -sSf http://localhost:5153/openapi/v1.json >/dev/null; do sleep 1; done; ",
+        "echo 'API is up!'"
+      ],
+      "problemMatcher": [],
+    },
+
+    {
+      "label": "generate-openapi-typescript-client",
+      "type": "shell",
+      "command": "openapi-generator-cli",
+      "args": [
+        "generate",
+        "-g", "typescript-fetch",
+        "-i", "http://localhost:5153/openapi/v1.json",
+        "-o", "${workspaceFolder}/schmeconomics.client/api/"
+      ],
+      "problemMatcher": [],
+    },
+    {
+      "label": "stop-api",
+      "type": "shell",
+      "command": "kill $(pgrep -f \"dotnet run\")",
+      "group": "build",
+      "dependsOn": [
+        "generate-openapi-typescript-client"
+      ],
+    },
+    {
+      "label": "RUN-AND-GEN-TYPESCRIPT-CLIENT",
+      "dependsOn": [
+        "run-schmeconomics.api",
+        "wait-for-api",
+        "generate-openapi-typescript-client",
+        "stop-api"
+      ],
+      "dependsOrder": "sequence"
+    }
+  ]
+}

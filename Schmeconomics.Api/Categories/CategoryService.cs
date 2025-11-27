@@ -97,7 +97,7 @@ public class CategoryService(
         }
     }
 
-    public async Task<Result> UpdateCategoryOrdersAsync(string accountId, IReadOnlyList<string> categoryIds, CancellationToken token = default)
+    public async Task<Result<IEnumerable<CategoryModel>>> UpdateCategoryOrdersAsync(string accountId, IReadOnlyList<string> categoryIds, CancellationToken token = default)
     {
         try
         {
@@ -129,7 +129,7 @@ public class CategoryService(
             }
 
             await _db.SaveChangesAsync(token);
-            return Result.Ok();
+            return account.Categories.Select(c => (CategoryModel)c).ToArray();
         }
         catch(DbException ex)
         {
@@ -137,7 +137,7 @@ public class CategoryService(
         }
     }
 
-    public async Task<Result> UpdateCategoryRefillValuesAsync(string accountId, IReadOnlyList<CategoryRefillValueUpdate> refillValues, CancellationToken token = default)
+    public async Task<Result<IEnumerable<CategoryModel>>> UpdateCategoryRefillValuesAsync(string accountId, IReadOnlyList<CategoryRefillValueUpdate> refillValues, CancellationToken token = default)
     {
         try
         {
@@ -172,7 +172,7 @@ public class CategoryService(
             }
 
             await _db.SaveChangesAsync(token);
-            return Result.Ok();
+            return account.Categories.Select(c => (CategoryModel)c).ToArray();
         }
         catch(DbException ex)
         {

@@ -11,6 +11,7 @@ public class CategoryController(
     ICategoryService _categoryService
 ) : ControllerBase {
     [HttpPost("Create")]
+    [ProducesResponseType<CategoryModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateCategoryAsync(
         CreateCategoryRequest request,
         CancellationToken stopToken = default
@@ -40,6 +41,7 @@ public class CategoryController(
     }
 
     [HttpPut("Update/{id}")]
+    [ProducesResponseType<CategoryModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateCategoryAsync(
         string id,
         UpdateCategoryRequest request,
@@ -56,24 +58,26 @@ public class CategoryController(
     }
 
     [HttpPut("UpdateOrder")]
+    [ProducesResponseType<IEnumerable<CategoryModel>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateCategoriesOrderAsync(
         UpdateCategoriesOrderRequest request,
         CancellationToken stopToken = default
     ) {
         var result = await _categoryService.UpdateCategoryOrdersAsync(request.AccountId, request.CategoryIds, stopToken);
         
-        if (result.IsOk) return Ok();
+        if (result.IsOk) return Ok(result.Value);
         else return BadRequest(result.Error.Message);
     }
 
     [HttpPut("UpdateRefillValues")]
+    [ProducesResponseType<IEnumerable<CategoryModel>>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateCategoriesRefillValuesAsync(
         UpdateCategoriesRefillValueRequest request,
         CancellationToken stopToken = default
     ) {
         var result = await _categoryService.UpdateCategoryRefillValuesAsync(request.AccountId, request.RefillValues, stopToken);
         
-        if (result.IsOk) return Ok();
+        if (result.IsOk) return Ok(result.Value);
         else return BadRequest(result.Error.Message);
     }
 }

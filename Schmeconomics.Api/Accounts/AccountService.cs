@@ -9,6 +9,24 @@ public class AccountService(
 ) : IAccountService {
     private readonly SchmeconomicsDbContext _db = db;
 
+    public async Task<Result<bool>> UserBelongsToAccountAsync(string userId, string accountId, CancellationToken token = default)
+    {
+        try
+        {
+            var user = await _db.Users
+                .Where(u => u.Id == userId)
+                .Include(u => u.AccountUsers)
+                .FirstOrDefaultAsync(token);
+
+            if(user == null) return new AccountServiceError.UserNotFound(userId);
+            return user.AccountUsers.Any(au => au.AccountId == accountId);
+        }
+        catch(DbException ex)
+        {
+            throw new AccountServiceException.DbException(ex);
+        }
+    }
+
     public async Task<Result<IEnumerable<AccountModel>>> GetAccountsForUserAsync(string userId, CancellationToken token = default)
     {
         try 
@@ -29,7 +47,6 @@ public class AccountService(
             throw new AccountServiceException.DbException(ex);
         }
     }
-
 
     public async Task<Result<AccountModel>> CreateAccountAsync(string name, CancellationToken token = default)
     {
