@@ -82,7 +82,7 @@ public class AuthService(
 
             var accessToken = await _authTokenProvider.CreateAuthTokenAsync(claims, stopToken);
             
-            return new AuthModel(accessToken, refreshToken, refreshedTokenResult.ExpiresOnUtc);
+            return new AuthModel(accessToken, refreshedTokenResult.Token, refreshedTokenResult.ExpiresOnUtc);
         } 
         catch (AuthTokenProviderException ex)
         {

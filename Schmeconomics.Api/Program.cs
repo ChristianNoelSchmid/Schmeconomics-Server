@@ -23,7 +23,17 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
     });
 builder.Services.AddAuthorization();
-builder.Services.AddCors();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:4200")
+            .AllowCredentials()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 // Add JWT authentication
 builder.Services.AddDbContext<SchmeconomicsDbContext>(
@@ -55,6 +65,8 @@ builder.Services.AddOptionsWithValidateOnStart<DbSecretsProviderConfig>()
 
 var app = builder.Build();
 
+app.UseCors();
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -65,8 +77,6 @@ if(app.Environment.IsProduction())
 {
   app.UseHttpsRedirection();
 }
-
-app.UseCors();
 
 // Global exception handler
 app.UseExceptionHandler(appBuilder =>

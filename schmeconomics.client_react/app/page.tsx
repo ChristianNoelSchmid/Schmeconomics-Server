@@ -1,3 +1,6 @@
+"use client"
+
+import { AuthProvider } from "@/components/auth/auth-context";
 import Image from "next/image";
 
 export default function Home() {

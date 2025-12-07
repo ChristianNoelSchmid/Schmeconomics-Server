@@ -12,6 +12,7 @@ public class AuthController(
 ) : ControllerBase
 {
     [HttpPost("SignIn")]
+    [ProducesResponseType<AuthModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> SignIn(
         SignInRequest request,
         CancellationToken stopToken = default)
@@ -70,6 +71,7 @@ public class AuthController(
     }
     
     [HttpPost("Refresh")]
+    [ProducesResponseType<AuthModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Refresh(CancellationToken stopToken = default)
     {
         // Get the IP address from the request

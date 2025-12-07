@@ -42,7 +42,7 @@
         "generate",
         "-g", "typescript-fetch",
         "-i", "http://localhost:5153/openapi/v1.json",
-        "-o", "${workspaceFolder}/schmeconomics.client/api/"
+        "-o", "${workspaceFolder}/schmeconomics.client/src/openapi/"
       ],
       "problemMatcher": [],
     },
