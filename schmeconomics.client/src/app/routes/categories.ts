@@ -1,13 +1,31 @@
-import { Component, input, Input } from "@angular/core";
+import { Component, effect, inject, input, Input } from "@angular/core";
 import { CategoryModel } from "../../openapi";
+import { CategoryService } from "../services/category-service";
+import { mergeMap, Observable } from "rxjs";
+import { ActivatedRoute } from "@angular/router";
+import { AsyncPipe } from "@angular/common";
 
 @Component ({
     template: `
-        @for (category of categories(); track category.id) {
-            <p>{{ category.name }}</p>
+        @if (categories$ | async; as categories) {
+            @for (category of categories; track category.id) {
+                <p>{{ category.name }}</p>
+            }
         }
-    `
+    `,
+    imports: [AsyncPipe]
 })
 export class Categories {
-    categories = input<CategoryModel[]>();
+    route = inject(ActivatedRoute);
+    categoryService = inject(CategoryService);
+    categories$!: Observable<CategoryModel[]>;
+
+    constructor() {
+        effect(() => {
+            this.categories$ = this.route.paramMap
+                .pipe(mergeMap(paramMap => 
+                    this.categoryService.getCategories(paramMap.get("accountId")!)
+                ));
+        });
+    }
 }

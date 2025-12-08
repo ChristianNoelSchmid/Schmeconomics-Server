@@ -20,13 +20,6 @@ import {
     UserModelToJSON,
     UserModelToJSONTyped,
 } from './UserModel';
-import type { CategoryModel } from './CategoryModel';
-import {
-    CategoryModelFromJSON,
-    CategoryModelFromJSONTyped,
-    CategoryModelToJSON,
-    CategoryModelToJSONTyped,
-} from './CategoryModel';
 
 /**
  * 
@@ -48,12 +41,6 @@ export interface AccountModel {
     name: string;
     /**
      * 
-     * @type {Array<CategoryModel>}
-     * @memberof AccountModel
-     */
-    categories: Array<CategoryModel>;
-    /**
-     * 
      * @type {Array<UserModel>}
      * @memberof AccountModel
      */
@@ -66,7 +53,6 @@ export interface AccountModel {
 export function instanceOfAccountModel(value: object): value is AccountModel {
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('categories' in value) || value['categories'] === undefined) return false;
     if (!('users' in value) || value['users'] === undefined) return false;
     return true;
 }
@@ -83,7 +69,6 @@ export function AccountModelFromJSONTyped(json: any, ignoreDiscriminator: boolea
         
         'id': json['id'],
         'name': json['name'],
-        'categories': ((json['categories'] as Array<any>).map(CategoryModelFromJSON)),
         'users': ((json['users'] as Array<any>).map(UserModelFromJSON)),
     };
 }
@@ -101,7 +86,6 @@ export function AccountModelToJSONTyped(value?: AccountModel | null, ignoreDiscr
         
         'id': value['id'],
         'name': value['name'],
-        'categories': ((value['categories'] as Array<any>).map(CategoryModelToJSON)),
         'users': ((value['users'] as Array<any>).map(UserModelToJSON)),
     };
 }

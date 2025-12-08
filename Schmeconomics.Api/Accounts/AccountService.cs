@@ -35,7 +35,6 @@ public class AccountService(
             if(user is null) return new AccountServiceError.UserNotFound(userId);
 
             return await _db.Accounts
-                .Include(a => a.Categories)
                 .Include(a => a.AccountUsers)
                 .ThenInclude(au => au.User)
                 .Where(a => a.AccountUsers.Any(au => au.UserId == userId))

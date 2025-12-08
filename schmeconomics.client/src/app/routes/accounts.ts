@@ -3,19 +3,20 @@ import { AccountModel } from "../../openapi";
 import { AccountService } from "../services/account-service";
 import { Observable } from "rxjs";
 import { AsyncPipe } from "@angular/common";
+import { RouterLink } from "@angular/router";
 
 @Component({
     template: `
         @if(accounts$ | async; as accounts) {
             @for(account of accounts; track account.id) {
-                <p>{{ account.name }}</p>
+                <p><a [routerLink]="['/categories',account.id]">{{ account.name }}</a></p>
             }
         } 
         @else {
             <p>Loading...</p>
         }
     `,
-    imports: [AsyncPipe]
+    imports: [AsyncPipe, RouterLink]
 })
 export class Accounts {
     accountService = inject(AccountService);

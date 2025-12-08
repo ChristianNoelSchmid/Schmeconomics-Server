@@ -42,6 +42,10 @@ export interface CategoryDeleteIdDeleteRequest {
     id: string;
 }
 
+export interface CategoryForAccountAccountIdGetRequest {
+    accountId: string;
+}
+
 export interface CategoryUpdateIdPutRequest {
     id: string;
     updateCategoryRequest: UpdateCategoryRequest;
@@ -129,6 +133,41 @@ export class CategoryApi extends runtime.BaseAPI {
      */
     async categoryDeleteIdDelete(requestParameters: CategoryDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.categoryDeleteIdDeleteRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     */
+    async categoryForAccountAccountIdGetRaw(requestParameters: CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
+        if (requestParameters['accountId'] == null) {
+            throw new runtime.RequiredError(
+                'accountId',
+                'Required parameter "accountId" was null or undefined when calling categoryForAccountAccountIdGet().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/Category/ForAccount/{accountId}`;
+        urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(CategoryModelFromJSON));
+    }
+
+    /**
+     */
+    async categoryForAccountAccountIdGet(requestParameters: CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
+        const response = await this.categoryForAccountAccountIdGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

@@ -38,7 +38,7 @@ public class AuthService(
             // Create refresh token
             var refreshToken = await _refreshTokenProvider.CreateNewTokenAsync(user.Id, ipAddress, stopToken);
             
-            return new AuthModel(accessToken, refreshToken.Token, refreshToken.ExpiresOnUtc);
+            return new AuthModel(user.Id, accessToken, refreshToken.Token, refreshToken.ExpiresOnUtc);
         }
         catch(DbException ex)
         {
@@ -82,7 +82,7 @@ public class AuthService(
 
             var accessToken = await _authTokenProvider.CreateAuthTokenAsync(claims, stopToken);
             
-            return new AuthModel(accessToken, refreshedTokenResult.Token, refreshedTokenResult.ExpiresOnUtc);
+            return new AuthModel(refreshedTokenResult.User.Id, accessToken, refreshedTokenResult.Token, refreshedTokenResult.ExpiresOnUtc);
         } 
         catch (AuthTokenProviderException ex)
         {

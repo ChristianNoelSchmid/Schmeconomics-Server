@@ -24,6 +24,12 @@ export interface AuthModel {
      * @type {string}
      * @memberof AuthModel
      */
+    userId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AuthModel
+     */
     accessToken: string;
     /**
      * 
@@ -43,6 +49,7 @@ export interface AuthModel {
  * Check if a given object implements the AuthModel interface.
  */
 export function instanceOfAuthModel(value: object): value is AuthModel {
+    if (!('userId' in value) || value['userId'] === undefined) return false;
     if (!('accessToken' in value) || value['accessToken'] === undefined) return false;
     if (!('refreshToken' in value) || value['refreshToken'] === undefined) return false;
     if (!('expiresOnUtc' in value) || value['expiresOnUtc'] === undefined) return false;
@@ -59,6 +66,7 @@ export function AuthModelFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     }
     return {
         
+        'userId': json['userId'],
         'accessToken': json['accessToken'],
         'refreshToken': json['refreshToken'],
         'expiresOnUtc': (new Date(json['expiresOnUtc'])),
@@ -76,6 +84,7 @@ export function AuthModelToJSONTyped(value?: AuthModel | null, ignoreDiscriminat
 
     return {
         
+        'userId': value['userId'],
         'accessToken': value['accessToken'],
         'refreshToken': value['refreshToken'],
         'expiresOnUtc': ((value['expiresOnUtc']).toISOString()),

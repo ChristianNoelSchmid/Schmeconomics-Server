@@ -179,4 +179,28 @@ public class CategoryService(
             throw new CategoryServiceException.DbException(ex);
         }
     }
+
+    public async Task<Result<IEnumerable<CategoryModel>>> GetCategoriesForAccountAsync(string accountId, string userId, CancellationToken token = default)
+    {
+        try
+        {
+            // Check if account exists
+            var account = await _db.Accounts.FindAsync([accountId], token);
+            if(account is null) return new CategoryServiceError.AccountNotFound(accountId);
+
+            // Check if the user belongs to the account
+            var userBelongsToAccount = await _db.AccountUsers.FindAsync([accountId, userId], token);
+            if(userBelongsToAccount == null) return new CategoryServiceError.AccountNotFound(accountId);
+
+            // Return all categories for the account
+            return await _db.Categories
+                .Where(c => c.AccountId == accountId)
+                .Select(c => (CategoryModel)c)
+                .ToListAsync(token);
+        }
+        catch(DbException ex)
+        {
+            throw new CategoryServiceException.DbException(ex);
+        }
+    }
 }

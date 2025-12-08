@@ -7,4 +7,5 @@ public interface ICategoryService
     Task<Result<CategoryModel>> UpdateCategoryAsync(string id, string? name, int? balance, int? refillValue, CancellationToken token = default);
     Task<Result<IEnumerable<CategoryModel>>> UpdateCategoryOrdersAsync(string accountId, IReadOnlyList<string> categoryIds, CancellationToken token = default);
     Task<Result<IEnumerable<CategoryModel>>> UpdateCategoryRefillValuesAsync(string accountId, IReadOnlyList<CategoryRefillValueUpdate> refillValues, CancellationToken token = default);
+    Task<Result<IEnumerable<CategoryModel>>> GetCategoriesForAccountAsync(string accountId, string userId, CancellationToken token = default);
 }

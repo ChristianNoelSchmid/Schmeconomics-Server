@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Schmeconomics.Api.Auth;
 using Schmeconomics.Api.Categories;
+using Schmeconomics.Api.Users;
 
 namespace Schmeconomics.Api.Controllers;
 
@@ -8,7 +9,8 @@ namespace Schmeconomics.Api.Controllers;
 [Route("[controller]")]
 [Authorize(Role.Admin)]
 public class CategoryController(
-    ICategoryService _categoryService
+    ICategoryService _categoryService,
+    ICurrentUser _currentUser
 ) : ControllerBase {
     [HttpPost("Create")]
     [ProducesResponseType<CategoryModel>(StatusCodes.Status200OK)]
@@ -79,5 +81,16 @@ public class CategoryController(
         
         if (result.IsOk) return Ok(result.Value);
         else return BadRequest(result.Error.Message);
+    }
+
+    [HttpGet("ForAccount/{accountId}")]
+    [ProducesResponseType<IEnumerable<CategoryModel>>(StatusCodes.Status200OK)]
+    [Authorize(Role.User)]
+    public async Task<IActionResult> GetCategoriesForAccountAsync(
+        string accountId
+    ) {
+        var result = await _categoryService.GetCategoriesForAccountAsync(accountId, _currentUser.User!.Id);
+        if(result.IsOk) return Ok(result.Value);
+        return BadRequest(result.Error.Message);
     }
 }
