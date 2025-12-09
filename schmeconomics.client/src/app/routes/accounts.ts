@@ -1,6 +1,5 @@
 import { Component, effect, inject } from "@angular/core";
-import { AccountModel } from "../../openapi";
-import { AccountService } from "../services/account-service";
+import { AccountModel, AccountService } from "../../openapi";
 import { Observable } from "rxjs";
 import { AsyncPipe } from "@angular/common";
 import { RouterLink } from "@angular/router";
@@ -24,7 +23,7 @@ export class Accounts {
 
     constructor() {
         effect(() => {
-            this.accounts$ = this.accountService.getAccounts();
+            this.accounts$ = this.accountService.accountAllGet();
         });
     }
 }

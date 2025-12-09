@@ -40,7 +40,7 @@
       "command": "openapi-generator-cli",
       "args": [
         "generate",
-        "-g", "typescript-fetch",
+        "-g", "typescript-angular",
         "-i", "http://localhost:5153/openapi/v1.json",
         "-o", "${workspaceFolder}/schmeconomics.client/src/openapi/"
       ],

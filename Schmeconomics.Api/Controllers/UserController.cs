@@ -12,6 +12,15 @@ public class UserController (
     ICurrentUser _current
 ) : ControllerBase {
 
+    [HttpGet("All")]
+    [ProducesResponseType<IEnumerable<UserModel>>(StatusCodes.Status200OK)]
+    [Authorize(Role.Admin)]
+    public async Task<IActionResult> GetAllUsersAsync()
+    {
+        var usersResult = await _userService.GetAllUsersAsync();
+        return Ok(usersResult.Value!);
+    }
+
     [HttpPost("CreateAdmin"), Microsoft.AspNetCore.Authorization.AllowAnonymous]
     public async Task<IActionResult> CreateAdmin()
     {
@@ -20,12 +29,14 @@ public class UserController (
     }
 
     [HttpGet("Current")]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public IActionResult GetUser()
     {
         return Ok(_current.User);
     }
 
     [HttpGet("ById/{id}")]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserById(
         string id,
         CancellationToken stopToken
@@ -36,6 +47,7 @@ public class UserController (
     }
 
     [HttpGet("ByName/{name}")]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetUserByName(
         string name,
         CancellationToken stopToken
@@ -46,6 +58,7 @@ public class UserController (
     }
 
     [HttpPost("Create"), Authorize(Role.Admin)]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateUser(
         CreateUserRequest request,
         CancellationToken stopToken
@@ -55,6 +68,7 @@ public class UserController (
     }
 
     [HttpDelete("Delete/{userId}"), Authorize(Role.Admin)]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> DeleteUser(
         string userId,
         CancellationToken stopToken
@@ -65,6 +79,7 @@ public class UserController (
     }
 
     [HttpPut("Update")]
+    [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateUser(
         UpdateUserRequest request,
         CancellationToken stopToken

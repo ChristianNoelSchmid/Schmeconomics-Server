@@ -1,8 +1,6 @@
 import { Component, inject } from "@angular/core";
 import { ReactiveFormsModule, FormControl, FormGroup, Validators } from "@angular/forms";
-import { ResponseError } from "../../openapi";
-import { AuthService } from "../services/auth-service";
-import { Observable } from "rxjs";
+import { CredentialsService } from "../services/credentials-service";
 
 @Component({
     imports: [ReactiveFormsModule],
@@ -27,14 +25,14 @@ import { Observable } from "rxjs";
     `
 })
 export class Login {
-    authService = inject(AuthService);
+    credsService = inject(CredentialsService);
 
     errors: string[] = []
     loginForm = new FormGroup({
         name: new FormControl('', [Validators.required]),
         password: new FormControl('', [Validators.required])
     })
-    async onSubmit(): Promise<Observable<void>> {
+    onSubmit() {
         this.errors = [];
         for(const error in this.loginForm.errors) {
             this.errors.push(error);
@@ -43,14 +41,7 @@ export class Login {
             const name = this.loginForm.value.name!;
             const password = this.loginForm.value.password!;
 
-            try {
-                return this.authService.tryLogin(name, password);         
-            } catch (e) {
-                if(e instanceof ResponseError) {
-                    console.log(e.message, await e.response.text());
-                }
-            }
+            this.credsService.tryLogin(name, password).subscribe();
         }
-        return new Observable();
     }
 }

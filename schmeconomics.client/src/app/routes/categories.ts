@@ -1,6 +1,5 @@
 import { Component, effect, inject, input, Input } from "@angular/core";
-import { CategoryModel } from "../../openapi";
-import { CategoryService } from "../services/category-service";
+import { CategoryModel, CategoryService } from "../../openapi";
 import { mergeMap, Observable } from "rxjs";
 import { ActivatedRoute } from "@angular/router";
 import { AsyncPipe } from "@angular/common";
@@ -24,7 +23,7 @@ export class Categories {
         effect(() => {
             this.categories$ = this.route.paramMap
                 .pipe(mergeMap(paramMap => 
-                    this.categoryService.getCategories(paramMap.get("accountId")!)
+                    this.categoryService.categoryForAccountAccountIdGet(paramMap.get("accountId")!)
                 ));
         });
     }

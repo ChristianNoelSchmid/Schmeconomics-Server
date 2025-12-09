@@ -1,6 +1,6 @@
-import { inject, Injectable } from "@angular/core";
+/*import { inject, Injectable } from "@angular/core";
 import { Configuration } from "../../openapi";
-import { AuthService } from "./auth-service";
+import { AuthService } from "./credentials-service";
 import { API_URL } from "../config";
 import { from, map, Observable } from "rxjs";
 
@@ -17,4 +17,4 @@ export class ApiConfigService {
                 })
             ));
     }
-}
+}*/

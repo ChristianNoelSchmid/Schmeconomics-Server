@@ -12,6 +12,23 @@ public class UserService(
     private readonly SchmeconomicsDbContext _db = db;
     private readonly IPasswordHasher<User> _passwordHasher = passwordHasher;
 
+    public async Task<Result<IEnumerable<UserModel>>> GetAllUsersAsync()
+    {
+        try
+        {
+            var users = await _db.Users
+                .OrderBy(u => u.Name)
+                .Select(u => (UserModel)u)
+                .ToListAsync();
+
+            return users;
+        }
+        catch (DbException ex)
+        {
+            throw new UserServiceException.DbException(ex);
+        }
+    }
+
     public async Task<Result> CreateAdminUser()
     {
         try 

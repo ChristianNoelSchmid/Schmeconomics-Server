@@ -1,4 +1,4 @@
-import { inject, Injectable } from "@angular/core";
+/*import { inject, Injectable } from "@angular/core";
 import { ApiConfigService } from "./api-config-service";
 import { CategoryApi, CategoryModel } from "../../openapi";
 import { from, map, mergeMap, Observable } from "rxjs";
@@ -14,4 +14,4 @@ export class CategoryService {
             .pipe(map(config => new CategoryApi(config)))
             .pipe(mergeMap(api => from(api.categoryForAccountAccountIdGet({ accountId }))));
     }
-}
+}*/
