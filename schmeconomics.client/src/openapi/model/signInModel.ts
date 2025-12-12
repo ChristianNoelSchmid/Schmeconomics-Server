@@ -10,10 +10,9 @@
 import { UserModel } from './userModel';
 
 
-export interface AuthModel { 
-    user: UserModel;
+export interface SignInModel { 
+    userModel: UserModel;
     accessToken: string;
-    refreshToken: string;
     expiresOnUtc: string;
 }
 

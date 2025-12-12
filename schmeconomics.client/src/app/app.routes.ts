@@ -1,23 +1,18 @@
 import { Routes } from '@angular/router';
-import { Home } from './routes/home';
-import { Login } from './routes/login';
-import { Accounts } from './routes/accounts';
-import { Categories } from './routes/categories';
+import { LoginRoute } from './auth/login-route';
+import { AccountRoute } from './accounts/account-route';
+import { CategoryRoute } from './categories/category-routes';
 
 export const routes: Routes = [{
-    path: "",
-    title: "Home",
-    component: Home,
-}, {
     path: "login",
     title: "Login",
-    component: Login
+    component: LoginRoute
 }, {
     path: "accounts",
     title: "Accounts",
-    component: Accounts
+    component: AccountRoute
 }, {
     path: "categories/:accountId",
     title: "Categories",
-    component: Categories
+    component: CategoryRoute
 }];

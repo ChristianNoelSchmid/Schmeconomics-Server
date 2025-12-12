@@ -42,7 +42,8 @@
         "generate",
         "-g", "typescript-angular",
         "-i", "http://localhost:5153/openapi/v1.json",
-        "-o", "${workspaceFolder}/schmeconomics.client/src/openapi/"
+        "-o", "${workspaceFolder}/schmeconomics.client/src/openapi/",
+        "--additional-properties", "serviceSuffix='OpenApiService'"
       ],
       "problemMatcher": [],
     },

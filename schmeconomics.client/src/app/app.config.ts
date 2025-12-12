@@ -3,12 +3,13 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import { BASE_PATH } from '../openapi';
-import { HttpEvent, HttpHandlerFn, HttpRequest, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpEvent, HttpHandlerFn, HttpRequest, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { map, mergeMap, Observable } from 'rxjs';
-import { CredentialsService } from './services/credentials-service';
+import { AuthService } from './auth/auth-service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(withFetch()),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     { provide: BASE_PATH, useValue: "http://localhost:5153"},
@@ -17,7 +18,7 @@ export const appConfig: ApplicationConfig = {
 };
 
 function jwtInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): Observable<HttpEvent<unknown>> {
-    const credsService = inject(CredentialsService);
+    const credsService = inject(AuthService);
 
     let sendReq = req.clone({
         credentials: "include",

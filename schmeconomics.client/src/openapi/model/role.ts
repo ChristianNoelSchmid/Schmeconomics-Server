@@ -7,13 +7,11 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import { UserModel } from './userModel';
 
 
-export interface AuthModel { 
-    user: UserModel;
-    accessToken: string;
-    refreshToken: string;
-    expiresOnUtc: string;
-}
+export const Role = {
+    User: 'User',
+    Admin: 'Admin'
+} as const;
+export type Role = typeof Role[keyof typeof Role];
 

@@ -1,5 +1,4 @@
 .gitignore
-.openapi-generator-ignore
 README.md
 api.base.service.ts
 api.module.ts
@@ -13,12 +12,13 @@ encoder.ts
 git_push.sh
 index.ts
 model/accountModel.ts
-model/authModel.ts
 model/categoryModel.ts
 model/categoryRefillValueUpdate.ts
 model/createCategoryRequest.ts
 model/createUserRequest.ts
 model/models.ts
+model/role.ts
+model/signInModel.ts
 model/signInRequest.ts
 model/toggleUserToAccountRequest.ts
 model/updateAccountRequest.ts

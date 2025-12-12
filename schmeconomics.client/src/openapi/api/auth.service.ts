@@ -17,7 +17,7 @@ import { CustomHttpParameterCodec }                          from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 // @ts-ignore
-import { AuthModel } from '../model/authModel';
+import { SignInModel } from '../model/signInModel';
 // @ts-ignore
 import { SignInRequest } from '../model/signInRequest';
 
@@ -31,7 +31,7 @@ import { BaseService } from '../api.base.service';
 @Injectable({
   providedIn: 'root'
 })
-export class AuthService extends BaseService {
+export class AuthOpenApiService extends BaseService {
 
     constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string|string[], @Optional() configuration?: Configuration) {
         super(basePath, configuration);
@@ -41,9 +41,9 @@ export class AuthService extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public authRefreshPost(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthModel>;
-    public authRefreshPost(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthModel>>;
-    public authRefreshPost(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthModel>>;
+    public authRefreshPost(observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<SignInModel>;
+    public authRefreshPost(observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SignInModel>>;
+    public authRefreshPost(observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SignInModel>>;
     public authRefreshPost(observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
 
         let localVarHeaders = this.defaultHeaders;
@@ -75,7 +75,7 @@ export class AuthService extends BaseService {
 
         let localVarPath = `/Auth/Refresh`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<AuthModel>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SignInModel>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 responseType: <any>responseType_,
@@ -93,9 +93,9 @@ export class AuthService extends BaseService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public authSignInPost(signInRequest: SignInRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<AuthModel>;
-    public authSignInPost(signInRequest: SignInRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<AuthModel>>;
-    public authSignInPost(signInRequest: SignInRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<AuthModel>>;
+    public authSignInPost(signInRequest: SignInRequest, observe?: 'body', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<SignInModel>;
+    public authSignInPost(signInRequest: SignInRequest, observe?: 'response', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpResponse<SignInModel>>;
+    public authSignInPost(signInRequest: SignInRequest, observe?: 'events', reportProgress?: boolean, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<HttpEvent<SignInModel>>;
     public authSignInPost(signInRequest: SignInRequest, observe: any = 'body', reportProgress: boolean = false, options?: {httpHeaderAccept?: 'text/plain' | 'application/json' | 'text/json', context?: HttpContext, transferCache?: boolean}): Observable<any> {
         if (signInRequest === null || signInRequest === undefined) {
             throw new Error('Required parameter signInRequest was null or undefined when calling authSignInPost.');
@@ -141,7 +141,7 @@ export class AuthService extends BaseService {
 
         let localVarPath = `/Auth/SignIn`;
         const { basePath, withCredentials } = this.configuration;
-        return this.httpClient.request<AuthModel>('post', `${basePath}${localVarPath}`,
+        return this.httpClient.request<SignInModel>('post', `${basePath}${localVarPath}`,
             {
                 context: localVarHttpContext,
                 body: signInRequest,

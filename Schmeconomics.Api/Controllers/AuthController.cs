@@ -12,7 +12,7 @@ public class AuthController(
 ) : ControllerBase
 {
     [HttpPost("SignIn")]
-    [ProducesResponseType<AuthModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType<SignInModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> SignIn(
         SignInRequest request,
         CancellationToken stopToken = default)
@@ -40,7 +40,7 @@ public class AuthController(
             );
         
             // Return access token in the response body
-            return Ok(new { accessToken = signInResult.Value.AccessToken });
+            return Ok(new SignInModel(signInResult.Value.User, signInResult.Value.AccessToken, signInResult.Value.ExpiresOnUtc));
         }
 
         return signInResult.Error switch
@@ -71,7 +71,7 @@ public class AuthController(
     }
     
     [HttpPost("Refresh")]
-    [ProducesResponseType<AuthModel>(StatusCodes.Status200OK)]
+    [ProducesResponseType<SignInModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Refresh(CancellationToken stopToken = default)
     {
         // Get the IP address from the request
@@ -102,6 +102,6 @@ public class AuthController(
             });
         
         // Return access token in the response body
-        return Ok(new { accessToken = authModel.AccessToken });
+        return Ok(new SignInModel(authModel.User, authModel.AccessToken, authModel.ExpiresOnUtc));
     }
 }

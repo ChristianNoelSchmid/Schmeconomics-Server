@@ -1,9 +1,9 @@
 export * from './account.service';
-import { AccountService } from './account.service';
+import { AccountOpenApiService } from './account.service';
 export * from './auth.service';
-import { AuthService } from './auth.service';
+import { AuthOpenApiService } from './auth.service';
 export * from './category.service';
-import { CategoryService } from './category.service';
+import { CategoryOpenApiService } from './category.service';
 export * from './user.service';
-import { UserService } from './user.service';
-export const APIS = [AccountService, AuthService, CategoryService, UserService];
+import { UserOpenApiService } from './user.service';
+export const APIS = [AccountOpenApiService, AuthOpenApiService, CategoryOpenApiService, UserOpenApiService];
