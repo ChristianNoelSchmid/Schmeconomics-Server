@@ -1,21 +1,26 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration.UserSecrets;
+using Schmeconomics.Api.Time;
 using Schmeconomics.Entities;
 
 namespace Schmeconomics.Api.Transactions;
 
 public class TransactionService(
-    SchmeconomicsDbContext db
+    SchmeconomicsDbContext db,
+    IDateTimeProvider dateTimeProvider
 ) : ITransactionService {
     private readonly SchmeconomicsDbContext _db = db;
+    private readonly IDateTimeProvider _dateTimeProvider = dateTimeProvider;
 
-    public async Task<Result<IReadOnlyList<TransactionModel>>> GetTransactionsByAccountAsync(string accountId, int page, int pageSize, CancellationToken token = default)
+    public async Task<Result<IReadOnlyList<TransactionModel>>> GetTransactionsByAccountAsync(string userId, string accountId, int page, int pageSize, CancellationToken token = default)
     {
         try
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new TransactionServiceError.AccountNotFound(accountId);
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             var transactions = await _db.Transactions
                 .Where(t => t.AccountId == accountId)
@@ -32,13 +37,14 @@ public class TransactionService(
         }
     }
 
-    public async Task<Result<IReadOnlyList<TransactionModel>>> GetTransactionsByCategoryAsync(string accountId, string categoryId, int page, int pageSize, CancellationToken token = default)
+    public async Task<Result<IReadOnlyList<TransactionModel>>> GetTransactionsByCategoryAsync(string userId, string accountId, string categoryId, int page, int pageSize, CancellationToken token = default)
     {
         try
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new TransactionServiceError.AccountNotFound(accountId);
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             // Check if category exists
             var category = await _db.Categories.FindAsync([categoryId], token);
@@ -59,13 +65,14 @@ public class TransactionService(
         }
     }
 
-    public async Task<Result> CreateTransactionsAsync(string accountId, IReadOnlyList<CreateTransactionRequest> requests, CancellationToken token = default)
+    public async Task<Result> CreateTransactionsAsync(string userId, string accountId, IReadOnlyList<CreateTransactionRequest> requests, CancellationToken token = default)
     {
         try
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new TransactionServiceError.AccountNotFound(accountId);
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync([accountId, userId], token)) != null;
+            if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             foreach (var request in requests)
             {
@@ -82,7 +89,6 @@ public class TransactionService(
                     Id = Guid.NewGuid().ToString(), 
                     CategoryId = request.CategoryId,
                     AccountId = accountId,
-                    TimestampUtc = request.TimestampUtc,
                     Amount = request.Amount,
                     Notes = request.Notes
                 };
@@ -102,13 +108,14 @@ public class TransactionService(
         }
     }
 
-    public async Task<Result> DeleteTransactionsAsync(string accountId, IReadOnlyList<string> transactionIds, CancellationToken token = default)
+    public async Task<Result> DeleteTransactionsAsync(string userId, string accountId, IReadOnlyList<string> transactionIds, CancellationToken token = default)
     {
         try
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new TransactionServiceError.AccountNotFound(accountId);
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             foreach (var transactionId in transactionIds)
             {
@@ -134,13 +141,14 @@ public class TransactionService(
         }
     }
 
-    public async Task<Result<TransactionModel>> UpdateTransactionAsync(string accountId, string transactionId, UpdateTransactionRequest request, CancellationToken token = default)
+    public async Task<Result<TransactionModel>> UpdateTransactionAsync(string userId, string accountId, string transactionId, UpdateTransactionRequest request, CancellationToken token = default)
     {
         try
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            if(account is null) return new TransactionServiceError.AccountNotFound(accountId);
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             var transaction = await _db.Transactions.FindAsync([transactionId], token);
             if(transaction is null) return new TransactionServiceError.TransactionNotFound(transactionId);

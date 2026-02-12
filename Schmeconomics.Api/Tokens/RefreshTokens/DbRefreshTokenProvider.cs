@@ -69,6 +69,10 @@ public class DbRefreshTokenProvider(
 
                 throw new RefreshTokenProviderException.RefreshTokenDoesNotMatch(token, ipAddress);
             }
+            else if(familyToken.RevokedOnUtc != null)
+            {
+                throw new RefreshTokenProviderException.RefreshTokenStale(token, ipAddress);
+            }
             else
             {
                 var newActiveToken = Convert.ToBase64String(TokenUtils.CreateRandomBytes(config.RefreshTokenLength));
@@ -127,7 +131,11 @@ public class DbRefreshTokenProvider(
                 ?? throw new RefreshTokenProviderException.RefreshTokenNotFound(familyToken, ipAddress);
 
         // If the token is not active, or is past expiration, throw stale token exception
-        if (tokenEntity.ActiveToken == null || tokenEntity.ExpiresOnUtc < _dateTimeProvider.UtcNow)
+        if (
+            tokenEntity.ActiveToken == null || 
+            tokenEntity.ExpiresOnUtc < _dateTimeProvider.UtcNow || 
+            tokenEntity.RevokedOnUtc != null
+        )
             throw new RefreshTokenProviderException.RefreshTokenStale(familyToken, ipAddress);
 
         return tokenEntity;

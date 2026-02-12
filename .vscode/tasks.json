@@ -40,10 +40,10 @@
       "command": "openapi-generator-cli",
       "args": [
         "generate",
-        "-g", "typescript-angular",
+        "-g", "typescript-fetch",
         "-i", "http://localhost:5153/openapi/v1.json",
-        "-o", "${workspaceFolder}/schmeconomics.client/src/openapi/",
-        "--additional-properties", "serviceSuffix='OpenApiService'"
+        "-o", "${workspaceFolder}/schmeconomics.client/app/lib/openapi/",
+        "--additional-properties", "serviceSuffix='Api'"
       ],
       "problemMatcher": [],
     },

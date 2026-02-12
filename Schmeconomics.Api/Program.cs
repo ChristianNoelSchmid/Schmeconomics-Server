@@ -9,6 +9,7 @@ using Schmeconomics.Api.Tokens.AuthTokens;
 using Schmeconomics.Api.Tokens.RefreshTokens;
 using Schmeconomics.Api.Accounts;
 using Schmeconomics.Api.Categories;
+using Schmeconomics.Api.Transactions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +29,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins("http://localhost:3000")
             .AllowCredentials()
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -48,6 +49,7 @@ builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
 // Register `CurrentUser` that both a `ICurrentUser` and `ICurrentUserSetter` dependency can point to
 builder.Services.AddScoped<CurrentUser>();
 builder.Services.AddScoped<ICurrentUser>(provider => provider.GetRequiredService<CurrentUser>());
