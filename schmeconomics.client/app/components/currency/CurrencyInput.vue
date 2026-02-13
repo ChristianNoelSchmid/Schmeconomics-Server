@@ -8,7 +8,7 @@ const formattedValue = computed<string>(() => {
   if (!model.value) return '0.00';
   let fmt = formattedPart(parts.value[0]!.amount);
   for(let i = 1; i < parts.value.length; i += 1) {
-    fmt += parts.value[i]!.partType == CurrencyPartType.Plus ? " + " : " - ";
+    fmt += (parts.value[i]!.partType == CurrencyPartType.Plus) ? " + " : " - ";
     fmt += formattedPart(parts.value[i]!.amount);
   }
   return fmt;
@@ -22,11 +22,11 @@ function formattedPart(value: number): string {
 
 function handleInput(keyboardEvent: KeyboardEvent) {
   if (!model.value) parts.value = [new CurrencyInputPart(CurrencyPartType.Plus, 0)];
-  if (keyboardEvent.key != "Tab")
+  if (keyboardEvent.key != "Tab") 
     keyboardEvent.preventDefault();
 
   const modelValue = parts.value.at(-1)!;
-  console.log(keyboardEvent.key);
+  // console.log(keyboardEvent.key);
   if (keyboardEvent.key == "Backspace") {
     if(modelValue.amount == 0) {
       if(parts.value.length > 1) 
@@ -36,8 +36,8 @@ function handleInput(keyboardEvent: KeyboardEvent) {
       modelValue.amount /= 10;
     }
   } else if(
-      keyboardEvent.key == "+" || keyboardEvent.key == "-" ||
-      keyboardEvent.key == "Add" || keyboardEvent.key == "Subtract"
+    keyboardEvent.key == "+" || keyboardEvent.key == "-" ||
+    keyboardEvent.key == "Add" || keyboardEvent.key == "Subtract"
   ) {
     const partType = keyStringToPartType(keyboardEvent.key);
     if(modelValue.amount == 0) {

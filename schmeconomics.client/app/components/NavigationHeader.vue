@@ -40,6 +40,11 @@ const menuItems = computed<NavigationMenuItem[]>(() => [
     to: "/accounts",
     active: route.path.endsWith("/accounts")
   },
+  ...(signInState.value?.userModel.role === 'Admin' ? [{
+    label: "Users",
+    to: "/users",
+    active: route.path.startsWith('/users')
+  }] : []),
   {
     label: signInState.value ? "Logout" : "Login",
     to: '/login',
