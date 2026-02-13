@@ -54,7 +54,7 @@ function submitRequest() {
 
                 <UForm class="space-y-4" :state="transactionState" :validate="validate">
                     <UFormField label="Amount">
-                        <NumberInput v-model="transactionState.amount" />
+                        <CurrencyInput v-model="transactionState.amount" />
                     </UFormField>
                     <UFormField label="Notes">
                         <UInput v-model="transactionState.notes" type="text" />

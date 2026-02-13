@@ -34,7 +34,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 <template>
   <div class="my-4 flex justify-center">
     <UForm class="space-y-4" :validate="validate" :state="formState" @submit="onSubmit">
-      <NumberInput />
+      <CurrencyInput />
       <UFormField label="Name">
         <UInput v-model="formState.name" type="text" />
       </UFormField>

@@ -69,11 +69,11 @@ watch(() => props.categoryToEdit, (newVal) => {
           </UFormField>
 
           <UFormField label="Balance">
-            <NumberInput v-model="newCategoryState.balance" />
+            <CurrencyInput v-model="newCategoryState.balance" />
           </UFormField>
 
           <UFormField label="Refill Value">
-            <NumberInput v-model="newCategoryState.refillValue" />
+            <CurrencyInput v-model="newCategoryState.refillValue" />
           </UFormField>
         </UForm>
 
