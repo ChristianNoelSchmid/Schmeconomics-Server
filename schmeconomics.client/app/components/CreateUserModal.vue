@@ -2,6 +2,7 @@
 import type { FormError } from '@nuxt/ui';
 import { onError } from '~/lib/form-error';
 import type { CreateUserRequest, UpdateUserRequest, UserModel } from '~/lib/openapi';
+import PasswordInput from './PasswordInput.vue';
 
 const props = defineProps<{
   visible: boolean,
@@ -100,10 +101,10 @@ watch(() => props.userToEdit, (newVal) => {
             <UCheckbox v-model="updatePassword" />
           </UFormField>
           <UFormField v-if="updatePassword || userToEdit == null" label="Password" name="password" >
-            <PasswordField v-model="newUserState.password" :show-reveal-password-button="true" /> 
+            <PasswordInput v-model="newUserState.password" :show-reveal-password-button="true" /> 
           </UFormField>
           <UFormField v-if="updatePassword || userToEdit == null" label="Confirm Password" name="confirmPassword">
-            <PasswordField v-model="newUserState.confirmPassword" :show-reveal-password-button="false" />
+            <PasswordInput v-model="newUserState.confirmPassword" :show-reveal-password-button="false" />
           </UFormField>
           <div class="flex justify-end space-x-2">
             <UButton color="neutral" variant="ghost" @click="emit('closed')">

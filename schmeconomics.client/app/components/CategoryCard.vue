@@ -18,14 +18,11 @@ const emit = defineEmits<{
 
 <template>
   <UCard class="relative">
-    <template #header>
-      <div class="flex justify-between items-center">
-        <h3 class="text-lg font-semibold">{{ props.category.name }}</h3>
-      </div>
-    </template>
-
     <div class="flex justify-between">
-      <p class="self-center text-xl">${{ balance }}</p>
+      <div class="flex flex-col justify-center">
+        <h3 class="text-lg font-semibold">{{ props.category.name }}</h3>
+        <p class="text-xl">${{ balance }}</p>
+      </div>
       <div class="flex flex-col">
         <UButton color="info" variant="outline" icon="i-heroicons-minus" size="xl"
           @click="emit('transactionclicked', false)" />
