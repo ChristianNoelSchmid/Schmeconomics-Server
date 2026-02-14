@@ -24,6 +24,7 @@ public class TransactionService(
 
             var transactions = await _db.Transactions
                 .Where(t => t.AccountId == accountId)
+                .Include(t => t.Creator)
                 .OrderByDescending(t => t.TimestampUtc)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -52,6 +53,7 @@ public class TransactionService(
 
             var transactions = await _db.Transactions
                 .Where(t => t.CategoryId == categoryId)
+                .Include(t => t.Creator)
                 .OrderByDescending(t => t.TimestampUtc)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -89,6 +91,7 @@ public class TransactionService(
                     Id = Guid.NewGuid().ToString(), 
                     CategoryId = request.CategoryId,
                     AccountId = accountId,
+                    CreatorId = userId,
                     Amount = request.Amount,
                     Notes = request.Notes
                 };

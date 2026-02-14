@@ -7,7 +7,6 @@ namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize(Role.Admin)]
 public class AccountController(
     IAccountService _accountService,
     ICurrentUser _currentUser
@@ -29,6 +28,7 @@ public class AccountController(
 
 
     [HttpPost("Create")]
+    [Authorize(Role.Admin)]
     [ProducesResponseType<AccountModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> CreateAccountAsync(
         string name,
@@ -41,6 +41,7 @@ public class AccountController(
     }
 
     [HttpPost("ToggleUser")]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> ToggleUserToAccountAsync(
         ToggleUserToAccountRequest request,
         CancellationToken stopToken = default)
@@ -56,6 +57,7 @@ public class AccountController(
     }
 
     [HttpDelete("Delete/{id}")]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> DeleteAccountAsync(
         string id,
         CancellationToken stopToken = default)
@@ -69,6 +71,7 @@ public class AccountController(
 
     [HttpPut("Update/{id}")]
     [ProducesResponseType<AccountModel>(StatusCodes.Status200OK)]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> UpdateAccountAsync(
         string id,
         UpdateAccountRequest request,

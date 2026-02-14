@@ -7,13 +7,13 @@ namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-[Authorize(Role.Admin)]
 public class CategoryController(
     ICategoryService _categoryService,
     ICurrentUser _currentUser
 ) : ControllerBase {
     [HttpPost("Create")]
     [ProducesResponseType<CategoryModel>(StatusCodes.Status200OK)]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> CreateCategoryAsync(
         CreateCategoryRequest request,
         CancellationToken stopToken = default
@@ -32,6 +32,7 @@ public class CategoryController(
     }
 
     [HttpDelete("Delete/{id}")]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> DeleteCategoryAsync(
         string id,
         CancellationToken stopToken = default
@@ -44,6 +45,7 @@ public class CategoryController(
 
     [HttpPut("Update/{id}")]
     [ProducesResponseType<CategoryModel>(StatusCodes.Status200OK)]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> UpdateCategoryAsync(
         string id,
         UpdateCategoryRequest request,
@@ -61,6 +63,7 @@ public class CategoryController(
 
     [HttpPut("UpdateOrder")]
     [ProducesResponseType<IEnumerable<CategoryModel>>(StatusCodes.Status200OK)]
+    [Authorize(Role.Admin)]
     public async Task<IActionResult> UpdateCategoriesOrderAsync(
         UpdateCategoriesOrderRequest request,
         CancellationToken stopToken = default
@@ -73,6 +76,7 @@ public class CategoryController(
 
     [HttpPut("UpdateRefillValues")]
     [ProducesResponseType<IEnumerable<CategoryModel>>(StatusCodes.Status200OK)]
+    [Authorize(Role.User)]
     public async Task<IActionResult> UpdateCategoriesRefillValuesAsync(
         UpdateCategoriesRefillValueRequest request,
         CancellationToken stopToken = default

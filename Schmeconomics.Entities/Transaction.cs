@@ -13,6 +13,9 @@ public class Transaction {
     [Required, ForeignKey(nameof(Category))]
     public string CategoryId { get; set; } = string.Empty;
 
+    [Required, ForeignKey(nameof(User))]
+    public string CreatorId { get; set; } = string.Empty;
+
     [Required]
     public DateTime TimestampUtc { get; set;} = DateTime.UtcNow;
 
@@ -24,6 +27,8 @@ public class Transaction {
 
     [Required, ForeignKey(nameof(Account))]
     public string AccountId { get; set; } = string.Empty;
+
+    public User? Creator { get; set; }
 
     public Category? Category { get; set; }
     

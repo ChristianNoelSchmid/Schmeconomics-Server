@@ -3,11 +3,14 @@ import type { FormError } from '@nuxt/ui';
 import { AccountApi, Role, type AccountModel } from '~/lib/openapi';
 import { deleteAccount, refreshAccountState, useAccountState, useDefaultAccountName } from '~/lib/services/account-service';
 import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
+import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';
 
 const defaultAccountIdStorage = useDefaultAccountName();
 const accounts = useAccountState();
 const signInState = useSignInState();
 const creatingAccount = ref(false);
+const userManagementModalOpen = ref(false);
+const selectedAccountId = ref<string | null>(null);
 
 async function onDeleteAccount(event: MouseEvent, id: string) {
   event.preventDefault();
@@ -36,11 +39,16 @@ function selectAccount(event: Event, account: AccountModel) {
 }
 
 async function onCreateAccount() {
-  const api = new AccountApi(getApiConfiguration(true));
+  const api = new AccountApi(await getApiConfiguration(true));
   try { await api.accountCreatePost({ name: createAccountState.name }); }
   catch { return; }
   creatingAccount.value = false;
   await refreshAccountState();
+}
+
+function openUserManagement(accountId: string) {
+  selectedAccountId.value = accountId;
+  userManagementModalOpen.value = true;
 }
 </script>
 
@@ -52,7 +60,10 @@ async function onCreateAccount() {
           <h2>{{ account.name }}</h2>
         </div>
         <template v-if="signInState?.userModel.role == Role.Admin" #footer>
-          <UButton color="error" @click="onDeleteAccount($event, account.id)">Delete</UButton>
+          <div class="flex space-x-2">
+            <UButton @click="openUserManagement(account.id)">Manage Users</UButton>
+            <UButton color="error" @click="onDeleteAccount($event, account.id)">Delete</UButton>
+          </div>
         </template>
       </UCard>
     </UPageList>
@@ -68,5 +79,11 @@ async function onCreateAccount() {
         </UForm>
       </template>
     </UModal>
+    
+    <AccountUserManagementModal 
+      :account-id="selectedAccountId || ''"
+      :visible="userManagementModalOpen"
+      @closed="userManagementModalOpen = false"
+    />
   </div>
 </template>
