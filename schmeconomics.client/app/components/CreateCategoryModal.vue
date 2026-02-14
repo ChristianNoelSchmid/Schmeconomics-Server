@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
+import { onError } from '~/lib/form-error';
 import type { CreateCategoryRequest, CategoryModel } from '~/lib/openapi';
 
 const props = defineProps<{
@@ -24,8 +25,6 @@ type Schema = typeof newCategoryState;
 function validate(state: Partial<Schema>): FormError[] {
   const errors = [];
   if (!state.name) errors.push({ name: 'name', message: 'Required' });
-  if (!state.balance) errors.push({ name: 'balance', message: 'Required' });
-  if (!state.refillValue) errors.push({ name: 'refillValue', message: 'Required' });
   return errors;
 }
 
@@ -63,30 +62,28 @@ watch(() => props.categoryToEdit, (newVal) => {
           <h3 class="text-lg font-semibold">{{ props.categoryToEdit ? 'Edit Category' : 'Create New Category' }}</h3>
         </template>
 
-        <UForm class="space-y-4" :state="newCategoryState" :validate="validate">
-          <UFormField label="Name">
+        <UForm class="space-y-4" :state="newCategoryState" :validate="validate" @submit="submitRequest" @error="onError">
+          <UFormField label="Name" name="name">
             <UInput v-model="newCategoryState.name" />
           </UFormField>
 
-          <UFormField label="Balance">
+          <UFormField label="Balance" name="balance">
             <CurrencyInput v-model="newCategoryState.balance" />
           </UFormField>
 
-          <UFormField label="Refill Value">
+          <UFormField label="Refill Value" name="refillValue">
             <CurrencyInput v-model="newCategoryState.refillValue" />
           </UFormField>
-        </UForm>
 
-        <template #footer>
           <div class="flex justify-end space-x-2">
             <UButton color="neutral" variant="ghost" @click="emit('closed')">
               Cancel
             </UButton>
-            <UButton color="primary" variant="solid" @click="submitRequest">
+            <UButton type="submit" color="primary" variant="solid">
               {{ props.categoryToEdit ? 'Update' : 'Create' }}
             </UButton>
           </div>
-        </template>
+        </UForm>
       </UCard>
     </template>
   </UModal>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
+import { onError } from '~/lib/form-error';
 import type { CreateUserRequest, UpdateUserRequest, UserModel } from '~/lib/openapi';
 
 const props = defineProps<{
@@ -20,14 +21,25 @@ const newUserState = reactive({
 
 const updateName = ref(false);
 const updatePassword = ref(false);
-const revealPassword = ref(false);
 
 type Schema = typeof newUserState;
 
 function validate(state: Partial<Schema>): FormError[] {
   const errors = [];
-  if (!state.name) errors.push({ name: 'name', message: 'Required' });
-  if (!state.password && !props.userToEdit) errors.push({ name: 'password', message: 'Required for new users' });
+  if ((props.userToEdit == null || updateName.value) && !state.name) 
+    errors.push({ name: 'name', message: 'Required' });
+  if (
+    (props.userToEdit == null || updatePassword.value) &&
+    state.password != state.confirmPassword
+  )
+    errors.push({ name: 'confirmPassword', message: 'Passwords do not match' });
+
+  if(!state.password) {
+    if (props.userToEdit == null)
+      errors.push({ name: 'password', message: 'Required for new users' });
+    else if(updatePassword.value)
+      errors.push({ name: 'password', message: 'Please enter a new password' });
+  }
   return errors;
 }
 
@@ -36,8 +48,8 @@ function submitRequest() {
     // Editing an existing user - only send name and password, role is not editable in this UI
     const updateRequest: UpdateUserRequest = {
       userId: props.userToEdit.id,
-      name: newUserState.name,
-      password: newUserState.password || null
+      name: updateName.value ? newUserState.name : null,
+      password: updatePassword.value ? newUserState.password : null
     };
     emit('submitted', updateRequest);
   } else {
@@ -76,41 +88,32 @@ watch(() => props.userToEdit, (newVal) => {
           <h3 class="text-lg font-semibold">{{ props.userToEdit ? 'Edit User' : 'Create New User' }}</h3>
         </template>
 
-        <UForm class="space-y-4" :state="newUserState" :validate="validate">
+        <UForm class="space-y-4" :state="newUserState" :validate="validate" @submit="submitRequest" @error="onError">
           <UFormField v-if="userToEdit != null" label="Edit Name">
             <UCheckbox v-model="updateName" />
           </UFormField>
-          <UFormField v-if="updateName || userToEdit == null" label="Name">
+          <UFormField v-if="updateName || userToEdit == null" label="Name" name="name">
             <UInput v-model="newUserState.name" />
           </UFormField>
 
           <UFormField v-if="userToEdit != null" label="Edit Password">
             <UCheckbox v-model="updatePassword" />
           </UFormField>
-          <UFormField v-if="updatePassword || userToEdit == null" label="Password">
-            <div class="flex">
-              <UInput v-model="newUserState.password" :type="revealPassword ? 'text' : 'password'" />
-              <UButton :icon="revealPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'" variant="ghost" @click="revealPassword = !revealPassword" />
-            </div>
+          <UFormField v-if="updatePassword || userToEdit == null" label="Password" name="password" >
+            <PasswordField v-model="newUserState.password" :show-reveal-password-button="true" /> 
           </UFormField>
-          <UFormField v-if="updatePassword || userToEdit == null" label="Confirm Password">
-            <div class="flex">
-              <UInput v-model="newUserState.confirmPassword" type="password" />
-            </div>
+          <UFormField v-if="updatePassword || userToEdit == null" label="Confirm Password" name="confirmPassword">
+            <PasswordField v-model="newUserState.confirmPassword" :show-reveal-password-button="false" />
           </UFormField>
-
-        </UForm>
-
-        <template #footer>
           <div class="flex justify-end space-x-2">
             <UButton color="neutral" variant="ghost" @click="emit('closed')">
               Cancel
             </UButton>
-            <UButton color="primary" variant="solid" @click="submitRequest">
+            <UButton type="submit" color="primary" variant="solid" >
               {{ props.userToEdit ? 'Update' : 'Create' }}
             </UButton>
           </div>
-        </template>
+        </UForm>
       </UCard>
     </template>
   </UModal>

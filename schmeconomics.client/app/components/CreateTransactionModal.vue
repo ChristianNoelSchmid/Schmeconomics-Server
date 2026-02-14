@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
+import { onError } from '~/lib/form-error';
 import type { CategoryModel } from '~/lib/openapi';
 
 export interface CreateTransactionProp {
@@ -26,7 +27,8 @@ type Schema = typeof transactionState;
 
 function validate(state: Partial<Schema>): FormError[] {
     const errors = [];
-    if (!state) errors.push({ name: 'amount', message: 'Required' });
+    if (state.amount == 0) 
+        errors.push({ name: 'amount', message: 'Please input a value' });
     return errors;
 }
 
@@ -52,29 +54,23 @@ function submitRequest() {
                     <h3 class="text-lg font-semibold">Create Transaction for {{ props.model?.category.name }}</h3>
                 </template>
 
-                <UForm class="space-y-4" :state="transactionState" :validate="validate">
-                    <UFormField label="Amount">
+                <UForm class="space-y-4" :state="transactionState" :validate="validate" @error="onError" @submit="submitRequest">
+                    <UFormField label="Amount" name="amount">
                         <CurrencyInput v-model="transactionState.amount" />
                     </UFormField>
-                    <UFormField label="Notes">
+                    <UFormField label="Notes" name="notes">
                         <UInput v-model="transactionState.notes" type="text" />
                     </UFormField>
 
-                    <div class="flex space-x-4 justify-center">
-                        <UButton :color="(props.model?.isAddition ?? true) ? 'success' : 'error'" variant="solid"
-                            :disabled="!transactionState" @click="submitRequest()">
+                    <div class="flex space-x-4 justify-end">
+                        <UButton color="neutral" variant="ghost" @click="emit('closed')">
+                            Cancel
+                        </UButton>
+                        <UButton type="submit" color="info" variant="solid" :disabled="!transactionState">
                             {{ (props.model?.isAddition ?? true) ? "Add Money (+)" : "Subtract Money (-)" }}
                         </UButton>
                     </div>
                 </UForm>
-
-                <template #footer>
-                    <div class="flex justify-end space-x-2">
-                        <UButton color="neutral" variant="ghost" @click="emit('closed')">
-                            Cancel
-                        </UButton>
-                    </div>
-                </template>
             </UCard>
         </template>
     </UModal>
