@@ -18,7 +18,8 @@ export class CategoryService {
         }
 
         try {
-            const api = new CategoryApi(getApiConfiguration(true));
+            const config = await getApiConfiguration(true);
+            const api = new CategoryApi(config);
             const request: CreateCategoryRequest = {
             accountId: account.id,
             name: state.name,
@@ -33,7 +34,8 @@ export class CategoryService {
     }
     async updateCategory(categoryId: string, request: UpdateCategoryRequest) {
         try {
-            const api = new CategoryApi(getApiConfiguration(true));
+            const config = await getApiConfiguration(true);
+            const api = new CategoryApi(config);
             await api.categoryUpdateIdPut({ id: categoryId, updateCategoryRequest: request });
         } catch (error) {
             console.error('Failed to update category:', error);
@@ -41,7 +43,8 @@ export class CategoryService {
     }
     async deleteCategory(categoryId: string) {
         try {
-            const api = new CategoryApi(getApiConfiguration(true));
+            const config = await getApiConfiguration(true);
+            const api = new CategoryApi(config);
             await api.categoryDeleteIdDelete({ id: categoryId });
         } catch (error) {
             console.error('Failed to delete category:', error);

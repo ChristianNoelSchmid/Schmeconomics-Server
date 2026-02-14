@@ -4,7 +4,7 @@ namespace Schmeconomics.Api.Tokens.AuthTokens;
 
 public interface IAuthTokenProvider
 {
-    Task<string> CreateAuthTokenAsync(
+    Task<AuthTokenModel> CreateAuthTokenAsync(
         IDictionary<string, object> claims,
         CancellationToken token = default
     );

@@ -7,13 +7,15 @@ export function useAccountState() {
 }
 
 export async function refreshAccountState() {
-    const api = new AccountApi(getApiConfiguration(true));
+    const config = await getApiConfiguration(true);
+    const api = new AccountApi(config);
     try { useAccountState().value = await api.accountAllGet(); }
     catch { return; }
 };
 
 export async function deleteAccount(id: string) {
-    const api = new AccountApi(getApiConfiguration(true));
+    const config = await getApiConfiguration(true);
+    const api = new AccountApi(config);
     try { api.accountDeleteIdDelete({ id }) }
     catch { return; }
 

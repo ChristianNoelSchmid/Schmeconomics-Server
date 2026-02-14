@@ -2,26 +2,28 @@ import { UserApi, type CreateUserRequest, type UpdateUserRequest, type UserModel
 import { getApiConfiguration } from "./auth-state";
 
 export class UserService {
-  private userApi: UserApi;
-
-  constructor() {
-    this.userApi = new UserApi(getApiConfiguration(true));
+  async api() { 
+    return new UserApi(await getApiConfiguration(true)); 
   }
 
   async getAllUsers(): Promise<UserModel[]> {
-    return await this.userApi.userAllGet();
+    const api = await this.api();
+    return await api.userAllGet();
   }
 
   async getUserById(id: string): Promise<UserModel> {
-    return await this.userApi.userByIdIdGet({ id });
+    const api = await this.api();
+    return await api.userByIdIdGet({ id });
   }
 
   async getUserByName(name: string): Promise<UserModel> {
-    return await this.userApi.userByNameNameGet({ name });
+    const api = await this.api();
+    return await api.userByNameNameGet({ name });
   }
 
   async createUser(request: CreateUserRequest): Promise<UserModel> {
-    return await this.userApi.userCreatePost({ createUserRequest: request });
+    const api = await this.api();
+    return await api.userCreatePost({ createUserRequest: request });
   }
 
   async updateUser(_id: string, request: UpdateUserRequest): Promise<UserModel> {
@@ -30,10 +32,12 @@ export class UserService {
       ...request,
       userId: _id
     };
-    return await this.userApi.userUpdatePut({ updateUserRequest });
+    const api = await this.api();
+    return await api.userUpdatePut({ updateUserRequest });
   }
 
   async deleteUser(id: string): Promise<UserModel> {
-    return await this.userApi.userDeleteUserIdDelete({ userId: id });
+    const api = await this.api();
+    return await api.userDeleteUserIdDelete({ userId: id });
   }
 }

@@ -35,12 +35,12 @@ public class AuthController(
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = signInResult.Value.ExpiresOnUtc,
+                    Expires = signInResult.Value.RefreshExpiresOnUtc,
                 }
             );
         
             // Return access token in the response body
-            return Ok(new SignInModel(signInResult.Value.User, signInResult.Value.AccessToken, signInResult.Value.ExpiresOnUtc));
+            return Ok(new SignInModel(signInResult.Value.User, signInResult.Value.AccessToken, signInResult.Value.AccessTokenExpiresOnUtc));
         }
 
         return signInResult.Error switch
@@ -98,10 +98,10 @@ public class AuthController(
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = authModel.ExpiresOnUtc,
+                Expires = authModel.RefreshExpiresOnUtc,
             });
         
         // Return access token in the response body
-        return Ok(new SignInModel(authModel.User, authModel.AccessToken, authModel.ExpiresOnUtc));
+        return Ok(new SignInModel(authModel.User, authModel.AccessToken, authModel.AccessTokenExpiresOnUtc));
     }
 }

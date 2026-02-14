@@ -31,7 +31,7 @@ public class JwtAuthTokenProvider : IAuthTokenProvider
         _tokenHandler.OutboundClaimTypeMap.Clear();
     }
 
-    public async Task<string> CreateAuthTokenAsync(
+    public async Task<AuthTokenModel> CreateAuthTokenAsync(
         IDictionary<string, object> claims,
         CancellationToken token = default
     ) {
@@ -46,20 +46,21 @@ public class JwtAuthTokenProvider : IAuthTokenProvider
 
             var securityKey = new SymmetricSecurityKey(secretBytes!);
             var signingCredentials = new SigningCredentials(securityKey, config.HashAlgorithm.ToSecurityAlgorithmString());
+            var expiresOnUtc = _dateTimeProvider.UtcNow + config.TokenLifetimeLength;
 
             var jwtToken = _tokenHandler.CreateEncodedJwt(
                 config.Issuer,
                 config.Audience,
                 null,
                 null,
-                _dateTimeProvider.UtcNow + config.TokenLifetimeLength,
+                expiresOnUtc,
                 _dateTimeProvider.UtcNow,
                 signingCredentials,
                 null,
                 claims
             );
 
-            return jwtToken;
+            return new AuthTokenModel(jwtToken, expiresOnUtc);
         }
         catch (SecretProviderException secretException)
         {

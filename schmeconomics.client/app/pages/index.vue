@@ -35,7 +35,7 @@ async function loadCategories() {
   }
 
   try {
-    const api = new CategoryApi(getApiConfiguration(true));
+    const api = new CategoryApi(await getApiConfiguration(true));
     categories.value = await api.categoryForAccountAccountIdGet({ accountId: account.value.id });
   } catch (error) {
     console.error('Failed to load categories:', error);

@@ -4,7 +4,8 @@ import { getApiConfiguration } from "./auth-state";
 export class TransactionService {
     async createTransaction(accountId: string, categoryId: string, amount: number, notes: string, isAddition: boolean) {
         try {
-            const api = new TransactionApi(getApiConfiguration(true));
+            const config = await getApiConfiguration(true);
+            const api = new TransactionApi(config);
             
             // Create the refill value update request
             const createTransactionRequest: TransactionAccountIdPostRequest = {

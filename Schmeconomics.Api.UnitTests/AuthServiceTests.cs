@@ -78,7 +78,7 @@ public class AuthServiceTests
         Assert.IsTrue(result.IsOk);
         Assert.AreEqual(expectedAccessToken, result.Value.AccessToken);
         Assert.AreEqual(expectedRefreshToken, result.Value.RefreshToken);
-        Assert.AreEqual(expectedExpiresOnUtc, result.Value.ExpiresOnUtc);
+        Assert.AreEqual(expectedExpiresOnUtc, result.Value.RefreshExpiresOnUtc);
     }
 
     [TestMethod]
@@ -155,7 +155,7 @@ public class AuthServiceTests
 
         Assert.AreEqual(expectedAccessToken, result.Value.AccessToken);
         Assert.AreEqual(expectedRefreshToken, result.Value.RefreshToken);
-        Assert.AreEqual(expectedExpiresOnUtc, result.Value.ExpiresOnUtc);
+        Assert.AreEqual(expectedExpiresOnUtc, result.Value.RefreshExpiresOnUtc);
     }
 
     [TestMethod]

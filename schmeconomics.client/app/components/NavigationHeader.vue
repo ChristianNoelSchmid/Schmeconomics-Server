@@ -17,7 +17,7 @@ const accountNames = computed<string[]>(
 );
 
 async function logout() {
-  const api = new AuthApi(useApiConfiguration(false));
+  const api = new AuthApi(await useApiConfiguration(false));
   await api.authSignOutPost();
   signInState.value = undefined;
   clearAccountState();

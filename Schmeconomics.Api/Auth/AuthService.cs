@@ -39,7 +39,7 @@ public class AuthService(
             // Create refresh token
             var refreshToken = await _refreshTokenProvider.CreateNewTokenAsync(user.Id, ipAddress, stopToken);
             
-            return new AuthModel((UserModel)user, accessToken, refreshToken.Token, refreshToken.ExpiresOnUtc);
+            return new AuthModel((UserModel)user, accessToken.Token, refreshToken.Token, accessToken.ExpiresOnUtc, refreshToken.ExpiresOnUtc);
         }
         catch(DbException ex)
         {
@@ -71,19 +71,19 @@ public class AuthService(
     {
         // Use the refresh token provider to create a new auth token from the refresh token
         try {
-            var refreshedTokenResult = await _refreshTokenProvider.CreateFromTokenAsync(refreshToken, ipAddress, stopToken);
+            var newRefreshToken = await _refreshTokenProvider.CreateFromTokenAsync(refreshToken, ipAddress, stopToken);
             
             // Create new access token using the auth token provider
             var claims = new Dictionary<string, object>
             {
-                ["sub"] = refreshedTokenResult.User.Id,
-                ["name"] = refreshedTokenResult.User.Name,
-                ["role"] = refreshedTokenResult.User.Role.ToString()
+                ["sub"] = newRefreshToken.User.Id,
+                ["name"] = newRefreshToken.User.Name,
+                ["role"] = newRefreshToken.User.Role.ToString()
             };
 
             var accessToken = await _authTokenProvider.CreateAuthTokenAsync(claims, stopToken);
             
-            return new AuthModel(refreshedTokenResult.User, accessToken, refreshedTokenResult.Token, refreshedTokenResult.ExpiresOnUtc);
+            return new AuthModel(newRefreshToken.User, accessToken.Token, newRefreshToken.Token, accessToken.ExpiresOnUtc, newRefreshToken.ExpiresOnUtc);
         } 
         catch (AuthTokenProviderException ex)
         {

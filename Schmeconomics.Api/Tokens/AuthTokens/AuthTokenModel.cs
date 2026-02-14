@@ -1,0 +1,1 @@
+public record class AuthTokenModel(string Token, DateTime ExpiresOnUtc);
