@@ -117,6 +117,13 @@ async function createTransaction(amount: number, notes: string, isAddition: bool
     alert('Failed to create transaction');
   }
 }
+
+async function navigateToCategoryTxs(catId: string) {
+  await navigateTo({ 
+    path: '/transactions', 
+    query: { categoryId: catId }
+  });
+}
 </script>
 
 <template>
@@ -136,7 +143,7 @@ async function createTransaction(amount: number, notes: string, isAddition: bool
 
     <!-- Categories list -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <CategoryCard v-for="category in categories" :key="category.id" :category="category"
+      <CategoryCard @clicked="navigateToCategoryTxs(category.id)" v-for="category in categories" :key="category.id" :category="category"
         @deleteclicked="deleteCategory(category.id)" @editclicked="handleEditCategory(category)"
         @transactionclicked="isAddition => handleCreateTransaction(category, isAddition)" />
     </div>

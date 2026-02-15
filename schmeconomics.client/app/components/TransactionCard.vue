@@ -5,24 +5,13 @@ import type { TransactionModel } from "~/lib/openapi/models/TransactionModel";
 defineProps<{
   transaction: TransactionModel;
 }>();
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-};
 </script>
 
 <template>
   <div class="border rounded-lg p-4 mb-3 bg-white shadow-sm">
     <div class="flex justify-between items-start">
       <div>
-        <p class="text-sm text-gray-500">{{ transaction.timestampUtc }}</p>
+        <p class="text-sm text-gray-500">{{ transaction.timestampUtc.toLocaleString() }}</p>
         <p class="font-medium">{{ transaction.creator }}</p>
       </div>
       <p class="text-lg font-bold" :class="transaction.amount >= 0 ? 'text-green-700' : 'text-red-700'">

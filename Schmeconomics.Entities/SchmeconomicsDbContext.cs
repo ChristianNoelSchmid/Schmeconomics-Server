@@ -12,4 +12,10 @@ public class SchmeconomicsDbContext(
     public DbSet<Category> Categories { get; private set; } = null!;
     public DbSet<Transaction> Transactions { get; private set; } = null!;
     public DbSet<RefreshTokenFamily> RefreshTokenFamilies { get; private set; } = null!;
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>().HaveConversion<DateTimeAsUtcValueConverter>();
+        configurationBuilder.Properties<DateTime?>().HaveConversion<NullableDateTimeAsUtcValueConverter>();
+    }
 }

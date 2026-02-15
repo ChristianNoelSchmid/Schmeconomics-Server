@@ -10,6 +10,7 @@ const props = defineProps<{
 const balance = computed(() => currencyFormat(props.category.balance));
 
 const emit = defineEmits<{
+  clicked: []
   deleteclicked: []
   editclicked: []
   transactionclicked: [isAddition: boolean]
@@ -19,9 +20,9 @@ const emit = defineEmits<{
 <template>
   <UCard class="relative">
     <div class="flex justify-between">
-      <div class="flex flex-col justify-center">
+      <div class="flex flex-grow flex-col justify-center" @click="emit('clicked')">
         <h3 class="text-lg font-semibold">{{ props.category.name }}</h3>
-        <p class="text-xl">${{ balance }}</p>
+        <p class="text-md">${{ balance }}</p>
       </div>
       <div class="flex flex-col">
         <UButton color="info" variant="outline" icon="i-heroicons-minus" size="xl"
@@ -33,8 +34,8 @@ const emit = defineEmits<{
 
     <template #footer v-if="signInState?.userModel.role == Role.Admin">
       <div class="flex justify-end space-x-2">
-        <UButton color="warning" variant="ghost" icon="i-heroicons-pencil" size="xl" @click="emit('editclicked')" />
-        <UButton color="error" variant="ghost" icon="i-heroicons-trash" size="xl" @click="emit('deleteclicked')" />
+        <UButton color="warning" variant="ghost" icon="i-heroicons-pencil" size="xl" @click.prevent="emit('editclicked')" />
+        <UButton color="error" variant="ghost" icon="i-heroicons-trash" size="xl" @click.prevent="emit('deleteclicked')" />
       </div>
     </template>
   </UCard>

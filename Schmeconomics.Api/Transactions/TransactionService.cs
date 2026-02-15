@@ -95,7 +95,8 @@ public class TransactionService(
                     AccountId = accountId,
                     CreatorId = userId,
                     Amount = request.Amount,
-                    Notes = request.Notes
+                    Notes = request.Notes,
+                    TimestampUtc = _dateTimeProvider.UtcNow
                 };
                 
                 _db.Transactions.Add(transaction);

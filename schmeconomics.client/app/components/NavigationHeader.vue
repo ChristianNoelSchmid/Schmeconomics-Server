@@ -25,12 +25,18 @@ async function logout() {
 
 const navItems = computed<NavigationMenuItem[]>(() => [
   {
-    label: "Transactions",
+    label: "Categories",
+    active: route.path.endsWith("/"),
+    to: "/"
+  },
+  {
+    label: "Txs",
     active: route.path.endsWith("/transactions"),
+    to: "/transactions"
   },
   {
     label: "Refill",
-    active: route.path.endsWith("/transactions"),
+    active: route.path.endsWith("/refill"),
   }
 ]);
 
