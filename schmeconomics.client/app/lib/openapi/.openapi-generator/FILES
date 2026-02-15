@@ -15,6 +15,7 @@ models/Role.ts
 models/SignInModel.ts
 models/SignInRequest.ts
 models/ToggleUserToAccountRequest.ts
+models/TransactionModel.ts
 models/UpdateAccountRequest.ts
 models/UpdateCategoriesOrderRequest.ts
 models/UpdateCategoriesRefillValueRequest.ts

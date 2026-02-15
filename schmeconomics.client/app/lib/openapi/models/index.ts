@@ -10,6 +10,7 @@ export * from './Role';
 export * from './SignInModel';
 export * from './SignInRequest';
 export * from './ToggleUserToAccountRequest';
+export * from './TransactionModel';
 export * from './UpdateAccountRequest';
 export * from './UpdateCategoriesOrderRequest';
 export * from './UpdateCategoriesRefillValueRequest';

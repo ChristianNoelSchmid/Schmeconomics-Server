@@ -13,6 +13,7 @@ public class TransactionController(
     ICurrentUser _currentUser
 ) : ControllerBase {
     [HttpGet("{accountId}")]
+    [ProducesResponseType<TransactionModel[]>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAccountTransactions(
         string accountId,
         [FromQuery] string? categoryId,
@@ -73,6 +74,7 @@ public class TransactionController(
     }
 
     [HttpPut("{transactionId}")]
+    [ProducesResponseType<TransactionModel>(StatusCodes.Status200OK)]
     public async Task<IActionResult> UpdateTransactionAsync(
         string transactionId,
         UpdateTransactionRequest request,

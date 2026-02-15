@@ -16,11 +16,14 @@
 import * as runtime from '../runtime';
 import type {
   CreateTransactionRequest,
+  TransactionModel,
   UpdateTransactionRequest,
 } from '../models/index';
 import {
     CreateTransactionRequestFromJSON,
     CreateTransactionRequestToJSON,
+    TransactionModelFromJSON,
+    TransactionModelToJSON,
     UpdateTransactionRequestFromJSON,
     UpdateTransactionRequestToJSON,
 } from '../models/index';
@@ -53,7 +56,7 @@ export class TransactionApi extends runtime.BaseAPI {
 
     /**
      */
-    async transactionAccountIdGetRaw(requestParameters: TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async transactionAccountIdGetRaw(requestParameters: TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransactionModel>>> {
         if (requestParameters['accountId'] == null) {
             throw new runtime.RequiredError(
                 'accountId',
@@ -88,13 +91,14 @@ export class TransactionApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransactionModelFromJSON));
     }
 
     /**
      */
-    async transactionAccountIdGet(requestParameters: TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.transactionAccountIdGetRaw(requestParameters, initOverrides);
+    async transactionAccountIdGet(requestParameters: TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransactionModel>> {
+        const response = await this.transactionAccountIdGetRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -177,7 +181,7 @@ export class TransactionApi extends runtime.BaseAPI {
 
     /**
      */
-    async transactionTransactionIdPutRaw(requestParameters: TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async transactionTransactionIdPutRaw(requestParameters: TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TransactionModel>> {
         if (requestParameters['transactionId'] == null) {
             throw new runtime.RequiredError(
                 'transactionId',
@@ -210,13 +214,14 @@ export class TransactionApi extends runtime.BaseAPI {
             body: UpdateTransactionRequestToJSON(requestParameters['updateTransactionRequest']),
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => TransactionModelFromJSON(jsonValue));
     }
 
     /**
      */
-    async transactionTransactionIdPut(requestParameters: TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.transactionTransactionIdPutRaw(requestParameters, initOverrides);
+    async transactionTransactionIdPut(requestParameters: TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TransactionModel> {
+        const response = await this.transactionTransactionIdPutRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

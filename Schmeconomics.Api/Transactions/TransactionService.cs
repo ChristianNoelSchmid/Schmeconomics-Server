@@ -19,12 +19,13 @@ public class TransactionService(
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync([accountId, userId], token)) != null;
             if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             var transactions = await _db.Transactions
                 .Where(t => t.AccountId == accountId)
                 .Include(t => t.Creator)
+                .Include(t => t.Category)
                 .OrderByDescending(t => t.TimestampUtc)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -44,7 +45,7 @@ public class TransactionService(
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync([accountId, userId], token)) != null;
             if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             // Check if category exists
@@ -54,6 +55,7 @@ public class TransactionService(
             var transactions = await _db.Transactions
                 .Where(t => t.CategoryId == categoryId)
                 .Include(t => t.Creator)
+                .Include(t => t.Category)
                 .OrderByDescending(t => t.TimestampUtc)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -117,7 +119,7 @@ public class TransactionService(
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync([accountId, userId], token)) != null;
             if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             foreach (var transactionId in transactionIds)
@@ -150,7 +152,7 @@ public class TransactionService(
         {
             // Check if account exists
             var account = await _db.Accounts.FindAsync([accountId], token);
-            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync(token, userId, accountId)) != null;
+            bool userBelongsToAccount = (await _db.AccountUsers.FindAsync([accountId, userId], token)) != null;
             if(account is null || !userBelongsToAccount) return new TransactionServiceError.AccountNotFound(accountId);
 
             var transaction = await _db.Transactions.FindAsync([transactionId], token);

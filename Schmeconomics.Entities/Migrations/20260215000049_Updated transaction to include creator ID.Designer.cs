@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Schmeconomics.Entities;
 
@@ -10,9 +11,11 @@ using Schmeconomics.Entities;
 namespace Schmeconomics.Entities.Migrations
 {
     [DbContext(typeof(SchmeconomicsDbContext))]
-    partial class SchmeconomicsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260215000049_Updated transaction to include creator ID")]
+    partial class UpdatedtransactiontoincludecreatorID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.5");
