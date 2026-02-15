@@ -46,6 +46,10 @@ export interface CategoryForAccountAccountIdGetRequest {
     accountId: string;
 }
 
+export interface CategoryRefillAccountIdPostRequest {
+    accountId: string;
+}
+
 export interface CategoryUpdateIdPutRequest {
     id: string;
     updateCategoryRequest: UpdateCategoryRequest;
@@ -168,6 +172,40 @@ export class CategoryApi extends runtime.BaseAPI {
     async categoryForAccountAccountIdGet(requestParameters: CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
         const response = await this.categoryForAccountAccountIdGetRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     */
+    async categoryRefillAccountIdPostRaw(requestParameters: CategoryRefillAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['accountId'] == null) {
+            throw new runtime.RequiredError(
+                'accountId',
+                'Required parameter "accountId" was null or undefined when calling categoryRefillAccountIdPost().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/Category/Refill/{accountId}`;
+        urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async categoryRefillAccountIdPost(requestParameters: CategoryRefillAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.categoryRefillAccountIdPostRaw(requestParameters, initOverrides);
     }
 
     /**

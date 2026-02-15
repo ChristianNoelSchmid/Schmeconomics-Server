@@ -55,6 +55,12 @@ export interface TransactionModel {
      * @memberof TransactionModel
      */
     notes: string | null;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof TransactionModel
+     */
+    isRefill: boolean;
 }
 
 /**
@@ -67,6 +73,7 @@ export function instanceOfTransactionModel(value: object): value is TransactionM
     if (!('timestampUtc' in value) || value['timestampUtc'] === undefined) return false;
     if (!('amount' in value) || value['amount'] === undefined) return false;
     if (!('notes' in value) || value['notes'] === undefined) return false;
+    if (!('isRefill' in value) || value['isRefill'] === undefined) return false;
     return true;
 }
 
@@ -86,6 +93,7 @@ export function TransactionModelFromJSONTyped(json: any, ignoreDiscriminator: bo
         'timestampUtc': (new Date(json['timestampUtc'])),
         'amount': json['amount'],
         'notes': json['notes'],
+        'isRefill': json['isRefill'],
     };
 }
 
@@ -106,6 +114,7 @@ export function TransactionModelToJSONTyped(value?: TransactionModel | null, ign
         'timestampUtc': ((value['timestampUtc']).toISOString()),
         'amount': value['amount'],
         'notes': value['notes'],
+        'isRefill': value['isRefill'],
     };
 }
 

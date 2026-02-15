@@ -1,11 +1,13 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
+using Schmeconomics.Api.Time;
 using Schmeconomics.Entities;
 
 namespace Schmeconomics.Api.Categories;
 
 public class CategoryService(
-    SchmeconomicsDbContext db
+    SchmeconomicsDbContext db,
+    IDateTimeProvider _dateTimeProvider
 ) : ICategoryService {
     private readonly SchmeconomicsDbContext _db = db;
 
@@ -197,6 +199,39 @@ public class CategoryService(
                 .Where(c => c.AccountId == accountId)
                 .Select(c => (CategoryModel)c)
                 .ToListAsync(token);
+        }
+        catch(DbException ex)
+        {
+            throw new CategoryServiceException.DbException(ex);
+        }
+    }
+
+    public async Task<Result> RefillCategoriesAsync(string accountId, string userId, CancellationToken token = default)
+    {
+        try
+        {
+            // Check if the user belongs to the account
+            var accountUser = await _db.AccountUsers.FindAsync([accountId, userId], token);
+
+            if(accountUser == null) return new CategoryServiceError.AccountNotFound(accountId);
+
+            await foreach(var category in _db.Categories.Where(c => c.AccountId == accountUser.AccountId).AsAsyncEnumerable())
+            {
+                category.Balance += category.RefillValue;
+                _db.Transactions.Add(new Transaction
+                {
+                    AccountId = accountId,
+                    CategoryId = category.Id,
+                    TimestampUtc = _dateTimeProvider.UtcNow,
+                    Amount = category.RefillValue,
+                    CreatorId = accountUser.UserId,
+                    Notes = "Refilled",
+                    IsRefill = true
+                });
+            }
+
+            await _db.SaveChangesAsync(token);
+            return Result.Ok();
         }
         catch(DbException ex)
         {

@@ -28,6 +28,9 @@ public class Transaction {
     [Required, ForeignKey(nameof(Account))]
     public string AccountId { get; set; } = string.Empty;
 
+    [Required]
+    public bool IsRefill { get; set; } = false;
+
     public User? Creator { get; set; }
 
     public Category? Category { get; set; }

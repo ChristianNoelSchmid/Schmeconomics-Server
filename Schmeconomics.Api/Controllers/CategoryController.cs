@@ -97,4 +97,16 @@ public class CategoryController(
         if(result.IsOk) return Ok(result.Value);
         return BadRequest(result.Error.Message);
     }
+
+    [HttpPost("Refill/{accountId}")]
+    [Authorize(Role.Admin)]
+    public async Task<IActionResult> RefillCategoriesAsync(
+        string accountId
+    ) {
+        var userId = _currentUser.User!.Id;
+        var result = await _categoryService.RefillCategoriesAsync(accountId, userId);
+
+        if(result.IsError) return BadRequest(result.Error.Message);
+        return Ok();
+    }
 }

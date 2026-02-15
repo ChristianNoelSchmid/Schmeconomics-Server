@@ -8,7 +8,8 @@ public record class TransactionModel(
     string CategoryName,
     DateTime TimestampUtc,
     int Amount,
-    string? Notes
+    string? Notes,
+    bool IsRefill
 ) {
     public static explicit operator TransactionModel(Transaction from) => new(
         from.Id,
@@ -22,6 +23,7 @@ public record class TransactionModel(
         ),
         from.TimestampUtc,
         from.Amount,
-        from.Notes
+        from.Notes,
+        from.IsRefill
     );
 }
