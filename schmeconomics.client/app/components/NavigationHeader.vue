@@ -1,19 +1,24 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui';
+import type { NavigationMenuItem, SelectMenuItem } from '@nuxt/ui';
 import { AuthApi } from '~/lib/openapi';
 import { getApiConfiguration as useApiConfiguration, useSignInState } from '~/lib/services/auth-state';
 import { ref } from 'vue';
-import { clearAccountState, useAccountState, useDefaultAccountName } from '~/lib/services/account-service';
+import { clearAccountState, useAccountState, useDefaultAccountId } from '~/lib/services/account-service';
 
 const route = useRoute();
 const signInState = useSignInState();
 
 const accountState = useAccountState();
-const defaultAccountName = useDefaultAccountName();
+const defaultAccountId = useDefaultAccountId();
 const navMenuOpen = ref(false);
 
-const accountNames = computed<string[]>(
-  () => accountState.value?.map(a => a.name) ?? []
+const accountNames = computed<SelectMenuItem[]>(
+  () => accountState.value?.map(a => {
+    return {
+      key: a.id,
+      label: a.name,
+    };
+  }) ?? []
 );
 
 async function logout() {
@@ -37,6 +42,7 @@ const navItems = computed<NavigationMenuItem[]>(() => [
   {
     label: "Refill",
     active: route.path.endsWith("/refill"),
+    to: "/refill"
   }
 ]);
 
@@ -63,13 +69,12 @@ const menuItems = computed<NavigationMenuItem[]>(() => [
   }
 ]);
 
-function updateDefaultAccountName(accountName: string) {
+function updateDefaultAccountId(accountId: string) {
   if (accountState.value) {
-    const accountId = accountState.value!.find(a => a.name == accountName)!.id;
-    defaultAccountName.value = accountName;
+    defaultAccountId.value = accountId;
 
     if (route.path.startsWith("/accounts/")) {
-      navigateTo(`/accounts/${accountId}`);
+      navigateTo(`/accounts/${defaultAccountId.value}`);
     }
   }
 }
@@ -86,8 +91,7 @@ function updateDefaultAccountName(accountName: string) {
     </div>
     <div class="flex justify-between">
       <UNavigationMenu orientation="horizontal" :items="navItems" />
-      <USelectMenu :model-value="defaultAccountName" :items="accountNames"
-        @update:model-value="updateDefaultAccountName($event)" />
+      <USelectMenu :model-value="accountNames" :items="accountNames" @update:model-value="updateDefaultAccountId($event.key)" />
     </div>
   </div>
   <UModal v-model:open="navMenuOpen">

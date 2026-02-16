@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { CurrencyInputPart, CurrencyPartType, stringToPartType as keyStringToPartType, partsToValue } from './currency-input-part';
 
+const props = withDefaults(defineProps<{readonly?: boolean}>(), { readonly: false });
 const model = defineModel<number>();
 const parts = ref<CurrencyInputPart[]>([new CurrencyInputPart(CurrencyPartType.Plus, model.value!)]);
 
@@ -14,7 +15,8 @@ const formattedValue = computed<string>(() => {
   return fmt;
 });
 
-function formattedPart(value: number): string {
+function formattedPart(value: number | undefined): string {
+  value ??= 0;
   let strValue = value.toString();
   strValue = strValue.padStart(3, '0');
   return strValue.slice(0, strValue.length - 2) + '.' + strValue.slice(strValue.length - 2);
@@ -24,6 +26,8 @@ function handleInput(keyboardEvent: KeyboardEvent) {
   if (!model.value) parts.value = [new CurrencyInputPart(CurrencyPartType.Plus, 0)];
   if (keyboardEvent.key != "Tab") 
     keyboardEvent.preventDefault();
+
+  if (props.readonly) return;
 
   const modelValue = parts.value.at(-1)!;
   // console.log(keyboardEvent.key);
@@ -57,8 +61,9 @@ function handleInput(keyboardEvent: KeyboardEvent) {
 </script>
 
 <template>
-  <input ref="inputRef" :value="formattedValue" type="tel"
-    class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" @keydown="handleInput" />
+  <input :value="formattedValue" type="tel" :disabled="props.readonly"
+    class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" @keydown="handleInput"
+  /> 
 </template>
 
 <style scoped>

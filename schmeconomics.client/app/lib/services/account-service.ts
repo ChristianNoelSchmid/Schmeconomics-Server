@@ -1,6 +1,6 @@
 import { AccountApi, type AccountModel } from "../openapi";
 import { getApiConfiguration } from "./auth-state";
-import { useStorage } from "@vueuse/core";
+import { useStorage, type RemovableRef } from "@vueuse/core";
 
 export function useAccountState() {
     return useState<ReadonlyArray<AccountModel> | undefined>('accountState', () => undefined);
@@ -22,14 +22,11 @@ export async function deleteAccount(id: string) {
     await refreshAccountState();
 }
 
-/**
- * Creates global state for default account name, used to populate the current
- * in-use account by the web app
- */
-export const useDefaultAccountName = 
-    () => useStorage<string>('defaultAccountName', null);
+export function useDefaultAccountId(): RemovableRef<string> {
+    return useStorage<string>('defaultAccountId', null);
+}
 
 export function clearAccountState() {
     useAccountState().value = undefined;
-    useDefaultAccountName().value = null;
+    useDefaultAccountId().value = null;
 }

@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
 import { AccountApi, Role, type AccountModel } from '~/lib/openapi';
-import { deleteAccount, refreshAccountState, useAccountState, useDefaultAccountName } from '~/lib/services/account-service';
+import { deleteAccount, refreshAccountState, useAccountState, useDefaultAccountId } from '~/lib/services/account-service';
 import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
 import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';
 
-const defaultAccountIdStorage = useDefaultAccountName();
 const accounts = useAccountState();
 const signInState = useSignInState();
 const creatingAccount = ref(false);
 const userManagementModalOpen = ref(false);
+
+const defaultAccountId = useDefaultAccountId();
 const selectedAccountId = ref<string | null>(null);
 
 async function onDeleteAccount(event: MouseEvent, id: string) {
@@ -34,7 +35,7 @@ function validateCreateAccount(state: Partial<Schema>): FormError[] {
 
 function selectAccount(event: Event, account: AccountModel) {
   event.preventDefault();
-  defaultAccountIdStorage.value = account.name;
+  defaultAccountId.value = account.id;
   navigateTo('/');
 }
 

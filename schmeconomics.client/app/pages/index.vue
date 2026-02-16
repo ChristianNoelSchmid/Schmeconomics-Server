@@ -1,19 +1,29 @@
 <script setup lang="ts">
 import { CategoryApi, Role, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from '~/lib/openapi';
-import { useAccountState, useDefaultAccountName } from '~/lib/services/account-service';
+import { useAccountState, useDefaultAccountId } from '~/lib/services/account-service';
 import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { CategoryService } from '~/lib/services/category-service';
 import { TransactionService } from '~/lib/services/transaction-service';
 import type { CreateTransactionProp } from '~/components/CreateTransactionModal.vue';
+import { computedAsync } from '@vueuse/core';
 
 const signInState = useSignInState();
 const accountState = useAccountState();
-const account = computed(() => accountState.value?.find(a => a.name === defaultAccountName.value));
+const defaultAccountId = useDefaultAccountId();
 
-const defaultAccountName = useDefaultAccountName();
-
-const categories = ref<CategoryModel[]>([]);
+const categories = computedAsync<CategoryModel[]>(async () => {
+    if (accountState.value && defaultAccountId.value != null) {
+      try {
+        const api = new CategoryApi(await getApiConfiguration(true));
+        return await api.categoryForAccountAccountIdGet({ accountId: defaultAccountId.value })
+          ?? [];
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    }
+    return [];
+}, []);
 
 const categoryService = new CategoryService();
 const transactionService = new TransactionService();
@@ -25,48 +35,22 @@ const editingCategory = ref<CategoryModel | null>(null);
 const showCreateTransactionModal = ref(false);
 const createTransactionProp = ref<CreateTransactionProp | undefined>(undefined);
 
-async function loadCategories() {
-  if (!accountState.value || !defaultAccountName.value) {
-    return;
-  }
-
-  if (!account.value) {
-    return;
-  }
-
-  try {
-    const api = new CategoryApi(await getApiConfiguration(true));
-    categories.value = await api.categoryForAccountAccountIdGet({ accountId: account.value.id });
-  } catch (error) {
-    console.error('Failed to load categories:', error);
-  }
-}
-
-// Load categories when default account changes
-watch(defaultAccountName, () => {
-  if (defaultAccountName.value) {
-    loadCategories();
-  }
-});
-
 onMounted(() => {
   if (!signInState.value) {
     navigateTo('/login');
   }
 
   // Redirect to accounts page if no default account is selected
-  if (!defaultAccountName.value) {
+  if (!defaultAccountId.value) {
     navigateTo('/accounts');
   }
-
-  loadCategories();
 });
 
 async function createCategory(request: CreateCategoryRequest) {
-  await categoryService.createCategory(request);
+  if(defaultAccountId.value == null) return;
+  await categoryService.createCategory(defaultAccountId.value, request);
 
   showCreateCategoryModal.value = false;
-  loadCategories();
 }
 
 async function updateCategory(request: UpdateCategoryRequest) {
@@ -74,7 +58,6 @@ async function updateCategory(request: UpdateCategoryRequest) {
 
   await categoryService.updateCategory(editingCategory.value.id, request);
   showEditCategoryModal.value = false;
-  loadCategories();
 }
 
 
@@ -84,7 +67,6 @@ async function deleteCategory(categoryId: string) {
   }
 
   await categoryService.deleteCategory(categoryId);
-  loadCategories();
 }
 
 function handleEditCategory(category: CategoryModel) {
@@ -98,20 +80,17 @@ function handleCreateTransaction(category: CategoryModel, isAddition: boolean) {
 }
 
 async function createTransaction(amount: number, notes: string, isAddition: boolean) {
-  if (!accountState.value || !createTransactionProp.value) return;
+  if (!accountState.value || !createTransactionProp.value || defaultAccountId.value == null) return;
 
   try {
-    const account = accountState.value.find(a => a.name == defaultAccountName.value);
-    if (account)
       await transactionService.createTransaction(
-        account.id,
+        defaultAccountId.value,
         createTransactionProp.value.category!.id,
         amount,
         notes,
         isAddition
       );
     showCreateTransactionModal.value = false;
-    loadCategories();
   } catch (error) {
     console.error('Failed to create transaction:', error);
     alert('Failed to create transaction');
@@ -149,11 +128,11 @@ async function navigateToCategoryTxs(catId: string) {
     </div>
 
     <!-- Modal page to create categories -->
-    <CreateCategoryModal :account-id="account?.id ?? ''" :visible="showCreateCategoryModal"
+    <CreateCategoryModal :account-id="defaultAccountId || ''" :visible="showCreateCategoryModal"
       @submitted="createCategory($event)" @closed="showCreateCategoryModal = false" />
 
     <!-- Modal page to edit categories -->
-    <CreateCategoryModal :account-id="account?.id ?? ''" :visible="showEditCategoryModal"
+    <CreateCategoryModal :account-id="defaultAccountId || ''" :visible="showEditCategoryModal"
       :category-to-edit="editingCategory" @submitted="updateCategory($event)" @closed="showEditCategoryModal = false" />
 
     <!-- Modal page to create transactions -->

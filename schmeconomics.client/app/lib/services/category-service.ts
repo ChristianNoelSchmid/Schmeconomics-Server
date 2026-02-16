@@ -1,27 +1,48 @@
-import { CategoryApi, type CreateCategoryRequest, type UpdateCategoryRequest } from "../openapi";
-import { useAccountState, useDefaultAccountName } from "./account-service";
+import { computedAsync } from "@vueuse/core";
+import { CategoryApi, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from "../openapi";
 import { getApiConfiguration } from "./auth-state";
+import { useAccountState, useDefaultAccountId } from "./account-service";
 
 export class CategoryService {
-    async createCategory(state: CreateCategoryRequest) {
+    defaultAccountCategories(): globalThis.Ref<CategoryModel[]> {
         const accountState = useAccountState();
-        const defaultAccountName = useDefaultAccountName();
+        const defaultAccountId = useDefaultAccountId();
 
-        if (!accountState.value || !defaultAccountName.value) {
-            return;
+        return computedAsync<CategoryModel[]>(
+            async () => {
+                if (accountState.value && defaultAccountId.value != null) {
+                    try {
+                        const api = new CategoryApi(await getApiConfiguration(true));
+                        return await api.categoryForAccountAccountIdGet({ accountId: defaultAccountId.value })
+                            ?? [];
+                        } catch (error) {
+                        console.error('Failed to load categories:', error);
+                    }
+                }
+                return [];
+            }, []
+        );
+    }
+
+    // Fetch categories for the default account
+    async fetchCategories(accountId: string): Promise<CategoryModel[]> {
+        try {
+            const config = await getApiConfiguration(true);
+            const api = new CategoryApi(config);
+
+            return await api.categoryForAccountAccountIdGet({ accountId }); 
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            return [];
         }
+    }
 
-        const account = accountState.value.find(a => a.name === defaultAccountName.value);
-
-        if (!account) {
-            return;
-        }
-
+    async createCategory(accountId: string, state: CreateCategoryRequest) {
         try {
             const config = await getApiConfiguration(true);
             const api = new CategoryApi(config);
             const request: CreateCategoryRequest = {
-            accountId: account.id,
+            accountId: accountId,
             name: state.name,
             balance: state.balance,
             refillValue: state.refillValue

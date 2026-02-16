@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { TransactionApi } from "~/lib/openapi";
-import { useAccountState, useDefaultAccountName } from "~/lib/services/account-service";
+import { useDefaultAccountId } from "~/lib/services/account-service";
 import { getApiConfiguration } from "~/lib/services/auth-state";
 import { ref, onMounted, watch } from "vue";
 import TransactionCard from "~/components/TransactionCard.vue";
 import type { TransactionModel } from "~/lib/openapi/models/TransactionModel";
 
-const defaultAccountName = useDefaultAccountName();
+const defaultAccountId = useDefaultAccountId();
 const transactions = ref<TransactionModel[]>([]);
 const loading = ref(false);
 const hasMore = ref(true);
@@ -20,9 +20,9 @@ if (route.query.categoryId) {
 }
 
 const loadTransactions = async () => {
-  if (!defaultAccountName.value) return;
-  const accountId = useAccountState().value?.find(a => a.name == defaultAccountName.value)?.id;
-  if(!accountId) return;
+  page.value = 1;
+  transactions.value = [];
+  if (defaultAccountId.value == null) return;
 
   try {
     loading.value = true;
@@ -32,7 +32,7 @@ const loadTransactions = async () => {
     
     // Call the API with optional categoryId parameter
     const response = await api.transactionAccountIdGet({
-      accountId,
+      accountId: defaultAccountId.value,
       categoryId: categoryId.value || undefined,
       page: page.value,
       pageSize: 10
@@ -43,6 +43,7 @@ const loadTransactions = async () => {
       transactions.value = [...transactions.value, ...response];
       hasMore.value = response.length === 10; // Assuming 10 items per page
     }
+    
     
   } catch (error) {
     console.error("Failed to load transactions:", error);
@@ -59,18 +60,14 @@ const loadMore = () => {
 };
 
 // Load initial transactions when account name changes or page loads
-watch(defaultAccountName, () => {
-  if (defaultAccountName.value) {
-    page.value = 1;
-    transactions.value = [];
+watch(defaultAccountId, () => {
+  if (defaultAccountId.value != null) {
     loadTransactions();
   }
 });
 
 onMounted(() => {
-  if (defaultAccountName.value) {
-    page.value = 1;
-    transactions.value = [];
+  if (defaultAccountId.value != null) {
     loadTransactions();
   }
 });
