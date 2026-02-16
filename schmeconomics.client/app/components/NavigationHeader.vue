@@ -91,7 +91,7 @@ function updateDefaultAccountId(accountId: string) {
     </div>
     <div class="flex justify-between">
       <UNavigationMenu orientation="horizontal" :items="navItems" />
-      <USelectMenu :model-value="accountNames" :items="accountNames" @update:model-value="updateDefaultAccountId($event.key)" />
+      <USelectMenu :model-value="accountNames" :items="accountNames" @update:model-value="updateDefaultAccountId($event?.key ?? '')" /> 
     </div>
   </div>
   <UModal v-model:open="navMenuOpen">

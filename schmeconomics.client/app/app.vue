@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PromptModal from './components/prompt/PromptModal.vue';
 import { useSignInState } from './lib/services/auth-state';
 
 const signInState = useSignInState();
@@ -18,6 +19,7 @@ onMounted(() => {
         <NuxtPage />
       </UMain>
     </UContainer>
+    <PromptModal />
   </UApp>
 </template>
 

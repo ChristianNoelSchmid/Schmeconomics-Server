@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { CategoryApi, type CategoryRefillValueUpdate } from '../../lib/openapi';
 import { useDefaultAccountId } from '../../lib/services/account-service';
 import { getApiConfiguration } from '../../lib/services/auth-state';

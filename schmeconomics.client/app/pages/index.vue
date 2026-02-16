@@ -7,6 +7,7 @@ import { CategoryService } from '~/lib/services/category-service';
 import { TransactionService } from '~/lib/services/transaction-service';
 import type { CreateTransactionProp } from '~/components/CreateTransactionModal.vue';
 import { computedAsync } from '@vueuse/core';
+import { showPrompt } from '~/components/prompt/prompt-state';
 
 const signInState = useSignInState();
 const accountState = useAccountState();
@@ -60,13 +61,17 @@ async function updateCategory(request: UpdateCategoryRequest) {
   showEditCategoryModal.value = false;
 }
 
-
-async function deleteCategory(categoryId: string) {
-  if (!confirm('Are you sure you want to delete this category?')) {
-    return;
-  }
-
-  await categoryService.deleteCategory(categoryId);
+function showDeleteCategoryPrompt(categoryId: string) {
+  const catName = categories.value.find(c => c.id == categoryId)?.name;
+  showPrompt({
+    message: `Are you sure you want to delete "${catName}"?`,
+    actions: [
+      ["Yes", async () => {
+        await categoryService.deleteCategory(categoryId);
+        categories.value = [... categories.value.filter(c => c.id != categoryId)];
+      }],
+    ]
+  })
 }
 
 function handleEditCategory(category: CategoryModel) {
@@ -123,7 +128,7 @@ async function navigateToCategoryTxs(catId: string) {
     <!-- Categories list -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <CategoryCard @clicked="navigateToCategoryTxs(category.id)" v-for="category in categories" :key="category.id" :category="category"
-        @deleteclicked="deleteCategory(category.id)" @editclicked="handleEditCategory(category)"
+        @deleteclicked="showDeleteCategoryPrompt(category.id)" @editclicked="handleEditCategory(category)"
         @transactionclicked="isAddition => handleCreateTransaction(category, isAddition)" />
     </div>
 
