@@ -4,6 +4,7 @@ import { AccountApi, Role, type AccountModel } from '~/lib/openapi';
 import { deleteAccount, refreshAccountState, useAccountState, useDefaultAccountId } from '~/lib/services/account-service';
 import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
 import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';
+import { showPrompt } from '~/components/prompt/prompt-state';
 
 const accounts = useAccountState();
 const signInState = useSignInState();
@@ -15,10 +16,15 @@ const selectedAccountId = ref<string | null>(null);
 
 async function onDeleteAccount(event: MouseEvent, id: string) {
   event.preventDefault();
-  if (confirm("Are you sure you want to delete this account?")) {
-    await deleteAccount(id);
-    refreshAccountState();
-  }
+  showPrompt({
+    message: "Are you sure you want to delete this account?",
+    actions: [
+      ["Yes", async () => {
+        await deleteAccount(id);
+        refreshAccountState();
+      }],
+    ]
+  })
 }
 
 const createAccountState = reactive({

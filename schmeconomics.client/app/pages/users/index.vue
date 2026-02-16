@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import { UserService } from '~/lib/services/user-service';
 import { Role, type UserModel, type CreateUserRequest, type UpdateUserRequest } from '~/lib/openapi';
 import { useSignInState } from '~/lib/services/auth-state';
+import { showPrompt } from '~/components/prompt/prompt-state';
 
 const signInState = useSignInState();
 const userService = new UserService();
@@ -80,17 +81,15 @@ async function handleUpdateUser(request: UpdateUserRequest) {
 
 // Handle deleting a user
 async function handleDeleteUser(userId: string) {
-  if (!confirm('Are you sure you want to delete this user?')) {
-    return;
-  }
-
-  try {
-    await userService.deleteUser(userId);
-    await loadUsers();
-  } catch (error) {
-    console.error('Failed to delete user:', error);
-    // Handle error appropriately
-  }
+  showPrompt({
+    message: 'Are you sure you want to delete this user?',
+    actions: [
+      ["Yes", async () => {
+        await userService.deleteUser(userId);
+        await loadUsers();
+      }],
+    ]
+  })
 }
 
 // Open the create modal
