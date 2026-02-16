@@ -220,6 +220,7 @@ public class CategoryService(
                 category.Balance += category.RefillValue;
                 _db.Transactions.Add(new Transaction
                 {
+                    Id = Guid.NewGuid().ToString(),
                     AccountId = accountId,
                     CategoryId = category.Id,
                     TimestampUtc = _dateTimeProvider.UtcNow,

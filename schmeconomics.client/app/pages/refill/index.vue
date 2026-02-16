@@ -5,6 +5,7 @@ import { useDefaultAccountId } from '../../lib/services/account-service';
 import { getApiConfiguration } from '../../lib/services/auth-state';
 import { CategoryService } from '~/lib/services/category-service';
 import { currencyFormat } from '~/formatters';
+import { showPrompt } from '~/components/prompt/prompt-state';
 
 // State for categories and refill values
 const categoryService = new CategoryService();
@@ -77,15 +78,23 @@ async function applyChanges() {
 
 // Refill categories with refill values
 async function refillCategories() {
-    if (defaultAccountId.value == null) return;
+    showPrompt({
+        message: "Refill all categories?",
+        actions: [
+            ["Yes", async () => {
+                if (defaultAccountId.value == null) return;
 
-    try {
-        const config = await getApiConfiguration(true);
-        const api = new CategoryApi(config);
-        await api.categoryRefillAccountIdPost({ accountId: defaultAccountId.value });
-    } catch (error) {
-        console.error('Error refilling categories:', error);
-    }
+                try {
+                    const config = await getApiConfiguration(true);
+                    const api = new CategoryApi(config);
+                    await api.categoryRefillAccountIdPost({ accountId: defaultAccountId.value });
+                } catch (error) {
+                    console.error('Error refilling categories:', error);
+                }
+            }]
+        ]
+    });
+    
 }
 
 // Initialize on mount
