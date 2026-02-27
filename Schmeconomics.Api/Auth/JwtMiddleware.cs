@@ -11,6 +11,7 @@ public class JwtMiddleware(
         ICurrentUserSetter _userSetter,
         IAuthTokenProvider tokenProvider
     ) {
+        await Task.Delay(1000);
         var token = context.Request.Headers.Authorization.FirstOrDefault()?.Split(' ').Last();
 
         if (token != null)

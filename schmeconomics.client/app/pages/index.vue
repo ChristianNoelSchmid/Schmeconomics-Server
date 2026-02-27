@@ -1,33 +1,17 @@
 <script setup lang="ts">
-import { CategoryApi, Role, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from '~/lib/openapi';
-import { useAccountState, useDefaultAccountId } from '~/lib/services/account-service';
-import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
+import { Role, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from '~/lib/openapi';
+import { useDefaultAccountId } from '~/lib/services/account-service';
+import { useSignInState } from '~/lib/services/auth-state';
 import { ref } from 'vue';
-import { CategoryService } from '~/lib/services/category-service';
-import { TransactionService } from '~/lib/services/transaction-service';
 import type { CreateTransactionProp } from '~/components/CreateTransactionModal.vue';
-import { computedAsync } from '@vueuse/core';
 import { showPrompt } from '~/components/prompt/prompt-state';
+import { accountCategoriesData, CategoryService } from '~/lib/services/category-service';
 
 const signInState = useSignInState();
-const accountState = useAccountState();
 const defaultAccountId = useDefaultAccountId();
 
-const categories = computedAsync<CategoryModel[]>(async () => {
-    if (accountState.value && defaultAccountId.value != null) {
-      try {
-        const api = new CategoryApi(await getApiConfiguration(true));
-        return await api.categoryForAccountAccountIdGet({ accountId: defaultAccountId.value })
-          ?? [];
-      } catch (error) {
-        console.error('Failed to load categories:', error);
-      }
-    }
-    return [];
-}, []);
-
 const categoryService = new CategoryService();
-const transactionService = new TransactionService();
+const { categories, refresh, clear } = accountCategoriesData();
 
 const showCreateCategoryModal = ref(false);
 const showEditCategoryModal = ref(false);
@@ -36,39 +20,42 @@ const editingCategory = ref<CategoryModel | null>(null);
 const showCreateTransactionModal = ref(false);
 const createTransactionProp = ref<CreateTransactionProp | undefined>(undefined);
 
-onMounted(() => {
+const { $api } = useNuxtApp();
+
+onMounted(async () => {
   if (!signInState.value) {
     navigateTo('/login');
   }
-
   // Redirect to accounts page if no default account is selected
   if (!defaultAccountId.value) {
     navigateTo('/accounts');
   }
 });
 
+onUnmounted(async () => {
+  clear();
+})
+
 async function createCategory(request: CreateCategoryRequest) {
-  if(defaultAccountId.value == null) return;
   await categoryService.createCategory(defaultAccountId.value, request);
-
   showCreateCategoryModal.value = false;
+  await refresh();
 }
 
-async function updateCategory(request: UpdateCategoryRequest) {
-  if (!editingCategory.value) return;
-
-  await categoryService.updateCategory(editingCategory.value.id, request);
+async function updateCategory(categoryId: string, request: UpdateCategoryRequest) {
+  await categoryService.updateCategory(categoryId, request)
   showEditCategoryModal.value = false;
+  await refresh();
 }
 
-function showDeleteCategoryPrompt(categoryId: string) {
-  const catName = categories.value.find(c => c.id == categoryId)?.name;
+function deleteCategory(categoryId: string) {
+  const catName = categories.value!.find(c => c.id == categoryId)?.name;
   showPrompt({
     message: `Are you sure you want to delete "${catName}"?`,
     actions: [
       ["Yes", async () => {
         await categoryService.deleteCategory(categoryId);
-        categories.value = [... categories.value.filter(c => c.id != categoryId)];
+        await refresh();
       }],
     ]
   })
@@ -85,17 +72,18 @@ function handleCreateTransaction(category: CategoryModel, isAddition: boolean) {
 }
 
 async function createTransaction(amount: number, notes: string, isAddition: boolean) {
-  if (!accountState.value || !createTransactionProp.value || defaultAccountId.value == null) return;
-
   try {
-      await transactionService.createTransaction(
-        defaultAccountId.value,
-        createTransactionProp.value.category!.id,
-        amount,
-        notes,
-        isAddition
-      );
+    await
+      $api.transaction.transactionAccountIdPost({
+        accountId: defaultAccountId.value,
+        createTransactionRequest: [{
+          categoryId: createTransactionProp.value!.category!.id,
+          amount: amount * (isAddition ? 1.0 : -1.0),
+          notes,
+        }] 
+      });
     showCreateTransactionModal.value = false;
+    await refresh();
   } catch (error) {
     console.error('Failed to create transaction:', error);
     alert('Failed to create transaction');
@@ -115,20 +103,20 @@ async function navigateToCategoryTxs(catId: string) {
     <h1 class="text-2xl font-bold mb-4">Categories</h1>
 
     <div v-if="signInState?.userModel.role == Role.Admin">
-      <p v-if="categories.length == 0">No categories found. Create some with the button below.</p>
+      <p v-if="categories?.length == 0">No categories found. Create some with the button below.</p>
       <UButton color="primary" variant="solid" icon="i-heroicons-plus-circle" class="mb-4"
         @click="showCreateCategoryModal = true">
         New Category
       </UButton>
     </div>
-    <div v-else-if="categories.length == 0" class="text-center py-8">
+    <div v-else-if="categories?.length == 0" class="text-center py-8">
       <p>No categories found.</p>
     </div>
 
     <!-- Categories list -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <CategoryCard @clicked="navigateToCategoryTxs(category.id)" v-for="category in categories" :key="category.id" :category="category"
-        @deleteclicked="showDeleteCategoryPrompt(category.id)" @editclicked="handleEditCategory(category)"
+        @deleteclicked="deleteCategory(category.id)" @editclicked="handleEditCategory(category)"
         @transactionclicked="isAddition => handleCreateTransaction(category, isAddition)" />
     </div>
 
@@ -138,7 +126,7 @@ async function navigateToCategoryTxs(catId: string) {
 
     <!-- Modal page to edit categories -->
     <CreateCategoryModal :account-id="defaultAccountId || ''" :visible="showEditCategoryModal"
-      :category-to-edit="editingCategory" @submitted="updateCategory($event)" @closed="showEditCategoryModal = false" />
+      :category-to-edit="editingCategory" @submitted="updateCategory(editingCategory!.id, $event)" @closed="showEditCategoryModal = false" />
 
     <!-- Modal page to create transactions -->
     <CreateTransactionModal :model="createTransactionProp" :visible="showCreateTransactionModal"

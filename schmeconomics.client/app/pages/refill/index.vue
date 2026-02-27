@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { CategoryApi, type CategoryRefillValueUpdate } from '../../lib/openapi';
 import { useDefaultAccountId } from '../../lib/services/account-service';
 import { getApiConfiguration } from '../../lib/services/auth-state';
-import { CategoryService } from '~/lib/services/category-service';
 import { currencyFormat } from '~/formatters';
 import { showPrompt } from '~/components/prompt/prompt-state';
 
@@ -136,7 +135,6 @@ watch(categories, () => resetEditValues());
             >
                 <div class="flex justify-between items-center">
                     <h2 class="text-lg font-semibold">{{ category.name }}</h2>
-                    <span class="text-gray-600">ID: {{ category.id }}</span>
                 </div>
                 
                 <div class="mt-2">
@@ -152,47 +150,49 @@ watch(categories, () => resetEditValues());
         </div>
 
         <!-- Confirm modal -->
-        <div v-if="showConfirmationModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div class="bg-white p-6 rounded-lg shadow-xl max-w-md w-full">
-                <h2 class="text-xl font-bold mb-4">Confirm Changes</h2>
+        <UModal :open="showConfirmationModal">
+          <template #content>
+          <UCard>
+            <template #header>
+              <h2 class="text-xl font-bold mb-4">Confirm Changes</h2>
+            </template>
                 
-                <div class="mb-4">
-                    <p>Changes to be applied:</p>
-                    <ul class="mt-2 space-y-1">
-                        <li 
-                            v-for="category in categories" 
-                            :key="category.id"
-                            class="flex justify-between"
-                        >
-                            <span>{{ category.name }}:</span>
-                            <span>{{ currencyFormat(editedValues[category.id] ?? 0) }} (from {{ currencyFormat(category.refillValue) }})</span>
-                        </li>
-                    </ul>
-                </div>
+            <p>Changes to be applied:</p>
+            <ul class="mt-2 space-y-1">
+              <li 
+                  v-for="category in categories" 
+                  :key="category.id"
+                  class="flex justify-between"
+              >
+                <span>{{ category.name }}:</span>
+                <span>{{ currencyFormat(editedValues[category.id] ?? 0) }} (from {{ currencyFormat(category.refillValue) }})</span>
+              </li>
+            </ul>
                 
-                <div class="mb-4 p-3 bg-gray-100 rounded">
-                    <p>Total Difference: 
-                        <span :class="{ 'text-red-600': calculateTotalDifference()  < 0, 'text-green-600': calculateTotalDifference() > 0 }">
-                            {{ currencyFormat(calculateTotalDifference()) }}
-                        </span>
-                    </p>
-                </div>
-                
-                <div class="flex justify-end gap-3">
-                    <button 
-                        class="px-4 py-2 border rounded hover:bg-gray-100 transition"
-                        @click="showConfirmationModal = false"
-                    >
-                        Cancel
-                    </button>
-                    <button 
-                        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-                        @click="applyChanges"
-                    >
-                        Confirm
-                    </button>
-                </div>
+            <div class="mb-4 p-3 bg-gray-100 rounded">
+              <p>Total Difference: 
+                <span :class="{ 'text-red-600': calculateTotalDifference()  < 0, 'text-green-600': calculateTotalDifference() > 0 }">
+                  {{ currencyFormat(calculateTotalDifference()) }}
+                </span>
+              </p>
             </div>
-        </div>
-    </div>
+                
+            <div class="flex justify-end gap-3">
+              <button 
+                class="px-4 py-2 border rounded hover:bg-gray-100 transition"
+                @click="showConfirmationModal = false"
+              >
+                Cancel
+              </button>
+              <button 
+                class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+                @click="applyChanges"
+              >
+                Confirm
+              </button>
+            </div>
+          </UCard>
+          </template>
+        </UModal>
+      </div>
 </template>

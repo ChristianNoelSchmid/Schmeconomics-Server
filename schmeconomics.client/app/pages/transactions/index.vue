@@ -5,13 +5,14 @@ import { getApiConfiguration } from "~/lib/services/auth-state";
 import { ref, onMounted, watch } from "vue";
 import TransactionCard from "~/components/TransactionCard.vue";
 import type { TransactionModel } from "~/lib/openapi/models/TransactionModel";
+import { showPrompt } from "~/components/prompt/prompt-state";
 
 const defaultAccountId = useDefaultAccountId();
 const transactions = ref<TransactionModel[]>([]);
-const loading = ref(false);
 const hasMore = ref(true);
 const page = ref(1);
 const categoryId = ref<string | null>(null);
+const { start, finish } = useLoadingIndicator();
 
 // Get categoryId from route query parameters
 const route = useRoute();
@@ -20,13 +21,15 @@ if (route.query.categoryId) {
 }
 
 const loadTransactions = async () => {
+  // Reset the page index and the transactions ref
   page.value = 1;
   transactions.value = [];
+
+  // If there is no default account selected, just return
   if (defaultAccountId.value == null) return;
 
   try {
-    loading.value = true;
-    
+    start();
     const config = await getApiConfiguration(true);
     const api = new TransactionApi(config);
     
@@ -43,18 +46,32 @@ const loadTransactions = async () => {
       transactions.value = [...transactions.value, ...response];
       hasMore.value = response.length === 10; // Assuming 10 items per page
     }
-    
-    
   } catch (error) {
     console.error("Failed to load transactions:", error);
   } finally {
-    loading.value = false;
+    finish();
   }
 };
 
+async function deleteTransaction(txId: string) {
+  showPrompt({
+    message: "Are you sure you wish to delete this transaction?",
+    actions: [["Yes", async () => {
+      const accountId = defaultAccountId.value;
+      if(accountId != null) {
+        const api = new TransactionApi(await getApiConfiguration(true))
+        await api.accountIdTransactionIdDelete({ 
+          accountId, 
+          transactionId: txId 
+        });
+
+        await loadTransactions()
+      }
+    }]]
+  });
+}
+
 const loadMore = () => {
-  if (!hasMore.value || loading.value) return;
-  
   page.value++;
   loadTransactions();
 };
@@ -77,7 +94,7 @@ onMounted(() => {
   <div class="p-4">
     <h1 class="text-2xl font-bold mb-4">Transactions</h1>
     
-    <div v-if="transactions.length === 0 && !loading" class="text-center py-8">
+    <div v-if="transactions.length === 0" class="text-center py-8">
       <p>No transactions found.</p>
     </div>
     
@@ -86,16 +103,13 @@ onMounted(() => {
         v-for="transaction in transactions" 
         :key="transaction.id"
         :transaction="transaction"
+        @deleteclicked="deleteTransaction(transaction.id)"
       />
       
-      <div v-if="hasMore && !loading" class="mt-4 text-center">
+      <div v-if="hasMore" class="mt-4 text-center">
         <UButton @click="loadMore" color="primary" variant="solid">
           Load More
         </UButton>
-      </div>
-      
-      <div v-else-if="loading" class="text-center py-4">
-        <p>Loading...</p>
       </div>
     </div>
   </div>

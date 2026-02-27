@@ -1,6 +1,5 @@
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration.UserSecrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Entities;
 
@@ -127,6 +126,7 @@ public class TransactionService(
             {
                 // Check if transaction exists and belongs to the account
                 var transaction = await _db.Transactions
+                    .Include(tx => tx.Category)
                     .FirstOrDefaultAsync(t => t.Id == transactionId && t.AccountId == accountId, token);
 
                 if(transaction is null) return new TransactionServiceError.TransactionNotFound(transactionId);

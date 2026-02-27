@@ -30,6 +30,12 @@ export interface TransactionModel {
      * @type {string}
      * @memberof TransactionModel
      */
+    creatorId: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof TransactionModel
+     */
     creator: string;
     /**
      * 
@@ -68,6 +74,7 @@ export interface TransactionModel {
  */
 export function instanceOfTransactionModel(value: object): value is TransactionModel {
     if (!('id' in value) || value['id'] === undefined) return false;
+    if (!('creatorId' in value) || value['creatorId'] === undefined) return false;
     if (!('creator' in value) || value['creator'] === undefined) return false;
     if (!('categoryName' in value) || value['categoryName'] === undefined) return false;
     if (!('timestampUtc' in value) || value['timestampUtc'] === undefined) return false;
@@ -88,6 +95,7 @@ export function TransactionModelFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'id': json['id'],
+        'creatorId': json['creatorId'],
         'creator': json['creator'],
         'categoryName': json['categoryName'],
         'timestampUtc': (new Date(json['timestampUtc'])),
@@ -109,6 +117,7 @@ export function TransactionModelToJSONTyped(value?: TransactionModel | null, ign
     return {
         
         'id': value['id'],
+        'creatorId': value['creatorId'],
         'creator': value['creator'],
         'categoryName': value['categoryName'],
         'timestampUtc': ((value['timestampUtc']).toISOString()),

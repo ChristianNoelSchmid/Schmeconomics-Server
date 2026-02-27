@@ -1,32 +1,34 @@
-import { AccountApi, type AccountModel } from "../openapi";
-import { getApiConfiguration } from "./auth-state";
+import type { AccountModel } from "../openapi";
 import { useStorage, type RemovableRef } from "@vueuse/core";
-
-export function useAccountState() {
-    return useState<ReadonlyArray<AccountModel> | undefined>('accountState', () => undefined);
-}
-
-export async function refreshAccountState() {
-    const config = await getApiConfiguration(true);
-    const api = new AccountApi(config);
-    try { useAccountState().value = await api.accountAllGet(); }
-    catch { return; }
-};
-
-export async function deleteAccount(id: string) {
-    const config = await getApiConfiguration(true);
-    const api = new AccountApi(config);
-    try { api.accountDeleteIdDelete({ id }) }
-    catch { return; }
-
-    await refreshAccountState();
-}
 
 export function useDefaultAccountId(): RemovableRef<string> {
     return useStorage<string>('defaultAccountId', null);
 }
 
-export function clearAccountState() {
-    useAccountState().value = undefined;
-    useDefaultAccountId().value = null;
+export function accountData() {
+    const { $api } = useNuxtApp();
+    const { start, finish } = useLoadingIndicator();
+
+    const { data: accounts, refresh, clear } = useAsyncData<AccountModel[]>(
+        'accounts-list',
+        async () => {
+            start();
+            try {
+                return await $api.account.accountAllGet();
+            } finally {
+                finish();
+            }
+        }
+    );
+
+    return { accounts, refresh, clear };
+}
+
+export class AccountService {
+    
+
+    async deleteAccount(id: string) {
+        const { $api } = useNuxtApp();
+        await $api.account.accountDeleteIdDelete({ id });
+    }
 }

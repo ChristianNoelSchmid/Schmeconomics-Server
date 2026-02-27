@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '@nuxt/ui';
 import { onError } from '~/lib/form-error';
-import { AuthApi } from '~/lib/openapi';
-import { refreshAccountState } from '~/lib/services/account-service';
-import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
+import { accountData } from '~/lib/services/account-service';
+import { useSignInState } from '~/lib/services/auth-state';
 
+const { $api } = useNuxtApp();
 const signInState = useSignInState();
+const { refresh } = accountData();
 
 const formState = reactive({
   name: undefined,
@@ -22,11 +23,10 @@ function validate(state: Partial<Schema>): FormError[] {
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const api = new AuthApi(await getApiConfiguration(false));
-  const res = await api.authSignInPost({ signInRequest: { name: event.data.name!, password: event.data.password! } });
+  const res = await $api.auth.authSignInPost({ signInRequest: { name: event.data.name!, password: event.data.password! } });
 
   signInState.value = res;
-  await refreshAccountState();
+  refresh();
 
   navigateTo('/');
 }

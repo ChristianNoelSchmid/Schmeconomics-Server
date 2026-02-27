@@ -28,6 +28,11 @@ import {
     UpdateTransactionRequestToJSON,
 } from '../models/index';
 
+export interface AccountIdTransactionIdDeleteRequest {
+    accountId: string;
+    transactionId: string;
+}
+
 export interface TransactionAccountIdGetRequest {
     accountId: string;
     categoryId?: string;
@@ -40,10 +45,6 @@ export interface TransactionAccountIdPostRequest {
     createTransactionRequest: Array<CreateTransactionRequest>;
 }
 
-export interface TransactionTransactionIdDeleteRequest {
-    transactionId: string;
-}
-
 export interface TransactionTransactionIdPutRequest {
     transactionId: string;
     updateTransactionRequest: UpdateTransactionRequest;
@@ -53,6 +54,48 @@ export interface TransactionTransactionIdPutRequest {
  * 
  */
 export class TransactionApi extends runtime.BaseAPI {
+
+    /**
+     */
+    async accountIdTransactionIdDeleteRaw(requestParameters: AccountIdTransactionIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters['accountId'] == null) {
+            throw new runtime.RequiredError(
+                'accountId',
+                'Required parameter "accountId" was null or undefined when calling accountIdTransactionIdDelete().'
+            );
+        }
+
+        if (requestParameters['transactionId'] == null) {
+            throw new runtime.RequiredError(
+                'transactionId',
+                'Required parameter "transactionId" was null or undefined when calling accountIdTransactionIdDelete().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/{accountId}/{transactionId}`;
+        urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
+        urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters['transactionId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     */
+    async accountIdTransactionIdDelete(requestParameters: AccountIdTransactionIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.accountIdTransactionIdDeleteRaw(requestParameters, initOverrides);
+    }
 
     /**
      */
@@ -143,40 +186,6 @@ export class TransactionApi extends runtime.BaseAPI {
      */
     async transactionAccountIdPost(requestParameters: TransactionAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.transactionAccountIdPostRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     */
-    async transactionTransactionIdDeleteRaw(requestParameters: TransactionTransactionIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters['transactionId'] == null) {
-            throw new runtime.RequiredError(
-                'transactionId',
-                'Required parameter "transactionId" was null or undefined when calling transactionTransactionIdDelete().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/Transaction/{transactionId}`;
-        urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters['transactionId'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'DELETE',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     */
-    async transactionTransactionIdDelete(requestParameters: TransactionTransactionIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.transactionTransactionIdDeleteRaw(requestParameters, initOverrides);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Schmeconomics.Api.Transactions;
 
 public record class TransactionModel(
     string Id,
+    string CreatorId,
     string Creator,
     string CategoryName,
     DateTime TimestampUtc,
@@ -13,6 +14,7 @@ public record class TransactionModel(
 ) {
     public static explicit operator TransactionModel(Transaction from) => new(
         from.Id,
+        from.CreatorId,
         from.Creator?.Name ?? throw new ArgumentException(
             $"Conversion from {nameof(Transaction)} to {nameof(TransactionModel)} " + 
             $"requires joining with {nameof(User)} foreign key."

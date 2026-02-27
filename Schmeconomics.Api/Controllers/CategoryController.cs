@@ -99,7 +99,7 @@ public class CategoryController(
     }
 
     [HttpPost("Refill/{accountId}")]
-    [Authorize(Role.Admin)]
+    [Authorize(Role.User)]
     public async Task<IActionResult> RefillCategoriesAsync(
         string accountId
     ) {

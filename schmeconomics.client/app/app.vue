@@ -16,6 +16,7 @@ onMounted(() => {
     <UContainer>
       <NavigationHeader />
       <UMain>
+        <NuxtLoadingIndicator :height="3" />
         <NuxtPage />
       </UMain>
     </UContainer>

@@ -1,72 +1,58 @@
-import { computedAsync } from "@vueuse/core";
-import { CategoryApi, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from "../openapi";
-import { getApiConfiguration } from "./auth-state";
-import { useAccountState, useDefaultAccountId } from "./account-service";
+import type { CategoryModel, CreateCategoryRequest, UpdateCategoryRequest } from "../openapi";
+import { useDefaultAccountId } from "./account-service";
+
+export function accountCategoriesData() {
+    const { $api } = useNuxtApp();
+    const defaultAccountId = useDefaultAccountId();
+    const { start, finish } = useLoadingIndicator();
+
+    const { data: categories, refresh, clear } = useAsyncData<CategoryModel[]>(
+        'categories-list',
+        async () => {
+            start();
+            try {
+                return await $api.category.categoryForAccountAccountIdGet({
+                    accountId: defaultAccountId.value
+                });
+            } finally {
+                finish();
+            }
+        },
+        {
+            watch: [() => defaultAccountId.value]
+        }
+    )
+    return { categories, refresh, clear };
+}
 
 export class CategoryService {
-    defaultAccountCategories(): globalThis.Ref<CategoryModel[]> {
-        const accountState = useAccountState();
-        const defaultAccountId = useDefaultAccountId();
-
-        return computedAsync<CategoryModel[]>(
-            async () => {
-                if (accountState.value && defaultAccountId.value != null) {
-                    try {
-                        const api = new CategoryApi(await getApiConfiguration(true));
-                        return await api.categoryForAccountAccountIdGet({ accountId: defaultAccountId.value })
-                            ?? [];
-                        } catch (error) {
-                        console.error('Failed to load categories:', error);
-                    }
-                }
-                return [];
-            }, []
-        );
-    }
-
-    // Fetch categories for the default account
-    async fetchCategories(accountId: string): Promise<CategoryModel[]> {
-        try {
-            const config = await getApiConfiguration(true);
-            const api = new CategoryApi(config);
-
-            return await api.categoryForAccountAccountIdGet({ accountId }); 
-        } catch (error) {
-            console.error('Error fetching categories:', error);
-            return [];
-        }
-    }
-
     async createCategory(accountId: string, state: CreateCategoryRequest) {
+        const { $api } = useNuxtApp();
         try {
-            const config = await getApiConfiguration(true);
-            const api = new CategoryApi(config);
             const request: CreateCategoryRequest = {
-            accountId: accountId,
-            name: state.name,
-            balance: state.balance,
-            refillValue: state.refillValue
+                accountId: accountId,
+                name: state.name,
+                balance: state.balance,
+                refillValue: state.refillValue
             };
 
-            await api.categoryCreatePost({ createCategoryRequest: request });
+            await $api.category.categoryCreatePost({ createCategoryRequest: request });
         } catch (error) {
             console.error('Failed to create category:', error);
         }
     }
     async updateCategory(categoryId: string, request: UpdateCategoryRequest) {
+        const { $api } = useNuxtApp();
         try {
-            const config = await getApiConfiguration(true);
-            const api = new CategoryApi(config);
-            await api.categoryUpdateIdPut({ id: categoryId, updateCategoryRequest: request });
+            await $api.category.categoryUpdateIdPut({ id: categoryId, updateCategoryRequest: request });
         } catch (error) {
             console.error('Failed to update category:', error);
         }
     }
     async deleteCategory(categoryId: string) {
+        const { $api } = useNuxtApp();
         try {
-            const config = await getApiConfiguration(true);
-            const api = new CategoryApi(config);
-            await api.categoryDeleteIdDelete({ id: categoryId });
+            await $api.category.categoryDeleteIdDelete({ id: categoryId });
         } catch (error) {
             console.error('Failed to delete category:', error);
             alert('Failed to delete category');

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { UserService } from '~/lib/services/user-service';
+import { userData, UserService } from '~/lib/services/user-service';
 import { Role, type UserModel, type CreateUserRequest, type UpdateUserRequest } from '~/lib/openapi';
 import { useSignInState } from '~/lib/services/auth-state';
 import { showPrompt } from '~/components/prompt/prompt-state';
@@ -8,7 +8,7 @@ import { showPrompt } from '~/components/prompt/prompt-state';
 const signInState = useSignInState();
 const userService = new UserService();
 
-const users = ref<UserModel[]>([]);
+const { users, refresh } = userData();
 const filteredUsers = ref<UserModel[]>([]);
 const searchName = ref('');
 const showCreateModal = ref(false);
@@ -27,27 +27,15 @@ onMounted(async () => {
     navigateTo('/');
     return;
   }
-
-  await loadUsers();
 });
-
-async function loadUsers() {
-  try {
-    users.value = await userService.getAllUsers();
-    filteredUsers.value = [...users.value];
-  } catch (error) {
-    console.error('Failed to load users:', error);
-    // Handle error appropriately
-  }
-}
 
 // Filter users based on search input
 watch(searchName, () => {
   if (!searchName.value) {
-    filteredUsers.value = [...users.value];
+    filteredUsers.value = [...users.value!];
   } else {
     const searchTerm = searchName.value.toLowerCase();
-    filteredUsers.value = users.value.filter(user => 
+    filteredUsers.value = users.value!.filter(user => 
       user.name.toLowerCase().includes(searchTerm)
     );
   }
@@ -58,7 +46,7 @@ async function handleCreateUser(request: CreateUserRequest) {
   try {
     await userService.createUser(request);
     showCreateModal.value = false;
-    await loadUsers();
+    refresh();
   } catch (error) {
     console.error('Failed to create user:', error);
     // Handle error appropriately
@@ -72,7 +60,7 @@ async function handleUpdateUser(request: UpdateUserRequest) {
   try {
     await userService.updateUser(editingUser.value.id, request);
     showEditModal.value = false;
-    await loadUsers();
+    refresh();
   } catch (error) {
     console.error('Failed to update user:', error);
     // Handle error appropriately
@@ -86,7 +74,7 @@ async function handleDeleteUser(userId: string) {
     actions: [
       ["Yes", async () => {
         await userService.deleteUser(userId);
-        await loadUsers();
+        refresh();
       }],
     ]
   })

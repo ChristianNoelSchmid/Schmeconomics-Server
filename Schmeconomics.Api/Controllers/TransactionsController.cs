@@ -57,14 +57,15 @@ public class TransactionController(
         else return NotFound(result.Error.Message);
     }
 
-    [HttpDelete("{transactionId}")]
+    [HttpDelete("/{accountId}/{transactionId}")]
     public async Task<IActionResult> DeleteTransactionAsync(
+        string accountId,
         string transactionId,
         CancellationToken stopToken = default
     ) {
         var result = await _transactionService.DeleteTransactionsAsync(
             _currentUser.User!.Id,
-            transactionId, 
+            accountId,
             [transactionId], 
             stopToken
         );

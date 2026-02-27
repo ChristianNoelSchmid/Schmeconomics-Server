@@ -74,7 +74,7 @@ function openUserManagement(accountId: string) {
         </template>
       </UCard>
     </UPageList>
-    <UButton class="mt-4" @click="creatingAccount = true">Create Account</UButton>
+    <UButton v-if="signInState?.userModel.role == Role.Admin" class="mt-4" @click="creatingAccount = true">Create Account</UButton>
     <UModal :open="creatingAccount">
       <template #content>
         <UForm class="space-y-4" :validate="validateCreateAccount" :state="createAccountState"
