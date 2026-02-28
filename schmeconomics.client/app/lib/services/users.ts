@@ -1,5 +1,5 @@
 import type { CreateUserRequest, UpdateUserRequest, UserModel } from "../openapi";
-import { useSignInState as useSignInState } from "./auth-state";
+import { useSignInState as useSignInState } from "./auth";
 
 export function userData() {
   const { $api } = useNuxtApp();

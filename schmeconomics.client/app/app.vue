@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PromptModal from './components/prompt/PromptModal.vue';
-import { useSignInState } from './lib/services/auth-state';
+import { useSignInState } from './lib/services/auth';
 
 const signInState = useSignInState();
 const router = useRoute();

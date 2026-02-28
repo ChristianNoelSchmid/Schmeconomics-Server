@@ -1,30 +1,34 @@
-import { AuthApi, Configuration } from "./openapi";
-import { useSignInState } from "./services/auth-state";
+import { AuthApi, Configuration, type SignInModel } from "./openapi";
+import { useSignInState } from "./services/auth";
 
 
 // Refresh fetch request, wrapped in a promise-lock to ensure if multiple
 // api calls are made at once, only one can request the refres token, while the
 // others await the same operation
-export const tryRefresh = async () => {
-    const refreshPromise = ref<Promise<void> | null>(null);
-    if(refreshPromise.value) return refreshPromise.value;
-    refreshPromise.value = (async () => {
+export async function tryRefresh(): Promise<SignInModel | null> {
+    const { $_refreshPromise } = useNuxtApp();
+    if ($_refreshPromise.value) {
+        return $_refreshPromise.value;
+    }
+
+    const promise = (async () => {
         // Token has expired, try to refresh it
-        const refreshConfig = new Configuration({ 
-            basePath: "http://localhost:5153", 
-            credentials: "include" 
+        const refreshConfig = new Configuration({
+            basePath: "http://localhost:5153",
+            credentials: "include"
         });
-        try { 
+        try {
             const authApi = new AuthApi(refreshConfig);
-            useSignInState().value = await authApi.authRefreshPost();
-        } catch(error) {
+            return await authApi.authRefreshPost();
+        } catch (error) {
             // If refresh fails, clear the sign in state to force re-authentication
             useSignInState().value = null;
             throw error;
         } finally {
-            refreshPromise.value = null;
+            $_refreshPromise.value = null;
         }
     })();
 
-    return refreshPromise;
+    $_refreshPromise.value = promise;
+    return promise;
 }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { currencyFormat } from "~/formatters";
 import type { TransactionModel } from "~/lib/openapi/models/TransactionModel";
-import { useSignInState } from "~/lib/services/auth-state";
+import { useSignInState } from "~/lib/services/auth";
 
 defineProps<{
   transaction: TransactionModel;

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { userData, UserService } from '~/lib/services/user-service';
+import { userData, UserService } from '~/lib/services/users';
 import { Role, type UserModel, type CreateUserRequest, type UpdateUserRequest } from '~/lib/openapi';
-import { useSignInState } from '~/lib/services/auth-state';
+import { useSignInState } from '~/lib/services/auth';
 import { showPrompt } from '~/components/prompt/prompt-state';
 
 const signInState = useSignInState();
@@ -11,8 +11,8 @@ const userService = new UserService();
 const { users, refreshUsers } = userData();
 const searchName = ref('');
 const filteredUsers = computed<UserModel[]>(() => {
-  if (!searchName.value) {
-    return [...users.value!];
+  if (!searchName.value || searchName.value == '') {
+    return users.value ? [...users.value] : [];
   } else {
     const searchTerm = searchName.value.toLowerCase();
     return users.value!.filter(user => 
@@ -38,6 +38,7 @@ onMounted(async () => {
   }
 
   await refreshUsers();
+  searchName.value = '';
 });
 
 async function handleCreateUser(request: CreateUserRequest) {

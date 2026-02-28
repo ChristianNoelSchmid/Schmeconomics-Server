@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { NavigationMenuItem, SelectMenuItem } from '@nuxt/ui';
-import { useSignInState } from '~/lib/services/auth-state';
+import { useSignInState } from '~/lib/services/auth';
 import { ref } from 'vue';
-import { accountData, useDefaultAccountId } from '~/lib/services/account-service';
+import { accountData, useDefaultAccountId } from '~/lib/services/accounts';
 
 const route = useRoute();
 const signInState = useSignInState();

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AccountApi, type UserModel } from "~/lib/openapi";
-import { accountData } from "~/lib/services/account-service";
-import { userData, UserService } from "~/lib/services/user-service";
+import { accountData } from "~/lib/services/accounts";
+import { userData, UserService } from "~/lib/services/users";
 
 const props = defineProps<{
   accountId: string;

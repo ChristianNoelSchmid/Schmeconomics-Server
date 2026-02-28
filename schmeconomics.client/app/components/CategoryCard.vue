@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { currencyFormat } from '~/formatters';
 import { Role, type CategoryModel } from '~/lib/openapi';
-import { useSignInState } from '~/lib/services/auth-state';
+import { useSignInState } from '~/lib/services/auth';
 
 const signInState = useSignInState();
 const props = defineProps<{

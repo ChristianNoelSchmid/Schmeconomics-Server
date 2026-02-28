@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { CategoryApi, type CategoryRefillValueUpdate } from '../../lib/openapi';
-import { useDefaultAccountId } from '../../lib/services/account-service';
-import { getApiConfiguration } from '../../lib/services/auth-state';
+import { useDefaultAccountId } from '../../lib/services/accounts';
+import { getApiConfiguration } from '../../lib/services/auth';
 import { currencyFormat } from '~/formatters';
 import { showPrompt } from '~/components/prompt/prompt-state';
 

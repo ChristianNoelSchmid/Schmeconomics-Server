@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { Role, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from '~/lib/openapi';
-import { useDefaultAccountId } from '~/lib/services/account-service';
-import { useSignInState } from '~/lib/services/auth-state';
+import { useDefaultAccountId } from '~/lib/services/accounts';
+import { useSignInState } from '~/lib/services/auth';
 import { ref } from 'vue';
 import type { CreateTransactionProp } from '~/components/CreateTransactionModal.vue';
 import { showPrompt } from '~/components/prompt/prompt-state';
-import { accountCategoriesData, CategoryService } from '~/lib/services/category-service';
+import { accountCategoriesData, CategoryService } from '~/lib/services/categories';
 
 const signInState = useSignInState();
 const defaultAccountId = useDefaultAccountId();

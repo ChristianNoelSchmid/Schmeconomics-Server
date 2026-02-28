@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { TransactionApi } from "~/lib/openapi";
-import { useDefaultAccountId } from "~/lib/services/account-service";
-import { getApiConfiguration } from "~/lib/services/auth-state";
-import { ref, onMounted, watch } from "vue";
+import { useDefaultAccountId } from "~/lib/services/accounts";
+import { ref, onMounted } from "vue";
 import TransactionCard from "~/components/TransactionCard.vue";
-import type { TransactionModel } from "~/lib/openapi/models/TransactionModel";
 import { showPrompt } from "~/components/prompt/prompt-state";
+import { TransactionService, txData } from "~/lib/services/transactions";
 
-const defaultAccountId = useDefaultAccountId();
-const transactions = ref<TransactionModel[]>([]);
+const txService = new TransactionService();
+
 const hasMore = ref(true);
 const page = ref(1);
+
 const categoryId = ref<string | null>(null);
-const { start, finish } = useLoadingIndicator();
+const defaultAccountId = useDefaultAccountId();
+const { txs, refreshTxs } = txData(computed(() => categoryId.value), computed(() => page.value));
 
 // Get categoryId from route query parameters
 const route = useRoute();
@@ -20,73 +20,23 @@ if (route.query.categoryId) {
   categoryId.value = route.query.categoryId as string;
 }
 
-const loadTransactions = async () => {
-  // Reset the page index and the transactions ref
-  page.value = 1;
-  transactions.value = [];
-
-  // If there is no default account selected, just return
-  if (defaultAccountId.value == null) return;
-
-  try {
-    start();
-    const config = await getApiConfiguration(true);
-    const api = new TransactionApi(config);
-    
-    // Call the API with optional categoryId parameter
-    const response = await api.transactionAccountIdGet({
-      accountId: defaultAccountId.value,
-      categoryId: categoryId.value || undefined,
-      page: page.value,
-      pageSize: 10
-    });
-    
-    // Handle the transaction data properly
-    if (response && Array.isArray(response)) {
-      transactions.value = [...transactions.value, ...response];
-      hasMore.value = response.length === 10; // Assuming 10 items per page
-    }
-  } catch (error) {
-    console.error("Failed to load transactions:", error);
-  } finally {
-    finish();
-  }
-};
-
-async function deleteTransaction(txId: string) {
+function onDeleteTransaction(txId: string) {
   showPrompt({
     message: "Are you sure you wish to delete this transaction?",
     actions: [["Yes", async () => {
-      const accountId = defaultAccountId.value;
-      if(accountId != null) {
-        const api = new TransactionApi(await getApiConfiguration(true))
-        await api.accountIdTransactionIdDelete({ 
-          accountId, 
-          transactionId: txId 
-        });
-
-        await loadTransactions()
-      }
+      await txService.deleteTransaction(txId);
+      await refreshTxs();
     }]]
   });
 }
 
-const loadMore = () => {
+async function loadMore() {
   page.value++;
-  loadTransactions();
+  await refreshTxs();
 };
 
-// Load initial transactions when account name changes or page loads
-watch(defaultAccountId, () => {
-  if (defaultAccountId.value != null) {
-    loadTransactions();
-  }
-});
-
-onMounted(() => {
-  if (defaultAccountId.value != null) {
-    loadTransactions();
-  }
+onMounted(async () => {
+  await refreshTxs();
 });
 </script>
 
@@ -94,16 +44,16 @@ onMounted(() => {
   <div class="p-4">
     <h1 class="text-2xl font-bold mb-4">Transactions</h1>
     
-    <div v-if="transactions.length === 0" class="text-center py-8">
+    <div v-if="txs.length === 0" class="text-center py-8">
       <p>No transactions found.</p>
     </div>
     
     <div v-else>
       <TransactionCard 
-        v-for="transaction in transactions" 
-        :key="transaction.id"
-        :transaction="transaction"
-        @deleteclicked="deleteTransaction(transaction.id)"
+        v-for="tx in txs" 
+        :key="tx.id"
+        :transaction="tx"
+        @deleteclicked="onDeleteTransaction(tx.id)"
       />
       
       <div v-if="hasMore" class="mt-4 text-center">

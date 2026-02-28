@@ -1,22 +1,16 @@
 import type { CategoryModel, CreateCategoryRequest, UpdateCategoryRequest } from "../openapi";
-import { useDefaultAccountId } from "./account-service";
+import { useDefaultAccountId } from "./accounts";
 
 export function accountCategoriesData() {
     const { $api } = useNuxtApp();
     const defaultAccountId = useDefaultAccountId();
-    const { start, finish } = useLoadingIndicator();
 
     const { data: categories, refresh, clear } = useAsyncData<CategoryModel[]>(
         'categories-list',
         async () => {
-            start();
-            try {
-                return await $api.category.categoryForAccountAccountIdGet({
-                    accountId: defaultAccountId.value
-                });
-            } finally {
-                finish();
-            }
+            return await $api.category.categoryForAccountAccountIdGet({
+                accountId: defaultAccountId.value
+            });
         },
         {
             watch: [() => defaultAccountId.value]

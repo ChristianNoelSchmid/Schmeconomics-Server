@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { FormError, FormSubmitEvent } from '@nuxt/ui';
 import { onError } from '~/lib/form-error';
-import { accountData } from '~/lib/services/account-service';
-import { useSignInState } from '~/lib/services/auth-state';
+import { accountData } from '~/lib/services/accounts';
+import { useSignInState } from '~/lib/services/auth';
 
 const { $api } = useNuxtApp();
 const signInState = useSignInState();
