@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { AccountApi, type UserModel } from "~/lib/openapi";
-import { getApiConfiguration } from "~/lib/services/auth-state";
-import { UserService } from "~/lib/services/user-service";
+import { accountData } from "~/lib/services/account-service";
+import { userData, UserService } from "~/lib/services/user-service";
 
 const props = defineProps<{
   accountId: string;
@@ -12,61 +12,25 @@ const emit = defineEmits<{
   closed: [];
 }>();
 
-const users = ref<UserModel[]>([]);
-const selectedUsers = ref<string[]>([]);
-const loading = ref(false);
+const { accounts } = accountData();
+const { users, refresh } = userData();
+const userService = new UserService();
 
-async function loadUsers() {
-  try {
-    const userService = new UserService();
-    users.value = await userService.getAllUsers();
-    
-    // Get current account to check which users are already associated
-    const api = new AccountApi(await getApiConfiguration(true));
-    const account = await api.accountAllGet();
-    const currentAccount = account.find(acc => acc.id === props.accountId);
-    
-    if (currentAccount && currentAccount.users) {
-      selectedUsers.value = currentAccount.users.map(u => u.id);
-    }
-  } catch (error) {
-    console.error("Error loading users:", error);
+const selectedUsers = computed<UserModel[]>(() => {
+  const currentAccount = accounts.value?.find(acc => acc.id === props.accountId);
+  if (currentAccount && currentAccount.users) {
+    return currentAccount.users;
   }
-}
-
-watch(() => props.visible, async (newVal) => {
-  if (newVal) {
-    await loadUsers();
-  }
+  return [];
 });
 
 async function toggleUser(userId: string) {
-  try {
-    const api = new AccountApi(await getApiConfiguration(true));
-    await api.accountToggleUserPost({
-      toggleUserToAccountRequest: {
-        accountId: props.accountId,
-        userId
-      }
-    });
-    
-    // Update selected users list after successful toggle
-    if (selectedUsers.value.includes(userId)) {
-      selectedUsers.value = selectedUsers.value.filter(id => id !== userId);
-    } else {
-      selectedUsers.value.push(userId);
-    }
-  } catch (error) {
-    console.error("Error toggling user:", error);
-  }
+  await userService.toggleUserToAccount(userId, props.accountId);
+  refresh();
 }
 
 function isUserSelected(userId: string): boolean {
-  return selectedUsers.value.includes(userId);
-}
-
-function submit() {
-  emit('closed');
+  return selectedUsers.value.some(u => u.id == userId);
 }
 </script>
 
@@ -78,11 +42,7 @@ function submit() {
           <h3 class="text-lg font-semibold">Manage Account Users</h3>
         </template>
         
-        <div v-if="loading" class="flex justify-center items-center py-8">
-          <USpinner />
-        </div>
-        
-        <div v-else class="space-y-4">
+        <div class="space-y-4">
           <p>Select users to add or remove from this account:</p>
           
           <div class="space-y-2 max-h-96 overflow-y-auto">
@@ -107,7 +67,7 @@ function submit() {
         
         <template #footer>
           <div class="flex justify-end">
-            <UButton color="primary" @click="submit">Close</UButton>
+            <UButton color="primary" @click="emit('closed')">Close</UButton>
           </div>
         </template>
       </UCard>

@@ -25,7 +25,10 @@ export function accountData() {
 }
 
 export class AccountService {
-    
+    async createAccount(name: string) {
+        const { $api } = useNuxtApp();
+        await $api.account.accountCreatePost({ name });
+    }
 
     async deleteAccount(id: string) {
         const { $api } = useNuxtApp();

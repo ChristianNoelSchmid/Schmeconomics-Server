@@ -8,9 +8,18 @@ import { showPrompt } from '~/components/prompt/prompt-state';
 const signInState = useSignInState();
 const userService = new UserService();
 
-const { users, refresh } = userData();
-const filteredUsers = ref<UserModel[]>([]);
+const { users, refreshUsers } = userData();
 const searchName = ref('');
+const filteredUsers = computed<UserModel[]>(() => {
+  if (!searchName.value) {
+    return [...users.value!];
+  } else {
+    const searchTerm = searchName.value.toLowerCase();
+    return users.value!.filter(user => 
+      user.name.toLowerCase().includes(searchTerm)
+    );
+  }
+});
 const showCreateModal = ref(false);
 const editingUser = ref<UserModel | null>(null);
 const showEditModal = ref(false);
@@ -27,26 +36,15 @@ onMounted(async () => {
     navigateTo('/');
     return;
   }
+
+  await refreshUsers();
 });
 
-// Filter users based on search input
-watch(searchName, () => {
-  if (!searchName.value) {
-    filteredUsers.value = [...users.value!];
-  } else {
-    const searchTerm = searchName.value.toLowerCase();
-    filteredUsers.value = users.value!.filter(user => 
-      user.name.toLowerCase().includes(searchTerm)
-    );
-  }
-});
-
-// Handle creating a new user
 async function handleCreateUser(request: CreateUserRequest) {
   try {
     await userService.createUser(request);
     showCreateModal.value = false;
-    refresh();
+    await refreshUsers();
   } catch (error) {
     console.error('Failed to create user:', error);
     // Handle error appropriately
@@ -60,7 +58,7 @@ async function handleUpdateUser(request: UpdateUserRequest) {
   try {
     await userService.updateUser(editingUser.value.id, request);
     showEditModal.value = false;
-    refresh();
+    await refreshUsers();
   } catch (error) {
     console.error('Failed to update user:', error);
     // Handle error appropriately
@@ -74,7 +72,7 @@ async function handleDeleteUser(userId: string) {
     actions: [
       ["Yes", async () => {
         await userService.deleteUser(userId);
-        refresh();
+        await refreshUsers();
       }],
     ]
   })

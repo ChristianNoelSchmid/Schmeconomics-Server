@@ -64,7 +64,7 @@ public class AuthServiceTests
             .Returns(PasswordVerificationResult.Success);
         
         _authTokenProvider.CreateAuthTokenAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>())
-            .Returns(expectedAccessToken);
+            .Returns(new AuthTokenModel(expectedAccessToken, DateTime.Now));
         
         var refreshTokenFamilyModel = new RefreshTokenFamilyModel(expectedRefreshToken, expectedExpiresOnUtc, new Users.UserModel("", "", Role.User));
         _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS, Arg.Any<CancellationToken>())
@@ -144,7 +144,7 @@ public class AuthServiceTests
             .Returns(refreshTokenFamilyModel);
 
         _authTokenProvider.CreateAuthTokenAsync(Arg.Any<Dictionary<string, object>>(), Arg.Any<CancellationToken>())
-            .Returns(expectedAccessToken);
+            .Returns(new AuthTokenModel(expectedAccessToken, DateTime.Now));
 
         // Act
         var result = await _authService.RefreshTokenAsync(TEST_IP_ADDRESS, expectedRefreshToken);

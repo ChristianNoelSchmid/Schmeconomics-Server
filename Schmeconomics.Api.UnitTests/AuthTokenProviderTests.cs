@@ -66,7 +66,7 @@ public class AuthTokenProviderTests
         );
 
         var handler = new JwtSecurityTokenHandler();
-        var outToken = handler.ReadJwtToken(token);
+        var outToken = handler.ReadJwtToken(token.Token);
 
         Assert.AreEqual(TEST_ISSUER, outToken.Issuer);
         CollectionAssert.AreEqual(new string[] { TEST_AUDIENCE }, outToken.Audiences.ToArray());
@@ -80,7 +80,7 @@ public class AuthTokenProviderTests
         Assert.AreEqual(expectedTicks, outToken.ValidTo.Ticks);
 
         var validated = await handler.ValidateTokenAsync(
-            token,
+            token.Token,
             new TokenValidationParameters
             {
                 ValidateAudience = false,
@@ -155,7 +155,7 @@ public class AuthTokenProviderTests
                 ["email"] = "tom.bombadil@middleearthmail.com"
             }
         );
-        var claims = await _tokenProvider.ValidateAuthTokenAsync(jwtToken);
+        var claims = await _tokenProvider.ValidateAuthTokenAsync(jwtToken.Token);
 
         Assert.AreEqual(subjectId, claims.First(c => c.Type == "sub").Value);
         Assert.AreEqual("tom.bombadil@middleearthmail.com", claims.First(c => c.Type == "email").Value);
@@ -174,18 +174,18 @@ public class AuthTokenProviderTests
         );
 
         _secretsProvider.GetSecretsAsync().Returns(TEST_SECRET_BYTES_ITERATOR_2());
-        await Assert.ThrowsExceptionAsync<AuthTokenProviderException.JwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken));
+        await Assert.ThrowsExceptionAsync<AuthTokenProviderException.JwtException>(() => _tokenProvider.ValidateAuthTokenAsync(jwtToken.Token));
     }
 
     [TestMethod]
     public async Task ValidateAuthTokenSucceedsWhenOlderJwtSecretIsProvided()
     {
         _secretsProvider.GetSecretsAsync().Returns(TEST_SECRET_BYTES_ITERATOR_OLDER());
-        var jwtToken = await _tokenProvider.CreateAuthTokenAsync(new Dictionary<string, object>());
+        var tokenModel = await _tokenProvider.CreateAuthTokenAsync(new Dictionary<string, object>());
         // The secret provided should be the second in the list for this iterator.
         // The token should still be successfully validated
         _secretsProvider.GetSecretsAsync().Returns(TEST_SECRET_BYTES_ITERATOR());
-        await _tokenProvider.ValidateAuthTokenAsync(jwtToken);
+        await _tokenProvider.ValidateAuthTokenAsync(tokenModel.Token);
     }
 
     private string CreateTestJwtToken(

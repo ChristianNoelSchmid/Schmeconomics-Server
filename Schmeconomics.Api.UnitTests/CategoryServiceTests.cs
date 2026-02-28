@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Schmeconomics.Api.Categories;
+using Schmeconomics.Api.Time;
 using Schmeconomics.Entities;
 
 namespace Schmeconomics.Api.UnitTests;
@@ -67,7 +68,7 @@ public class CategoryServiceTests
         _dbContext.Categories.Add(category2);
         await _dbContext.SaveChangesAsync();
 
-        _categoryService = new CategoryService(_dbContext);
+        _categoryService = new CategoryService(_dbContext, new DateTimeProvider());
     }
 
     [TestMethod]

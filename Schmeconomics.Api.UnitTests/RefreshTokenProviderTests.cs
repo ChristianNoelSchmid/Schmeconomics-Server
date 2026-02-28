@@ -1,10 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NSubstitute;
-using Schmeconomics.Api.Secrets;
 using Schmeconomics.Api.Time;
 using Schmeconomics.Api.Tokens;
-using Schmeconomics.Api.Tokens.AuthTokens;
 using Schmeconomics.Api.Tokens.RefreshTokens;
 using Schmeconomics.Entities;
 
@@ -62,8 +60,8 @@ public sealed class RefreshTokenProviderTests
         Assert.AreEqual(TEST_DATE_TIME + s_config.RefreshTokenLifetime, familyToken.ExpiresOnUtc);
         Assert.AreEqual(1, familyToken.Id);
         Assert.AreEqual(TEST_USER_ID, familyToken.UserId);
-        Assert.AreEqual(tokenModel.RefreshToken.Split('.')[0], familyToken.FamilyToken);
-        Assert.AreEqual(tokenModel.RefreshToken.Split('.')[1], familyToken.ActiveToken);
+        Assert.AreEqual(tokenModel.Token.Split('.')[0], familyToken.FamilyToken);
+        Assert.AreEqual(tokenModel.Token.Split('.')[1], familyToken.ActiveToken);
     }
 
     [TestMethod]
@@ -77,7 +75,7 @@ public sealed class RefreshTokenProviderTests
         var futureTime = TEST_DATE_TIME + TimeSpan.FromSeconds(5);
         _dateTimeProvider.UtcNow.Returns(futureTime);
 
-        var newTokenModel = await _refreshTokenProvider.CreateFromTokenAsync(tokenModel.RefreshToken, TEST_IP_ADDRESS);
+        var newTokenModel = await _refreshTokenProvider.CreateFromTokenAsync(tokenModel.Token, TEST_IP_ADDRESS);
 
         var familyTokens = await _dbContext.RefreshTokenFamilies.ToListAsync();
         Assert.AreEqual(1, familyTokens.Count);
@@ -92,9 +90,9 @@ public sealed class RefreshTokenProviderTests
         Assert.AreEqual(TEST_USER_ID, familyToken.UserId);
 
         // The prior token and active token should both have the same family token
-        Assert.AreEqual(tokenModel.RefreshToken.Split('.')[0], familyToken.FamilyToken);
-        Assert.AreEqual(newTokenModel.RefreshToken.Split('.')[0], familyToken.FamilyToken);
-        Assert.AreEqual(newTokenModel.RefreshToken.Split('.')[1], familyToken.ActiveToken);
+        Assert.AreEqual(tokenModel.Token.Split('.')[0], familyToken.FamilyToken);
+        Assert.AreEqual(newTokenModel.Token.Split('.')[0], familyToken.FamilyToken);
+        Assert.AreEqual(newTokenModel.Token.Split('.')[1], familyToken.ActiveToken);
     }
 
     public async Task CreateNewTokenAsyncThrowsExceptionWhenNonexistantTokenIsProvided()
@@ -108,7 +106,7 @@ public sealed class RefreshTokenProviderTests
     public async Task CreateFromTokenAsyncThrowsExceptionWhenIncorrectTokenIsProvided()
     {
         var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
-        var splits = tokenModel.RefreshToken.Split(".");
+        var splits = tokenModel.Token.Split(".");
 
         // Updating the family token should throw exception
         var malformedToken1 = $"{Convert.ToBase64String(TokenUtils.CreateRandomBytes(16))}.{splits[1]}";
@@ -149,22 +147,22 @@ public sealed class RefreshTokenProviderTests
         _dateTimeProvider.UtcNow.Returns(TEST_DATE_TIME + TimeSpan.FromHours(2));
 
         await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenStale>(
-            () => _refreshTokenProvider.CreateFromTokenAsync(tokenModel.RefreshToken, TEST_IP_ADDRESS)
+            () => _refreshTokenProvider.CreateFromTokenAsync(tokenModel.Token, TEST_IP_ADDRESS)
         );
 
         // Token that is revoked should throw exception
         var tokenModel2 = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
-        await _refreshTokenProvider.RevokeTokenAsync(tokenModel2.RefreshToken, TEST_IP_ADDRESS);
+        await _refreshTokenProvider.RevokeTokenAsync(tokenModel2.Token, TEST_IP_ADDRESS);
 
         await Assert.ThrowsExceptionAsync<RefreshTokenProviderException.RefreshTokenStale>(
-            () => _refreshTokenProvider.CreateFromTokenAsync(tokenModel2.RefreshToken, TEST_IP_ADDRESS)
+            () => _refreshTokenProvider.CreateFromTokenAsync(tokenModel2.Token, TEST_IP_ADDRESS)
         );
     }
 
     public async Task RevokeTokenAsyncRevokesFamilyToken()
     {
         var tokenModel = await _refreshTokenProvider.CreateNewTokenAsync(TEST_USER_ID, TEST_IP_ADDRESS);
-        await _refreshTokenProvider.RevokeTokenAsync(tokenModel.RefreshToken, TEST_IP_ADDRESS);
+        await _refreshTokenProvider.RevokeTokenAsync(tokenModel.Token, TEST_IP_ADDRESS);
 
         var familyTokens = await _dbContext.RefreshTokenFamilies.ToListAsync();
         Assert.AreEqual(1, familyTokens.Count);

@@ -24,7 +24,7 @@ export function userData() {
     }
   )
 
-  return { users, refresh, clear };
+  return { users, refreshUsers: refresh, clear };
 }
 
 export class UserService {
@@ -62,5 +62,10 @@ export class UserService {
   async deleteUser(id: string): Promise<UserModel> {
     const { $api } = useNuxtApp();
     return await $api.user.userDeleteUserIdDelete({ userId: id });
+  }
+
+  async toggleUserToAccount(userId: string, accountId: string): Promise<void> {
+    const { $api } = useNuxtApp();
+    await $api.account.accountToggleUserPost({ toggleUserToAccountRequest: { userId, accountId }});
   }
 }

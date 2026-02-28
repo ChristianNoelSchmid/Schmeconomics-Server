@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
 import { AccountApi, Role, type AccountModel } from '~/lib/openapi';
-import { deleteAccount, refreshAccountState, useAccountState, useDefaultAccountId } from '~/lib/services/account-service';
-import { getApiConfiguration, useSignInState } from '~/lib/services/auth-state';
+import { accountData, AccountService, useDefaultAccountId } from '~/lib/services/account-service';
+import { useSignInState } from '~/lib/services/auth-state';
 import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';
 import { showPrompt } from '~/components/prompt/prompt-state';
 
-const accounts = useAccountState();
+const { accounts, refresh } = accountData()
+const accountService = new AccountService();
+
 const signInState = useSignInState();
-const creatingAccount = ref(false);
+const editingAccount = ref<AccountModel | null>(null);
+const upsertModalVisible = ref(false);
 const userManagementModalOpen = ref(false);
 
 const defaultAccountId = useDefaultAccountId();
@@ -20,23 +23,11 @@ async function onDeleteAccount(event: MouseEvent, id: string) {
     message: "Are you sure you want to delete this account?",
     actions: [
       ["Yes", async () => {
-        await deleteAccount(id);
-        refreshAccountState();
+        await accountService.deleteAccount(id);
+        refresh();
       }],
     ]
   })
-}
-
-const createAccountState = reactive({
-  name: undefined,
-});
-
-type Schema = typeof createAccountState;
-
-function validateCreateAccount(state: Partial<Schema>): FormError[] {
-  const errors = [];
-  if (!state.name) errors.push({ name: 'name', message: 'Required' });
-  return errors;
 }
 
 function selectAccount(event: Event, account: AccountModel) {
@@ -45,12 +36,10 @@ function selectAccount(event: Event, account: AccountModel) {
   navigateTo('/');
 }
 
-async function onCreateAccount() {
-  const api = new AccountApi(await getApiConfiguration(true));
-  try { await api.accountCreatePost({ name: createAccountState.name }); }
-  catch { return; }
-  creatingAccount.value = false;
-  await refreshAccountState();
+async function onCreateAccount(name: string) {
+  await accountService.createAccount(name);
+  upsertModalVisible.value = false;
+  await refresh();
 }
 
 function openUserManagement(accountId: string) {
@@ -74,18 +63,8 @@ function openUserManagement(accountId: string) {
         </template>
       </UCard>
     </UPageList>
-    <UButton v-if="signInState?.userModel.role == Role.Admin" class="mt-4" @click="creatingAccount = true">Create Account</UButton>
-    <UModal :open="creatingAccount">
-      <template #content>
-        <UForm class="space-y-4" :validate="validateCreateAccount" :state="createAccountState"
-          @submit="onCreateAccount">
-          <UFormField label="Name">
-            <UInput v-model="createAccountState.name" type="text" />
-          </UFormField>
-          <UButton type="submit">Submit</UButton>
-        </UForm>
-      </template>
-    </UModal>
+    <UButton v-if="signInState?.userModel.role == Role.Admin" class="mt-4" @click="upsertModalVisible = true">Create Account</UButton>
+    <CreateAccountModal :editing-account="editingAccount" :visible="upsertModalVisible" @submitted="onCreateAccount" @closed="upsertModalVisible=false" />
     
     <AccountUserManagementModal 
       :account-id="selectedAccountId || ''"
