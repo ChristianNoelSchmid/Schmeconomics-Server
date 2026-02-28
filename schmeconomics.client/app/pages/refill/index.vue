@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { CategoryApi, type CategoryRefillValueUpdate } from '../../lib/openapi';
-import { useDefaultAccountId } from '../../lib/services/accounts';
-import { getApiConfiguration } from '../../lib/services/auth';
+import { accountData, useDefaultAccountId } from '../../lib/services/accounts';
 import { currencyFormat } from '~/formatters';
 import { showPrompt } from '~/components/prompt/prompt-state';
+import { accountCategoriesData, CategoryService } from '~/lib/services/categories';
 
 // State for categories and refill values
 const categoryService = new CategoryService();
 const defaultAccountId = useDefaultAccountId();
-const categories = categoryService.defaultAccountCategories();
+const { categories } = accountCategoriesData();
 
 const isEditingRefillValues = ref(false);
 const editedValues = ref<Record<string, number>>({});
@@ -18,7 +18,7 @@ const showConfirmationModal = ref(false);
 async function resetEditValues() {
     // Initialize edited values with current refill values
     const newValues: Record<string, number> = {};
-    categories.value.forEach(category => 
+    categories.value?.forEach(category => 
         newValues[category.id] = category.refillValue
     );
 
@@ -34,7 +34,7 @@ function toggleEdit() {
 // Calculate total difference
 function calculateTotalDifference(): number {
     let diff = 0;
-    categories.value.forEach(category => {
+    categories.value?.forEach(category => {
         const originalValue = category.refillValue || 0;
         const newValue = editedValues.value[category.id];
         if (newValue !== undefined) {
@@ -53,10 +53,11 @@ async function applyChanges() {
         const api = new CategoryApi(config);
         
         // Prepare update request with correct structure
-        const refillUpdates: CategoryRefillValueUpdate[] = categories.value.map(category => ({
-            categoryId: category.id,
-            refillValue: editedValues.value[category.id]!
-        }));
+        const refillUpdates: CategoryRefillValueUpdate[] | undefined = categories.value?
+            .map(category => ({
+                categoryId: category.id,
+                refillValue: editedValues.value[category.id]!
+            }));
         
         await api.categoryUpdateRefillValuesPut({
             updateCategoriesRefillValueRequest: {

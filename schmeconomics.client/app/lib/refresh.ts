@@ -22,8 +22,7 @@ export async function tryRefresh(): Promise<SignInModel | null> {
             return await authApi.authRefreshPost();
         } catch (error) {
             // If refresh fails, clear the sign in state to force re-authentication
-            useSignInState().value = null;
-            throw error;
+            return null;
         } finally {
             $_refreshPromise.value = null;
         }

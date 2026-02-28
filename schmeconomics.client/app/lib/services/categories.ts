@@ -1,19 +1,22 @@
 import type { CategoryModel, CreateCategoryRequest, UpdateCategoryRequest } from "../openapi";
 import { useDefaultAccountId } from "./accounts";
+import { useSignInState } from "./auth";
 
 export function accountCategoriesData() {
     const { $api } = useNuxtApp();
     const defaultAccountId = useDefaultAccountId();
+    const signInState = useSignInState();
 
     const { data: categories, refresh, clear } = useAsyncData<CategoryModel[]>(
         'categories-list',
-        async () => {
-            return await $api.category.categoryForAccountAccountIdGet({
-                accountId: defaultAccountId.value
-            });
-        },
+        async () => await $api.category.categoryForAccountAccountIdGet({
+            accountId: defaultAccountId.value
+        }),
         {
-            watch: [() => defaultAccountId.value]
+            watch: [
+                () => signInState.value,
+                () => defaultAccountId.value,
+            ]
         }
     )
     return { categories, refresh, clear };

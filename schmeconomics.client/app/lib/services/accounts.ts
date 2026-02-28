@@ -1,5 +1,6 @@
 import type { AccountModel } from "../openapi";
 import { useStorage, type RemovableRef } from "@vueuse/core";
+import { useSignInState } from "./auth";
 
 export function useDefaultAccountId(): RemovableRef<string> {
     return useStorage<string>('defaultAccountId', null);
@@ -7,17 +8,18 @@ export function useDefaultAccountId(): RemovableRef<string> {
 
 export function accountData() {
     const { $api } = useNuxtApp();
-    const { start, finish } = useLoadingIndicator();
+
+    const signInState = useSignInState();
+    const defaultAccountId = useDefaultAccountId();
 
     const { data: accounts, refresh, clear } = useAsyncData<AccountModel[]>(
         'accounts-list',
-        async () => {
-            start();
-            try {
-                return await $api.account.accountAllGet();
-            } finally {
-                finish();
-            }
+        async () => await $api.account.accountAllGet(),
+        {
+            watch: [
+                () => signInState.value,
+                () => defaultAccountId.value,
+            ]
         }
     );
 

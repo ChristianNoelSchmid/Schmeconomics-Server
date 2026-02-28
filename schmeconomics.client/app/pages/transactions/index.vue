@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useDefaultAccountId } from "~/lib/services/accounts";
 import { ref, onMounted } from "vue";
 import TransactionCard from "~/components/TransactionCard.vue";
 import { showPrompt } from "~/components/prompt/prompt-state";
@@ -11,7 +10,6 @@ const hasMore = ref(true);
 const page = ref(1);
 
 const categoryId = ref<string | null>(null);
-const defaultAccountId = useDefaultAccountId();
 const { txs, refreshTxs } = txData(computed(() => categoryId.value), computed(() => page.value));
 
 // Get categoryId from route query parameters
@@ -25,7 +23,8 @@ function onDeleteTransaction(txId: string) {
     message: "Are you sure you wish to delete this transaction?",
     actions: [["Yes", async () => {
       await txService.deleteTransaction(txId);
-      await refreshTxs();
+      const indexOfTx = txs.value.findIndex(tx => tx.id == txId);
+      txs.value.splice(indexOfTx, 1);
     }]]
   });
 }

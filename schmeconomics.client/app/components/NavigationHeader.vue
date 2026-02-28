@@ -78,6 +78,10 @@ function updateDefaultAccountId(accountId: string) {
     navigateTo(`/accounts/${defaultAccountId.value}`);
   }
 }
+
+onMounted(async () => {
+  await refresh();
+})
 </script>
 
 <template>

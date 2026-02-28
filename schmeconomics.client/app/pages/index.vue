@@ -30,6 +30,8 @@ onMounted(async () => {
   if (!defaultAccountId.value) {
     navigateTo('/accounts');
   }
+
+  refresh();
 });
 
 onUnmounted(async () => {
