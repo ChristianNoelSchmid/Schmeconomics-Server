@@ -1,0 +1,41 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /app
+
+# Copy csproj and restore as distinct layers
+COPY Schmeconomics.Api/*.csproj ./Schmeconomics.Api/
+COPY Schmeconomics.Entities/*.csproj ./Schmeconomics.Entities/
+RUN dotnet restore "./Schmeconomics.Api/Schmeconomics.Api.csproj"
+RUN dotnet restore "./Schmeconomics.Entities/Schmeconomics.Entities.csproj"
+
+# Copy everything else
+COPY . .
+
+# Build the API project
+WORKDIR /app/Schmeconomics.Api
+RUN dotnet build "Schmeconomics.Api.csproj" -c Release -o /app/build
+
+# Publish the API project
+FROM build AS publish
+RUN dotnet publish "Schmeconomics.Api.csproj" -c Release -o /app/publish
+
+# Install EF Core tools for database migrations
+RUN dotnet tool install dotnet-ef --create-manifest-if-needed
+
+RUN dotnet ef database update --project Schmeconomics.Entities --startup-project Schmeconomics.Api -o /app/publish
+
+# Final stage
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+
+# Copy published files from the previous stage
+COPY --from=publish /app/publish .
+
+# Set environment variables
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:5153
+
+# Expose port
+EXPOSE 5153
+
+# Run database migrations and start the application
+ENTRYPOINT ["sh", "-c", "dotnet ef database update && dotnet Schmeconomics.Api.dll"]

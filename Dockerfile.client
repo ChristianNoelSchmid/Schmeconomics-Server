@@ -1,0 +1,25 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY schmeconomics.client/package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy client application
+COPY schmeconomics.client/ .
+
+# Build the Nuxt application
+RUN npm run build
+
+# Expose port
+EXPOSE 3000
+
+# Set environment variables for Nuxt
+ENV NUXT_HOST=0.0.0.0
+ENV NUXT_PORT=3000
+
+# Start the application
+CMD ["npm", "run", "preview"]

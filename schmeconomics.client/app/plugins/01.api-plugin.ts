@@ -12,10 +12,14 @@ interface Api {
 
 export default defineNuxtPlugin(async () => {
     const signInState = useSignInState();
-    const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: "http://localhost:5153" });
+    
+    // Get base URL from environment variable or fallback to localhost
+    const baseURL = "http://localhost:5153";
+    
+    const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: baseURL });
 
     const apiConfig = new Configuration({
-        basePath: "http://localhost:5153",
+        basePath: baseURL,
         credentials: "include",
         middleware: [{
             pre: async (context) => {
