@@ -1,3 +1,4 @@
+version: '3.8'
 services:
   api:
     build:
@@ -8,39 +9,24 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5153
-    depends_on:
-      - db
+      - AllowedOrigins=http://localhost:3000,http://host.docker.internal:3000
     volumes:
-      - ./Schmeconomics.Api:/app/Schmeconomics.Api
-      - ./Schmeconomics.Entities:/app/Schmeconomics.Entities
+      - ./Schmeconomics.Api/app.db:/app/app.db
     command: |
       sh -c "
-        dotnet ef database update &&
         dotnet run --project /app/Schmeconomics.Api/Schmeconomics.Api.csproj
       "
 
-  #client:
-  #  build:
-  #    context: .
-  #    dockerfile: Dockerfile.client
-  #  ports:
-  #    - "3000:3000"
-  #  environment:
-  #    - NUXT_PUBLIC_API_BASE_URL=http://localhost:5153
-  #  depends_on:
-  #    - api
-  #  volumes:
-  #    - ./schmeconomics.client:/app/schmeconomics.client
-
-  db:
-    image: keinos/sqlite3:latest
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    ports:
+      - "3000:3000"
+    environment:
+      - NUXT_PUBLIC_API_BASE_URL=http://api:5153
+    depends_on:
+      - api
     volumes:
-      - db_data:/app/db
-    command: |
-      sh -c "
-        touch /app/db/app.db &&
-        chmod 777 /app/db/app.db
-      "
+      - ./schmeconomics.client:/app/schmeconomics.client
 
-volumes:
-  db_data:

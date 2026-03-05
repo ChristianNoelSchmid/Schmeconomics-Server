@@ -37,11 +37,16 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            policy.WithOrigins(allowedOrigins);
+            policy.WithOrigins(allowedOrigins.Split(','));
         }
         
-        policy.AllowCredentials()
-              .AllowAnyHeader()
+        // Only allow credentials when not using wildcard origins
+        if (allowedOrigins != "*")
+        {
+            policy.AllowCredentials();
+        }
+        
+        policy.AllowAnyHeader()
               .AllowAnyMethod();
     });
 });

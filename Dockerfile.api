@@ -14,11 +14,9 @@ COPY . .
 WORKDIR /app/Schmeconomics.Api
 RUN dotnet build "Schmeconomics.Api.csproj" -c Release -o /app/build
 
-# Install EF Core tools and run migrations in the build stage
-RUN dotnet tool install dotnet-ef --global
-ENV PATH="$PATH:/root/.dotnet/tools"
-WORKDIR /app/
-RUN dotnet ef database update --project ./Schmeconomics.Entities/ --startup-project ./Schmeconomics.Api/
+# Build the API project
+FROM build AS publish
+RUN dotnet publish ./Schmeconomics.Api/Schmeconomics.Api.csproj -c Release -o /app/publish
 
 # Publish the API project
 FROM build AS publish
@@ -37,6 +35,9 @@ ENV ASPNETCORE_URLS=http://+:5153
 
 # Expose port
 EXPOSE 5153
+
+# Create directory for database if it doesn't exist
+RUN mkdir -p /app
 
 # Start the application
 ENTRYPOINT ["dotnet", "Schmeconomics.Api.dll"]
