@@ -12,10 +12,7 @@ services:
       - AllowedOrigins=http://localhost:3000,http://host.docker.internal:3000
     volumes:
       - ./Schmeconomics.Api/app.db:/app/app.db
-    command: |
-      sh -c "
-        dotnet run --project /app/Schmeconomics.Api/Schmeconomics.Api.csproj
-      "
+    # No need for command since we're using ENTRYPOINT in Dockerfile
 
   client:
     build:
@@ -29,4 +26,3 @@ services:
       - api
     volumes:
       - ./schmeconomics.client:/app/schmeconomics.client
-

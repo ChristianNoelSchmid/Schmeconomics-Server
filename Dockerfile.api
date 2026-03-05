@@ -14,13 +14,10 @@ COPY . .
 WORKDIR /app/Schmeconomics.Api
 RUN dotnet build "Schmeconomics.Api.csproj" -c Release -o /app/build
 
-# Build the API project
-FROM build AS publish
-RUN dotnet publish ./Schmeconomics.Api/Schmeconomics.Api.csproj -c Release -o /app/publish
-
 # Publish the API project
 FROM build AS publish
-RUN dotnet publish ./Schmeconomics.Api/Schmeconomics.Api.csproj -c Release -o /app/publish
+WORKDIR /app/Schmeconomics.Api
+RUN dotnet publish "Schmeconomics.Api.csproj" -c Release -o /app/publish
 
 # Final stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final

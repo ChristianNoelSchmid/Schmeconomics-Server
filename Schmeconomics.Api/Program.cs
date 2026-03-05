@@ -28,26 +28,10 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        // Allow all origins in containerized environments, or specific origins for development
-        var allowedOrigins = builder.Configuration["AllowedOrigins"] ?? "http://localhost:3000";
-        
-        if (allowedOrigins == "*")
-        {
-            policy.AllowAnyOrigin();
-        }
-        else
-        {
-            policy.WithOrigins(allowedOrigins.Split(','));
-        }
-        
-        // Only allow credentials when not using wildcard origins
-        if (allowedOrigins != "*")
-        {
-            policy.AllowCredentials();
-        }
-        
-        policy.AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials()
+            .SetIsOriginAllowed(hostName => true);
     });
 });
 

@@ -49,17 +49,16 @@ async function applyChanges() {
     if (defaultAccountId.value == null) return;
 
     try {
-        const config = await getApiConfiguration(true);
-        const api = new CategoryApi(config);
+        const { $api } = useNuxtApp();
         
         // Prepare update request with correct structure
-        const refillUpdates: CategoryRefillValueUpdate[] | undefined = categories.value?
-            .map(category => ({
+        const refillUpdates: CategoryRefillValueUpdate[] = categories.value ?
+            categories.value.map(category => ({
                 categoryId: category.id,
                 refillValue: editedValues.value[category.id]!
-            }));
+            })) : [];
         
-        await api.categoryUpdateRefillValuesPut({
+        await $api.category.categoryUpdateRefillValuesPut({
             updateCategoriesRefillValueRequest: {
                 accountId: defaultAccountId.value,
                 refillValues: refillUpdates
@@ -85,9 +84,8 @@ async function refillCategories() {
                 if (defaultAccountId.value == null) return;
 
                 try {
-                    const config = await getApiConfiguration(true);
-                    const api = new CategoryApi(config);
-                    await api.categoryRefillAccountIdPost({ accountId: defaultAccountId.value });
+                    const { $api } = useNuxtApp();
+                    await $api.category.categoryRefillAccountIdPost({ accountId: defaultAccountId.value });
                 } catch (error) {
                     console.error('Error refilling categories:', error);
                 }
