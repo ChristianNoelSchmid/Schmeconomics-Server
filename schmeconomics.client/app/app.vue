@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PromptModal from './components/prompt/PromptModal.vue';
+import GlobalLoadingIndicator from './components/GlobalLoadingIndicator.vue';
 import { useSignInState } from './lib/services/auth';
 
 const signInState = useSignInState();
@@ -21,6 +22,7 @@ onMounted(() => {
       </UMain>
     </UContainer>
     <PromptModal />
+    <GlobalLoadingIndicator />
   </UApp>
 </template>
 

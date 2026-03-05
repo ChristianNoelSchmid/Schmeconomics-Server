@@ -18,6 +18,9 @@ export default defineNuxtPlugin(async () => {
     
     const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: baseURL });
 
+    // Create a global loading state
+    const globalLoading = useState<boolean>('globalLoading', () => false);
+
     const apiConfig = new Configuration({
         basePath: baseURL,
         credentials: "include",
@@ -49,8 +52,19 @@ export default defineNuxtPlugin(async () => {
                         "Authorization": `Bearer ${signInState.value.accessToken}`
                     }
                 }
+                
+                // Show global loading indicator when API request starts
+                globalLoading.value = true;
+                
                 return context;
             },
+            post: async (context) => {
+                // Hide global loading indicator when API request completes
+                globalLoading.value = false;
+                
+                // Return the response to avoid type errors
+                return context.response;
+            }
         }]
     });
 
@@ -63,7 +77,8 @@ export default defineNuxtPlugin(async () => {
                 category: new CategoryApi(apiConfig),
                 transaction: new TransactionApi(apiConfig),
                 user: new UserApi(apiConfig),
-            } satisfies Api
+            } satisfies Api,
+            globalLoading: globalLoading
         }
     }
 });
