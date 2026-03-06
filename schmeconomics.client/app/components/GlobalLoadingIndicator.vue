@@ -5,5 +5,6 @@
 </template>
 
 <script setup lang="ts">
-const isLoading = useState<boolean>('globalLoading', () => false);
+const loadingCounter = useState<number>('loadingCounter', () => 0);
+const isLoading = computed(() => loadingCounter.value > 0);
 </script>

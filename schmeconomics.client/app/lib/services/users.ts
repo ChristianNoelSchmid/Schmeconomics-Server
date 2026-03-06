@@ -4,20 +4,14 @@ import { useSignInState as useSignInState } from "./auth";
 export function userData() {
   const { $api } = useNuxtApp();
   const signInState = useSignInState();
-  const { start, finish } = useLoadingIndicator();
 
   const { data: users, refresh, clear } = useAsyncData<UserModel[]>(
     'users-list',
     async () => {
-      start();
-      try {
-        if(signInState.value != null) {
-          return await $api.user.userAllGet();
-        }
-        return [];
-      } finally {
-        finish();
+      if(signInState.value != null) {
+        return await $api.user.userAllGet();
       }
+      return [];
     },
     {
       watch: [() => signInState.value]

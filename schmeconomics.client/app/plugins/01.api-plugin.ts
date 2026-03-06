@@ -18,8 +18,9 @@ export default defineNuxtPlugin(async () => {
     
     const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: baseURL });
 
-    // Create a global loading state
-    const globalLoading = useState<boolean>('globalLoading', () => false);
+    // Create a global loading state with a counter for concurrent requests
+    const loadingCounter = useState<number>('loadingCounter', () => 0);
+    const globalLoading = computed(() => loadingCounter.value > 0);
 
     const apiConfig = new Configuration({
         basePath: baseURL,
@@ -53,14 +54,14 @@ export default defineNuxtPlugin(async () => {
                     }
                 }
                 
-                // Show global loading indicator when API request starts
-                globalLoading.value = true;
+                // Increment loading counter when API request starts
+                loadingCounter.value++;
                 
                 return context;
             },
             post: async (context) => {
-                // Hide global loading indicator when API request completes
-                globalLoading.value = false;
+                // Decrement loading counter when API request completes
+                loadingCounter.value--;
                 
                 // Return the response to avoid type errors
                 return context.response;
