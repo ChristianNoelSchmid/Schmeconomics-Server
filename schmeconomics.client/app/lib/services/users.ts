@@ -60,6 +60,6 @@ export class UserService {
 
   async toggleUserToAccount(userId: string, accountId: string): Promise<void> {
     const { $api } = useNuxtApp();
-    await $api.account.accountToggleUserPost({ toggleUserToAccountRequest: { userId, accountId }});
+    await $api.account.accountToggleUserPost({ toggleUserToAccountRequest: { accountId, userId }});
   }
 }

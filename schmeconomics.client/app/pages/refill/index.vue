@@ -9,7 +9,7 @@ import { accountCategoriesData, CategoryService } from '~/lib/services/categorie
 // State for categories and refill values
 const categoryService = new CategoryService();
 const defaultAccountId = useDefaultAccountId();
-const { categories } = accountCategoriesData();
+const { categories, refresh } = accountCategoriesData();
 
 const isEditingRefillValues = ref(false);
 const editedValues = ref<Record<string, number>>({});
@@ -18,9 +18,11 @@ const showConfirmationModal = ref(false);
 async function resetEditValues() {
     // Initialize edited values with current refill values
     const newValues: Record<string, number> = {};
-    categories.value?.forEach(category => 
-        newValues[category.id] = category.refillValue
-    );
+    if (categories.value) {
+        categories.value.forEach(category => 
+            newValues[category.id] = category.refillValue
+        );
+    }
 
     editedValues.value = newValues;
 }
@@ -96,7 +98,22 @@ async function refillCategories() {
 }
 
 // Initialize on mount
-watch(categories, () => resetEditValues());
+onMounted(async () => {
+    // Ensure categories are loaded before initializing
+    await refresh();
+    // Wait for categories to be populated before resetting values
+    if (categories.value && categories.value.length > 0) {
+        await nextTick();
+        resetEditValues();
+    }
+});
+
+// Watch for categories changes and reset edit values
+watch(categories, (newCategories) => {
+    if (newCategories && newCategories.length > 0) {
+        resetEditValues();
+    }
+}, { deep: true, immediate: true });
 </script>
 
 <template>

@@ -12,9 +12,16 @@ const emit = defineEmits<{
   closed: [];
 }>();
 
-const { accounts } = accountData();
-const { users, refresh } = userData();
+const { accounts, refresh: refreshAccounts } = accountData();
+const { users, refreshUsers } = userData();
 const userService = new UserService();
+
+// Fetch users when modal becomes visible
+watch(() => props.visible, async (isVisible) => {
+  if (isVisible) {
+    await refreshUsers();
+  }
+});
 
 const selectedUsers = computed<UserModel[]>(() => {
   const currentAccount = accounts.value?.find(acc => acc.id === props.accountId);
@@ -26,7 +33,7 @@ const selectedUsers = computed<UserModel[]>(() => {
 
 async function toggleUser(userId: string) {
   await userService.toggleUserToAccount(userId, props.accountId);
-  refresh();
+  await refreshAccounts();
 }
 
 function isUserSelected(userId: string): boolean {

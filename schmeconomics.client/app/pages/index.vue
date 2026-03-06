@@ -34,10 +34,6 @@ onMounted(async () => {
   refresh();
 });
 
-onUnmounted(async () => {
-  clear();
-})
-
 async function createCategory(request: CreateCategoryRequest) {
   await categoryService.createCategory(defaultAccountId.value, request);
   showCreateCategoryModal.value = false;
