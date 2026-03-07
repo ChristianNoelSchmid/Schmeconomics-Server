@@ -12,18 +12,18 @@ export function accountData() {
     const signInState = useSignInState();
     const defaultAccountId = useDefaultAccountId();
 
-    const { data: accounts, refresh, clear } = useAsyncData<AccountModel[]>(
+    const { data: accounts, refresh: refreshAccounts } = useAsyncData<AccountModel[]>(
         'accounts-list',
         async () => await $api.account.accountAllGet(),
         {
             watch: [
                 () => signInState.value,
                 () => defaultAccountId.value,
-            ]
+            ],
         }
     );
 
-    return { accounts, refresh, clear };
+    return { accounts, refreshAccounts };
 }
 
 export class AccountService {

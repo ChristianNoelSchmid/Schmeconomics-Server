@@ -6,12 +6,14 @@ import { ref } from 'vue';
 import type { CreateTransactionProp } from '~/components/CreateTransactionModal.vue';
 import { showPrompt } from '~/components/prompt/prompt-state';
 import { accountCategoriesData, CategoryService } from '~/lib/services/categories';
+import { TransactionService } from '~/lib/services/transactions';
 
 const signInState = useSignInState();
 const defaultAccountId = useDefaultAccountId();
 
 const categoryService = new CategoryService();
-const { categories, refresh, clear } = accountCategoriesData();
+const txService = new TransactionService();
+const { categories, refresh } = accountCategoriesData();
 
 const showCreateCategoryModal = ref(false);
 const showEditCategoryModal = ref(false);
@@ -70,22 +72,14 @@ function handleCreateTransaction(category: CategoryModel, isAddition: boolean) {
 }
 
 async function createTransaction(amount: number, notes: string, isAddition: boolean) {
-  try {
-    await
-      $api.transaction.transactionAccountIdPost({
-        accountId: defaultAccountId.value,
-        createTransactionRequest: [{
-          categoryId: createTransactionProp.value!.category!.id,
-          amount: amount * (isAddition ? 1.0 : -1.0),
-          notes,
-        }] 
-      });
-    showCreateTransactionModal.value = false;
-    await refresh();
-  } catch (error) {
-    console.error('Failed to create transaction:', error);
-    alert('Failed to create transaction');
-  }
+  await txService.createTransaction(
+    createTransactionProp.value!.category!.id,
+    amount,
+    notes,
+    isAddition
+  );
+  showCreateTransactionModal.value = false;
+  await refresh();
 }
 
 async function navigateToCategoryTxs(catId: string) {

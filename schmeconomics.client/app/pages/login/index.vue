@@ -6,7 +6,7 @@ import { useSignInState } from '~/lib/services/auth';
 
 const { $api } = useNuxtApp();
 const signInState = useSignInState();
-const { refresh } = accountData();
+const { refreshAccounts: refresh } = accountData();
 
 const formState = reactive({
   name: undefined,

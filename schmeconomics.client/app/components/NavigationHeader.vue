@@ -7,7 +7,7 @@ import { accountData, useDefaultAccountId } from '~/lib/services/accounts';
 const route = useRoute();
 const signInState = useSignInState();
 
-const { accounts, refresh } = accountData();
+const { accounts, refreshAccounts: refresh } = accountData();
 const defaultAccountId = useDefaultAccountId();
 const navMenuOpen = ref(false);
 const chosenDefaultAccountName = computed(
@@ -71,8 +71,9 @@ const menuItems = computed<NavigationMenuItem[]>(() => [
   }
 ]);
 
-function updateDefaultAccountId(accountId: string) {
+async function updateDefaultAccountId(accountId: string) {
   defaultAccountId.value = accountId;
+  await refresh();
 
   if (route.path.startsWith("/accounts/")) {
     navigateTo(`/accounts/${defaultAccountId.value}`);
@@ -95,7 +96,7 @@ onMounted(async () => {
     </div>
     <div class="flex justify-between">
       <UNavigationMenu orientation="horizontal" :items="navItems" />
-      <USelectMenu class="w-32" :model-value="chosenDefaultAccountName" :items="accountNames" @update:model-value="updateDefaultAccountId($event?.key ?? '')" /> 
+      <USelectMenu class="w-32" :model-value="chosenDefaultAccountName" :items="accountNames" @update:model-value="updateDefaultAccountId(($event as any)?.key ?? '')" /> 
     </div>
   </div>
   <UModal v-model:open="navMenuOpen">

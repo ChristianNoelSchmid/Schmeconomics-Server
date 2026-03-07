@@ -1,17 +1,26 @@
 import type { TransactionModel } from "../openapi";
 import { useDefaultAccountId } from "./accounts";
 
-export function txData(
-    categoryId: globalThis.ComputedRef<string | null>, 
-    page: globalThis.ComputedRef<number>
-) {
+export function txData(categoryId: globalThis.ComputedRef<string | null>) {
     const { $api } = useNuxtApp();
     const defaultAccountId = useDefaultAccountId();
-    const txs = ref<TransactionModel[]>([]);
 
-    const { refresh: refreshTxs } = useAsyncData<void>(
-        "transaction-list",
+    /*
+     * Separate transaction collection - useAsyncData is updated in
+     * a unique way, so the ref needs to be adjusted manually.
+     */
+    const txs = ref<TransactionModel[]>([]);
+    const page = ref<number>(0);
+
+    /*
+    * Create separate `useAsyncData`s - one for watching when either `defaultAccountId`
+    * or `categoryId` update, and one for when `page` updates. If the former, the entire
+    * transaction collection will refresh. If the latter, it will only load the next page.
+    */
+    const { refresh: loadNextPageTxs } = useAsyncData<void>(
+        "transaction-list-nextpage",
         async () => {
+            page.value += 1;
             txs.value = [
                 ...txs.value, 
                 ...await $api.transaction.transactionAccountIdGet({ 
@@ -21,20 +30,41 @@ export function txData(
                     pageSize: 10,
                 })
             ];
-        },
-        {
-            watch: [
-                () => defaultAccountId.value,
-                () => categoryId.value,
-                () => page.value
-            ]
         }
     );
+    useAsyncData<void>(
+        "transaction-list-refresh",
+        async () => {
+            page.value = 1;
+            txs.value = await $api.transaction.transactionAccountIdGet({
+                accountId: defaultAccountId.value,
+                categoryId: categoryId.value || undefined,
+                page: page.value,
+                pageSize: 10,
+            });
+        },
+        {
+            watch: [ () => defaultAccountId.value, () => categoryId.value ]
+        }
+    )
 
-    return { txs, refreshTxs };
+    return { txs: computed(() => txs.value), loadNextPageTxs };
 }
 
 export class TransactionService {
+    async createTransaction(categoryId: string, amount: number, notes: string, isAddition: boolean) {
+        const { $api } = useNuxtApp();
+        const defaultAccountId = useDefaultAccountId();
+
+        $api.transaction.transactionAccountIdPost({
+            accountId: defaultAccountId.value,
+            createTransactionRequest: [{
+                categoryId,
+                amount: amount * (isAddition ? 1.0 : -1.0),
+                notes,
+            }] 
+        });
+    }
     async deleteTransaction(txId: string) {
         const { $api } = useNuxtApp();
         const accountId = useDefaultAccountId().value;

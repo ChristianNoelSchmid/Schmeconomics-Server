@@ -7,7 +7,7 @@ export function accountCategoriesData() {
     const defaultAccountId = useDefaultAccountId();
     const signInState = useSignInState();
 
-    const { data: categories, refresh, clear } = useAsyncData<CategoryModel[]>(
+    const { data: categories, refresh } = useAsyncData<CategoryModel[]>(
         'categories-list',
         async () => await $api.category.categoryForAccountAccountIdGet({
             accountId: defaultAccountId.value
@@ -19,7 +19,7 @@ export function accountCategoriesData() {
             ]
         }
     )
-    return { categories, refresh, clear };
+    return { categories, refresh };
 }
 
 export class CategoryService {

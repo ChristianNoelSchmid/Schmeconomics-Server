@@ -6,7 +6,7 @@ import { useSignInState } from '~/lib/services/auth';
 import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';
 import { showPrompt } from '~/components/prompt/prompt-state';
 
-const { accounts, refresh } = accountData()
+const { accounts, refreshAccounts: refresh } = accountData()
 const accountService = new AccountService();
 
 const signInState = useSignInState();

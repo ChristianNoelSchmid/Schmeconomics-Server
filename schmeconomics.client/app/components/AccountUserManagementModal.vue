@@ -12,7 +12,7 @@ const emit = defineEmits<{
   closed: [];
 }>();
 
-const { accounts, refresh: refreshAccounts } = accountData();
+const { accounts, refreshAccounts: refreshAccounts } = accountData();
 const { users, refreshUsers } = userData();
 const userService = new UserService();
 
