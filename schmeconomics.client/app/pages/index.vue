@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Role, type CategoryModel, type CreateCategoryRequest, type UpdateCategoryRequest } from '~/lib/openapi';
-import { useDefaultAccountId } from '~/lib/services/accounts';
 import { useSignInState } from '~/lib/services/auth';
 import { ref } from 'vue';
 import type { CreateTransactionProp } from '~/components/CreateTransactionModal.vue';
@@ -9,7 +8,7 @@ import { accountCategoriesData, CategoryService } from '~/lib/services/categorie
 import { TransactionService } from '~/lib/services/transactions';
 
 const signInState = useSignInState();
-const defaultAccountId = useDefaultAccountId();
+const { $defaultAccountId } = useNuxtApp();
 
 const categoryService = new CategoryService();
 const txService = new TransactionService();
@@ -29,7 +28,7 @@ onMounted(async () => {
     navigateTo('/login');
   }
   // Redirect to accounts page if no default account is selected
-  if (!defaultAccountId.value) {
+  if (!$defaultAccountId.value) {
     navigateTo('/accounts');
   }
 
@@ -37,7 +36,7 @@ onMounted(async () => {
 });
 
 async function createCategory(request: CreateCategoryRequest) {
-  await categoryService.createCategory(defaultAccountId.value, request);
+  await categoryService.createCategory($defaultAccountId.value, request);
   showCreateCategoryModal.value = false;
   await refresh();
 }
@@ -113,11 +112,11 @@ async function navigateToCategoryTxs(catId: string) {
     </div>
 
     <!-- Modal page to create categories -->
-    <CreateCategoryModal :account-id="defaultAccountId || ''" :visible="showCreateCategoryModal"
+    <CreateCategoryModal :account-id="$defaultAccountId || ''" :visible="showCreateCategoryModal"
       @submitted="createCategory($event)" @closed="showCreateCategoryModal = false" />
 
     <!-- Modal page to edit categories -->
-    <CreateCategoryModal :account-id="defaultAccountId || ''" :visible="showEditCategoryModal"
+    <CreateCategoryModal :account-id="$defaultAccountId || ''" :visible="showEditCategoryModal"
       :category-to-edit="editingCategory" @submitted="updateCategory(editingCategory!.id, $event)" @closed="showEditCategoryModal = false" />
 
     <!-- Modal page to create transactions -->

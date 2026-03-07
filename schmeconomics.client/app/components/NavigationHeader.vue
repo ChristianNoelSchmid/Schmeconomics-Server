@@ -2,16 +2,16 @@
 import type { NavigationMenuItem, SelectMenuItem } from '@nuxt/ui';
 import { useSignInState } from '~/lib/services/auth';
 import { ref } from 'vue';
-import { accountData, useDefaultAccountId } from '~/lib/services/accounts';
+import { accountData } from '~/lib/services/accounts';
 
 const route = useRoute();
 const signInState = useSignInState();
 
 const { accounts, refreshAccounts: refresh } = accountData();
-const defaultAccountId = useDefaultAccountId();
+const { $defaultAccountId } = useNuxtApp();
 const navMenuOpen = ref(false);
 const chosenDefaultAccountName = computed(
-  () => accounts.value?.find(a => a.id == defaultAccountId.value)?.name
+  () => accounts.value?.find(a => a.id == $defaultAccountId.value)?.name
 );
 
 const accountNames = computed<SelectMenuItem[]>(
@@ -72,11 +72,11 @@ const menuItems = computed<NavigationMenuItem[]>(() => [
 ]);
 
 async function updateDefaultAccountId(accountId: string) {
-  defaultAccountId.value = accountId;
+  $defaultAccountId.value = accountId;
   await refresh();
 
   if (route.path.startsWith("/accounts/")) {
-    navigateTo(`/accounts/${defaultAccountId.value}`);
+    navigateTo(`/accounts/${$defaultAccountId.value}`);
   }
 }
 

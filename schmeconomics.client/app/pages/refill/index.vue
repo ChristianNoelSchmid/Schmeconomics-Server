@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { CategoryApi, type CategoryRefillValueUpdate } from '../../lib/openapi';
-import { accountData, useDefaultAccountId } from '../../lib/services/accounts';
+import { type CategoryRefillValueUpdate } from '../../lib/openapi';
 import { currencyFormat } from '~/formatters';
 import { showPrompt } from '~/components/prompt/prompt-state';
 import { accountCategoriesData, CategoryService } from '~/lib/services/categories';
 
 // State for categories and refill values
 const categoryService = new CategoryService();
-const defaultAccountId = useDefaultAccountId();
+const { $defaultAccountId } = useNuxtApp();
 const { categories, refresh } = accountCategoriesData();
 
 const isEditingRefillValues = ref(false);
@@ -48,7 +47,7 @@ function calculateTotalDifference(): number {
 
 // Apply changes to categories
 async function applyChanges() {
-    if (defaultAccountId.value == null) return;
+    if ($defaultAccountId.value == null) return;
 
     try {
         const { $api } = useNuxtApp();
@@ -62,7 +61,7 @@ async function applyChanges() {
         
         await $api.category.categoryUpdateRefillValuesPut({
             updateCategoriesRefillValueRequest: {
-                accountId: defaultAccountId.value,
+                accountId: $defaultAccountId.value,
                 refillValues: refillUpdates
             }
         });
@@ -83,11 +82,11 @@ async function refillCategories() {
         message: "Refill all categories?",
         actions: [
             ["Yes", async () => {
-                if (defaultAccountId.value == null) return;
+                if ($defaultAccountId.value == null) return;
 
                 try {
                     const { $api } = useNuxtApp();
-                    await $api.category.categoryRefillAccountIdPost({ accountId: defaultAccountId.value });
+                    await $api.category.categoryRefillAccountIdPost({ accountId: $defaultAccountId.value });
                 } catch (error) {
                     console.error('Error refilling categories:', error);
                 }

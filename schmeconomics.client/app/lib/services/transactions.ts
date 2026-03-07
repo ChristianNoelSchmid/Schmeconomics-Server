@@ -1,9 +1,7 @@
 import type { TransactionModel } from "../openapi";
-import { useDefaultAccountId } from "./accounts";
 
 export function txData(categoryId: globalThis.ComputedRef<string | null>) {
-    const { $api } = useNuxtApp();
-    const defaultAccountId = useDefaultAccountId();
+    const { $api, $defaultAccountId } = useNuxtApp();
 
     /*
      * Separate transaction collection - useAsyncData is updated in
@@ -24,7 +22,7 @@ export function txData(categoryId: globalThis.ComputedRef<string | null>) {
             txs.value = [
                 ...txs.value, 
                 ...await $api.transaction.transactionAccountIdGet({ 
-                    accountId: defaultAccountId.value, 
+                    accountId: $defaultAccountId.value, 
                     categoryId: categoryId.value || undefined,
                     page: page.value,
                     pageSize: 10,
@@ -37,14 +35,14 @@ export function txData(categoryId: globalThis.ComputedRef<string | null>) {
         async () => {
             page.value = 1;
             txs.value = await $api.transaction.transactionAccountIdGet({
-                accountId: defaultAccountId.value,
+                accountId: $defaultAccountId.value,
                 categoryId: categoryId.value || undefined,
                 page: page.value,
                 pageSize: 10,
             });
         },
         {
-            watch: [ () => defaultAccountId.value, () => categoryId.value ]
+            watch: [ () => $defaultAccountId.value, () => categoryId.value ]
         }
     )
 
@@ -53,11 +51,10 @@ export function txData(categoryId: globalThis.ComputedRef<string | null>) {
 
 export class TransactionService {
     async createTransaction(categoryId: string, amount: number, notes: string, isAddition: boolean) {
-        const { $api } = useNuxtApp();
-        const defaultAccountId = useDefaultAccountId();
+        const { $api, $defaultAccountId } = useNuxtApp();
 
         $api.transaction.transactionAccountIdPost({
-            accountId: defaultAccountId.value,
+            accountId: $defaultAccountId.value,
             createTransactionRequest: [{
                 categoryId,
                 amount: amount * (isAddition ? 1.0 : -1.0),
@@ -66,12 +63,11 @@ export class TransactionService {
         });
     }
     async deleteTransaction(txId: string) {
-        const { $api } = useNuxtApp();
-        const accountId = useDefaultAccountId().value;
+        const { $api, $defaultAccountId } = useNuxtApp();
 
-        if(accountId != null) {
+        if($defaultAccountId != null) {
             await $api.transaction.accountIdTransactionIdDelete({ 
-                accountId, 
+                accountId: $defaultAccountId.value, 
                 transactionId: txId 
             });
         }
