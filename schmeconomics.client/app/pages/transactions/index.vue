@@ -2,23 +2,19 @@
 import { ref, onMounted } from "vue";
 import TransactionCard from "~/components/TransactionCard.vue";
 import { showPrompt } from "~/components/prompt/prompt-state";
-import { UpdateCategoriesRefillValueRequestFromJSON } from "~/lib/openapi";
 import { accountCategoriesData } from "~/lib/services/categories";
 import { TransactionService, txData } from "~/lib/services/transactions";
 
 const txService = new TransactionService();
 const hasMore = ref(true);
 
-const categoryId = ref<string | null>(null);
+const route = useRoute();
+const categoryId = ref<string | null>(route.query.categoryId as string);
 const { txs, loadNextPageTxs } = txData(computed(() => categoryId.value));
 const { categories } = accountCategoriesData();
 const categoryName = computed(() => categories.value?.find(c => c.id == categoryId.value)?.name || null);
 
 // Get categoryId from route query parameters
-const route = useRoute();
-if (route.query.categoryId) {
-}
-
 function onDeleteTransaction(txId: string) {
   showPrompt({
     message: "Are you sure you wish to delete this transaction?",
@@ -31,7 +27,6 @@ function onDeleteTransaction(txId: string) {
 }
 
 onMounted(async () => {
-  categoryId.value = route.query.categoryId as string;
   await loadNextPageTxs()
 });
 </script>

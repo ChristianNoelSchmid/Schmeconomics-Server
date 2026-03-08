@@ -165,7 +165,7 @@ function openEditModal(user: UserModel) {
       <template #content>
         <CreateUserModal 
           :visible="showCreateModal" 
-          @submitted="handleCreateUser" 
+          @submitted="req => handleCreateUser(req as CreateUserRequest)" 
           @closed="showCreateModal = false" 
         />
       </template>
@@ -177,7 +177,7 @@ function openEditModal(user: UserModel) {
         <CreateUserModal 
           :visible="showEditModal" 
           :user-to-edit="editingUser"
-          @submitted="handleUpdateUser" 
+          @submitted="req => handleUpdateUser(req as UpdateUserRequest)" 
           @closed="showEditModal = false" 
         />
       </template>
