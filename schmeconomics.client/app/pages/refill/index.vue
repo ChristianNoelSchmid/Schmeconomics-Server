@@ -62,6 +62,7 @@ async function applyChanges() {
         }
     });
 
+    await refresh();
     resetEditValues();
     
     showConfirmationModal.value = false;
