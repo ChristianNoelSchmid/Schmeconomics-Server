@@ -53,7 +53,7 @@ export class TransactionService {
     async createTransaction(categoryId: string, amount: number, notes: string, isAddition: boolean) {
         const { $api, $defaultAccountId } = useNuxtApp();
 
-        $api.transaction.transactionAccountIdPost({
+        await $api.transaction.transactionAccountIdPost({
             accountId: $defaultAccountId.value,
             createTransactionRequest: [{
                 categoryId,

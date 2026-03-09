@@ -5,7 +5,7 @@ export function accountCategoriesData() {
     const { $api, $defaultAccountId } = useNuxtApp();
     const signInState = useSignInState();
 
-    const { data: categories, refresh } = useAsyncData<CategoryModel[]>(
+    return useAsyncData<CategoryModel[]>(
         'categories-list',
         async () => await $api.category.categoryForAccountAccountIdGet({
             accountId: $defaultAccountId.value
@@ -17,7 +17,6 @@ export function accountCategoriesData() {
             ]
         }
     )
-    return { categories, refresh };
 }
 
 export class CategoryService {

@@ -3,18 +3,17 @@ import { ref } from 'vue';
 import { type CategoryRefillValueUpdate } from '../../lib/openapi';
 import { currencyFormat } from '~/formatters';
 import { showPrompt } from '~/components/prompt/prompt-state';
-import { accountCategoriesData, CategoryService } from '~/lib/services/categories';
+import { accountCategoriesData } from '~/lib/services/categories';
 
 // State for categories and refill values
-const categoryService = new CategoryService();
-const { $defaultAccountId } = useNuxtApp();
-const { categories, refresh } = accountCategoriesData();
+const { $api, $defaultAccountId } = useNuxtApp();
+const { data: categories, refresh } = accountCategoriesData();
 
 const isEditingRefillValues = ref(false);
 const editedValues = ref<Record<string, number>>({});
 const showConfirmationModal = ref(false);
 
-async function resetEditValues() {
+function resetEditValues() {
     // Initialize edited values with current refill values
     const newValues: Record<string, number> = {};
     if (categories.value) {
@@ -49,31 +48,24 @@ function calculateTotalDifference(): number {
 async function applyChanges() {
     if ($defaultAccountId.value == null) return;
 
-    try {
-        const { $api } = useNuxtApp();
-        
-        // Prepare update request with correct structure
-        const refillUpdates: CategoryRefillValueUpdate[] = categories.value ?
-            categories.value.map(category => ({
-                categoryId: category.id,
-                refillValue: editedValues.value[category.id]!
-            })) : [];
-        
-        await $api.category.categoryUpdateRefillValuesPut({
-            updateCategoriesRefillValueRequest: {
-                accountId: $defaultAccountId.value,
-                refillValues: refillUpdates
-            }
-        });
+    // Prepare update request with correct structure
+    const refillUpdates: CategoryRefillValueUpdate[] = categories.value ?
+        categories.value.map(category => ({
+            categoryId: category.id,
+            refillValue: editedValues.value[category.id]!
+        })) : [];
+    
+    await $api.category.categoryUpdateRefillValuesPut({
+        updateCategoriesRefillValueRequest: {
+            accountId: $defaultAccountId.value,
+            refillValues: refillUpdates
+        }
+    });
 
-        await resetEditValues();
-        
-        showConfirmationModal.value = false;
-        isEditingRefillValues.value = false;
-    } catch (error) {
-        console.error('Error applying changes:', error);
-        showConfirmationModal.value = false;
-    }
+    resetEditValues();
+    
+    showConfirmationModal.value = false;
+    isEditingRefillValues.value = false;
 }
 
 // Refill categories with refill values
@@ -84,12 +76,9 @@ async function refillCategories() {
             ["Yes", async () => {
                 if ($defaultAccountId.value == null) return;
 
-                try {
-                    const { $api } = useNuxtApp();
-                    await $api.category.categoryRefillAccountIdPost({ accountId: $defaultAccountId.value });
-                } catch (error) {
-                    console.error('Error refilling categories:', error);
-                }
+                await $api.category.categoryRefillAccountIdPost({ accountId: $defaultAccountId.value });
+                await refresh();
+                resetEditValues();
             }]
         ]
     });

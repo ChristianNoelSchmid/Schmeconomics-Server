@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FormError } from '@nuxt/ui';
 import { AccountApi, Role, type AccountModel } from '~/lib/openapi';
-import { accountData, AccountService, useDefaultAccountId } from '~/lib/services/accounts';
+import { accountData, AccountService } from '~/lib/services/accounts';
 import { useSignInState } from '~/lib/services/auth';
 import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';
 import { showPrompt } from '~/components/prompt/prompt-state';
@@ -14,7 +14,7 @@ const editingAccount = ref<AccountModel | null>(null);
 const upsertModalVisible = ref(false);
 const userManagementModalOpen = ref(false);
 
-const defaultAccountId = useDefaultAccountId();
+const { $defaultAccountId } = useNuxtApp();
 const selectedAccountId = ref<string | null>(null);
 
 async function onDeleteAccount(event: MouseEvent, id: string) {
@@ -32,7 +32,7 @@ async function onDeleteAccount(event: MouseEvent, id: string) {
 
 function selectAccount(event: Event, account: AccountModel) {
   event.preventDefault();
-  defaultAccountId.value = account.id;
+  $defaultAccountId.value = account.id;
   navigateTo('/');
 }
 

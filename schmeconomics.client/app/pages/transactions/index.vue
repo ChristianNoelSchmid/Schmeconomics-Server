@@ -11,7 +11,7 @@ const hasMore = ref(true);
 const route = useRoute();
 const categoryId = ref<string | null>(route.query.categoryId as string);
 const { txs, loadNextPageTxs } = txData(computed(() => categoryId.value));
-const { categories } = accountCategoriesData();
+const { data: categories } = accountCategoriesData();
 const categoryName = computed(() => categories.value?.find(c => c.id == categoryId.value)?.name || null);
 
 // Get categoryId from route query parameters

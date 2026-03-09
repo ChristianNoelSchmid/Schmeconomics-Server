@@ -12,7 +12,7 @@ const { $defaultAccountId } = useNuxtApp();
 
 const categoryService = new CategoryService();
 const txService = new TransactionService();
-const { categories, refresh } = accountCategoriesData();
+const { data: categories, refresh } = accountCategoriesData();
 
 const showCreateCategoryModal = ref(false);
 const showEditCategoryModal = ref(false);
