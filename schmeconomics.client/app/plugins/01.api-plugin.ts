@@ -14,7 +14,7 @@ export default defineNuxtPlugin(async () => {
     const signInState = useSignInState();
     
     // Get base URL from environment variable or fallback to localhost
-    const baseURL = (typeof window !== 'undefined' && (window as any).NUXT_PUBLIC_API_BASE_URL) || "http://localhost:5153";
+    const baseURL = process.env.NUXT_PUBLIC_API_BASE_URL
     
     const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: baseURL });
 

@@ -65,6 +65,20 @@
         "stop-api"
       ],
       "dependsOrder": "sequence"
+    },
+    {
+      "label": "Docker: Clean schmeconomics-* containers & images",
+      "type": "shell",
+      "command": "echo '=== Removing containers ===' && CONTAINERS=$(docker ps -aq --filter 'name=schmeconomics-') && if [ -n \"$CONTAINERS\" ]; then docker rm -f $CONTAINERS && echo 'Containers removed.'; else echo 'No containers found.'; fi && echo '=== Removing images ===' && IMAGES=$(docker images -q 'compose-schmeconomics-*') && if [ -n \"$IMAGES\" ]; then docker rmi -f $IMAGES && echo 'Images removed.'; else echo 'No images found.'; fi && echo '=== Done ==='",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "showReuseMessage": false,
+        "clear": true
+      },
+      "problemMatcher": []
     }
   ]
 }

@@ -54,6 +54,8 @@ builder.Services.AddScoped<CurrentUser>();
 builder.Services.AddScoped<ICurrentUser>(provider => provider.GetRequiredService<CurrentUser>());
 builder.Services.AddScoped<ICurrentUserSetter>(provider => provider.GetRequiredService<CurrentUser>());
 
+builder.Services.AddHostedService<CreateAdminStartupService>();
+
 builder.Services.AddOptionsWithValidateOnStart<JwtAuthTokenProviderConfig>()
     .Bind(builder.Configuration.GetRequiredSection(nameof(JwtAuthTokenProviderConfig)))
     .ValidateDataAnnotations();

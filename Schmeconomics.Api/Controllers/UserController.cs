@@ -21,13 +21,6 @@ public class UserController (
         return Ok(usersResult.Value!);
     }
 
-    [HttpPost("CreateAdmin"), Microsoft.AspNetCore.Authorization.AllowAnonymous]
-    public async Task<IActionResult> CreateAdmin()
-    {
-        await _userService.CreateAdminUser();
-        return Ok();
-    }
-
     [HttpGet("Current")]
     [ProducesResponseType<UserModel>(StatusCodes.Status200OK)]
     public IActionResult GetUser()

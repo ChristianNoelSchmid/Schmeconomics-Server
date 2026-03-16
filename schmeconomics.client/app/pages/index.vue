@@ -21,8 +21,6 @@ const editingCategory = ref<CategoryModel | null>(null);
 const showCreateTransactionModal = ref(false);
 const createTransactionProp = ref<CreateTransactionProp | undefined>(undefined);
 
-const { $api } = useNuxtApp();
-
 onMounted(async () => {
   if (!signInState.value) {
     navigateTo('/login');

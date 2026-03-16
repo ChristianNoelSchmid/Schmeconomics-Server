@@ -14,10 +14,17 @@ COPY . .
 WORKDIR /app/Schmeconomics.Api
 RUN dotnet build "Schmeconomics.Api.csproj" -c Release -o /app/build
 
+RUN dotnet tool install --global dotnet-ef
+ENV PATH="$PATH:/root/.dotnet/tools"
+WORKDIR /app
+RUN mkdir /app/Schmeconomics.Api/db
+RUN dotnet ef database update --project Schmeconomics.Entities --startup-project Schmeconomics.Api
+
 # Publish the API project
 FROM build AS publish
 WORKDIR /app/Schmeconomics.Api
 RUN dotnet publish "Schmeconomics.Api.csproj" -c Release -o /app/publish
+RUN mv /app/Schmeconomics.Api/db /app/publish
 
 # Final stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
@@ -28,10 +35,10 @@ COPY --from=publish /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:5153
+ENV ASPNETCORE_URLS=http://+:$SERVER_PORT
 
 # Expose port
-EXPOSE 5153
+EXPOSE $SERVER_PORT
 
 # Create directory for database if it doesn't exist
 RUN mkdir -p /app
