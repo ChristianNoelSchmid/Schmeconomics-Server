@@ -108,4 +108,10 @@ app.MapControllers();
 app.UseMiddleware<JwtMiddleware>();
 app.UseAuthorization();
 
+using(var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<SchmeconomicsDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 app.Run();

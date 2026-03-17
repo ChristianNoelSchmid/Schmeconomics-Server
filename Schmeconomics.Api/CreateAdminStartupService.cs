@@ -19,6 +19,5 @@ public class CreateAdminStartupService(
         }
     }
 
-    public Task StopAsync(CancellationToken cancellationToken) { throw new NotImplementedException();
-    }
+    public Task StopAsync(CancellationToken cancellationToken) { return Task.CompletedTask; }
 }

@@ -9,7 +9,7 @@ services:
     env_file:
       - .env
     volumes:
-      - db:/app/db/
+      - ${DATABASE_DIRECTORY_PATH}:/app/db
     # No need for command since we're using ENTRYPOINT in Dockerfile
 
   schmeconomics-client:
@@ -24,11 +24,3 @@ services:
       - schmeconomics-api
     #volumes:
       #- ./schmeconomics.client:/app/schmeconomics.client
-volumes:
-  db: 
-    driver: local
-    driver_opts:
-      type: 'none'
-      o: 'bind'
-      device: ${DATABASE_PATH}
-  
