@@ -8,5 +8,10 @@ export default defineNuxtConfig({
     '@nuxt/hints',
     '@nuxt/eslint',
     '@nuxt/image'
-  ]
+  ],
+  runtimeConfig: {
+    public: {
+      apiBase: 'http://localhost:5153/api/v1'
+    }
+  }
 })

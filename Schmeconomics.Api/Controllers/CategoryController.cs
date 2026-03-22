@@ -6,11 +6,10 @@ using Schmeconomics.Api.Users;
 namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 public class CategoryController(
     ICategoryService _categoryService,
     ICurrentUser _currentUser
-) : ControllerBase {
+) : BaseController {
     [HttpPost("Create")]
     [ProducesResponseType<CategoryModel>(StatusCodes.Status200OK)]
     [Authorize(Role.Admin)]

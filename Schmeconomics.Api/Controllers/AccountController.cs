@@ -6,11 +6,10 @@ using Schmeconomics.Api.Users;
 namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 public class AccountController(
     IAccountService _accountService,
     ICurrentUser _currentUser
-) : ControllerBase
+) : BaseController
 {
     [HttpGet("All")]
     [Authorize(Role.User)]

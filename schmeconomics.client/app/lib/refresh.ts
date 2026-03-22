@@ -12,9 +12,13 @@ export async function tryRefresh(): Promise<SignInModel | null> {
     }
 
     const promise = (async () => {
+	// Get base URL from environment variable or fallback to localhost
+    	const config = useRuntimeConfig();
+    	const apiBase = config.public.apiBase;
+
         // Token has expired, try to refresh it
         const refreshConfig = new Configuration({
-            basePath: "http://localhost:5153",
+            basePath: apiBase,
             credentials: "include"
         });
         try {

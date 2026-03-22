@@ -14,16 +14,17 @@ export default defineNuxtPlugin(async () => {
     const signInState = useSignInState();
     
     // Get base URL from environment variable or fallback to localhost
-    const baseURL = process.env.NUXT_PUBLIC_API_BASE_URL
+    const config = useRuntimeConfig();
+    const apiBase = config.public.apiBase;
     
-    const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: baseURL });
+    const nonAuthApiConfig = new Configuration({ credentials: "include", basePath: apiBase });
 
     // Create a global loading state with a counter for concurrent requests
     const loadingCounter = useState<number>('loadingCounter', () => 0);
     const globalLoading = computed(() => loadingCounter.value > 0);
 
     const apiConfig = new Configuration({
-        basePath: baseURL,
+        basePath: apiBase,
         credentials: "include",
         middleware: [{
             pre: async (context) => {

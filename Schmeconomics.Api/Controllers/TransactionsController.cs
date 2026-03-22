@@ -6,12 +6,11 @@ using Schmeconomics.Api.Users;
 namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 [Authorize(Role.User)]
 public class TransactionController(
     ITransactionService _transactionService,
     ICurrentUser _currentUser
-) : ControllerBase {
+) : BaseController {
     [HttpGet("{accountId}")]
     [ProducesResponseType<TransactionModel[]>(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAccountTransactions(

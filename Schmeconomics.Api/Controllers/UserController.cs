@@ -6,11 +6,10 @@ namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
 [Authorize(Role.User)]
-[Route("[controller]")]
 public class UserController (
     IUserService _userService,
     ICurrentUser _current
-) : ControllerBase {
+) : BaseController {
 
     [HttpGet("All")]
     [ProducesResponseType<IEnumerable<UserModel>>(StatusCodes.Status200OK)]

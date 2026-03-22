@@ -5,11 +5,10 @@ using Schmeconomics.Api.Auth;
 namespace Schmeconomics.Api.Controllers;
 
 [ApiController]
-[Route("[controller]")]
 [AllowAnonymous]
 public class AuthController(
     IAuthService _authService
-) : ControllerBase
+) : BaseController
 {
     [HttpPost("SignIn")]
     [ProducesResponseType<SignInModel>(StatusCodes.Status200OK)]

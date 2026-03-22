@@ -21,16 +21,17 @@ RUN dotnet publish "Schmeconomics.Api.csproj" -c Release -o /app/publish /p:UseA
 # Final stage
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 WORKDIR /app
+ARG SERVER_PORT
+ENV SERVER_PORT=${SERVER_PORT}
 
 # Copy published files from the previous stage
 COPY --from=publish /app/publish .
 
 # Set environment variables
 ENV ASPNETCORE_ENVIRONMENT=Production
-ENV ASPNETCORE_URLS=http://+:$SERVER_PORT
 
 # Expose port
-EXPOSE $SERVER_PORT
+EXPOSE ${SERVER_PORT}
 
 # Start the application
-ENTRYPOINT ["dotnet", "Schmeconomics.Api.dll"]
+ENTRYPOINT ["sh", "-c", "dotnet Schmeconomics.Api.dll --urls=http://+:${SERVER_PORT}"]

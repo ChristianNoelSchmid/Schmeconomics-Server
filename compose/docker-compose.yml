@@ -1,26 +1,31 @@
 version: '3.8'
 services:
   schmeconomics-api:
+    env_file:
+      - .env
     build:
       context: ..
       dockerfile: compose/Dockerfile.api
+      args:
+        - SERVER_PORT=${SERVER_PORT}
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
-    env_file:
-      - .env
     volumes:
       - ${DATABASE_DIRECTORY_PATH}:/app/db
     # No need for command since we're using ENTRYPOINT in Dockerfile
 
   schmeconomics-client:
+    env_file:
+      - .env
+    environment:
+      - PORT=${CLIENT_PORT}
+      - NUXT_PUBLIC_API_BASE=${NUXT_PUBLIC_API_BASE}
     build:
       context: ..
       dockerfile: compose/Dockerfile.client
+      args:
+        - CLIENT_PORT=${CLIENT_PORT}
     ports:
-      - "${CLIENT_PORT}:${CLIENT_PORT}"
-    env_file:
-      - .env
+      - "${CLIENT_PORT}:${CLIENT_PORT}"  
     depends_on:
       - schmeconomics-api
-    #volumes:
-      #- ./schmeconomics.client:/app/schmeconomics.client
