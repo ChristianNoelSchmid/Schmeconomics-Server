@@ -23,7 +23,7 @@ function validate(state: Partial<Schema>): FormError[] {
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  const res = await $api.auth.authSignInPost({ signInRequest: { name: event.data.name!, password: event.data.password! } });
+  const res = await $api.auth.apiV1AuthSignInPost({ signInRequest: { name: event.data.name!, password: event.data.password! } });
 
   signInState.value = res;
   refresh();

@@ -33,19 +33,19 @@ export interface AccountIdTransactionIdDeleteRequest {
     transactionId: string;
 }
 
-export interface TransactionAccountIdGetRequest {
+export interface ApiV1TransactionAccountIdGetRequest {
     accountId: string;
     categoryId?: string;
     page?: number;
     pageSize?: number;
 }
 
-export interface TransactionAccountIdPostRequest {
+export interface ApiV1TransactionAccountIdPostRequest {
     accountId: string;
     createTransactionRequest: Array<CreateTransactionRequest>;
 }
 
-export interface TransactionTransactionIdPutRequest {
+export interface ApiV1TransactionTransactionIdPutRequest {
     transactionId: string;
     updateTransactionRequest: UpdateTransactionRequest;
 }
@@ -99,11 +99,11 @@ export class TransactionApi extends runtime.BaseAPI {
 
     /**
      */
-    async transactionAccountIdGetRaw(requestParameters: TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransactionModel>>> {
+    async apiV1TransactionAccountIdGetRaw(requestParameters: ApiV1TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<TransactionModel>>> {
         if (requestParameters['accountId'] == null) {
             throw new runtime.RequiredError(
                 'accountId',
-                'Required parameter "accountId" was null or undefined when calling transactionAccountIdGet().'
+                'Required parameter "accountId" was null or undefined when calling apiV1TransactionAccountIdGet().'
             );
         }
 
@@ -124,7 +124,7 @@ export class TransactionApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Transaction/{accountId}`;
+        let urlPath = `/api/v1/Transaction/{accountId}`;
         urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
 
         const response = await this.request({
@@ -139,25 +139,25 @@ export class TransactionApi extends runtime.BaseAPI {
 
     /**
      */
-    async transactionAccountIdGet(requestParameters: TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransactionModel>> {
-        const response = await this.transactionAccountIdGetRaw(requestParameters, initOverrides);
+    async apiV1TransactionAccountIdGet(requestParameters: ApiV1TransactionAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<TransactionModel>> {
+        const response = await this.apiV1TransactionAccountIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async transactionAccountIdPostRaw(requestParameters: TransactionAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV1TransactionAccountIdPostRaw(requestParameters: ApiV1TransactionAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['accountId'] == null) {
             throw new runtime.RequiredError(
                 'accountId',
-                'Required parameter "accountId" was null or undefined when calling transactionAccountIdPost().'
+                'Required parameter "accountId" was null or undefined when calling apiV1TransactionAccountIdPost().'
             );
         }
 
         if (requestParameters['createTransactionRequest'] == null) {
             throw new runtime.RequiredError(
                 'createTransactionRequest',
-                'Required parameter "createTransactionRequest" was null or undefined when calling transactionAccountIdPost().'
+                'Required parameter "createTransactionRequest" was null or undefined when calling apiV1TransactionAccountIdPost().'
             );
         }
 
@@ -168,7 +168,7 @@ export class TransactionApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Transaction/{accountId}`;
+        let urlPath = `/api/v1/Transaction/{accountId}`;
         urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
 
         const response = await this.request({
@@ -184,24 +184,24 @@ export class TransactionApi extends runtime.BaseAPI {
 
     /**
      */
-    async transactionAccountIdPost(requestParameters: TransactionAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.transactionAccountIdPostRaw(requestParameters, initOverrides);
+    async apiV1TransactionAccountIdPost(requestParameters: ApiV1TransactionAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiV1TransactionAccountIdPostRaw(requestParameters, initOverrides);
     }
 
     /**
      */
-    async transactionTransactionIdPutRaw(requestParameters: TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TransactionModel>> {
+    async apiV1TransactionTransactionIdPutRaw(requestParameters: ApiV1TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<TransactionModel>> {
         if (requestParameters['transactionId'] == null) {
             throw new runtime.RequiredError(
                 'transactionId',
-                'Required parameter "transactionId" was null or undefined when calling transactionTransactionIdPut().'
+                'Required parameter "transactionId" was null or undefined when calling apiV1TransactionTransactionIdPut().'
             );
         }
 
         if (requestParameters['updateTransactionRequest'] == null) {
             throw new runtime.RequiredError(
                 'updateTransactionRequest',
-                'Required parameter "updateTransactionRequest" was null or undefined when calling transactionTransactionIdPut().'
+                'Required parameter "updateTransactionRequest" was null or undefined when calling apiV1TransactionTransactionIdPut().'
             );
         }
 
@@ -212,7 +212,7 @@ export class TransactionApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Transaction/{transactionId}`;
+        let urlPath = `/api/v1/Transaction/{transactionId}`;
         urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters['transactionId'])));
 
         const response = await this.request({
@@ -228,8 +228,8 @@ export class TransactionApi extends runtime.BaseAPI {
 
     /**
      */
-    async transactionTransactionIdPut(requestParameters: TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TransactionModel> {
-        const response = await this.transactionTransactionIdPutRaw(requestParameters, initOverrides);
+    async apiV1TransactionTransactionIdPut(requestParameters: ApiV1TransactionTransactionIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<TransactionModel> {
+        const response = await this.apiV1TransactionTransactionIdPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

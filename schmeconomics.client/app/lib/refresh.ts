@@ -1,5 +1,4 @@
 import { AuthApi, Configuration, type SignInModel } from "./openapi";
-import { useSignInState } from "./services/auth";
 
 
 // Refresh fetch request, wrapped in a promise-lock to ensure if multiple
@@ -23,7 +22,7 @@ export async function tryRefresh(): Promise<SignInModel | null> {
         });
         try {
             const authApi = new AuthApi(refreshConfig);
-            return await authApi.authRefreshPost();
+            return await authApi.apiV1AuthRefreshPost();
         } catch (error) {
             // If refresh fails, clear the sign in state to force re-authentication
             return null;

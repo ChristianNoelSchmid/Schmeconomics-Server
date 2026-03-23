@@ -21,7 +21,7 @@ export function txData(categoryId: globalThis.ComputedRef<string | null>) {
             page.value += 1;
             txs.value = [
                 ...txs.value, 
-                ...await $api.transaction.transactionAccountIdGet({ 
+                ...await $api.transaction.apiV1TransactionAccountIdGet({ 
                     accountId: $defaultAccountId.value, 
                     categoryId: categoryId.value || undefined,
                     page: page.value,
@@ -34,7 +34,7 @@ export function txData(categoryId: globalThis.ComputedRef<string | null>) {
         "transaction-list-refresh",
         async () => {
             page.value = 1;
-            txs.value = await $api.transaction.transactionAccountIdGet({
+            txs.value = await $api.transaction.apiV1TransactionAccountIdGet({
                 accountId: $defaultAccountId.value,
                 categoryId: categoryId.value || undefined,
                 page: page.value,
@@ -53,7 +53,7 @@ export class TransactionService {
     async createTransaction(categoryId: string, amount: number, notes: string, isAddition: boolean) {
         const { $api, $defaultAccountId } = useNuxtApp();
 
-        await $api.transaction.transactionAccountIdPost({
+        await $api.transaction.apiV1TransactionAccountIdPost({
             accountId: $defaultAccountId.value,
             createTransactionRequest: [{
                 categoryId,

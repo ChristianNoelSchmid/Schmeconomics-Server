@@ -82,7 +82,7 @@ watch(() => props.userToEdit, (newVal) => {
 </script>
 
 <template>
-  <UModal :open="props.visible">
+  <UModal fullscreen :open="props.visible">
     <template #content>
       <UCard>
         <template #header>

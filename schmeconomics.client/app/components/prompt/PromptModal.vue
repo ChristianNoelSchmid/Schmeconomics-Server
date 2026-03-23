@@ -4,7 +4,7 @@ const props = usePromptState();
 </script>
 
 <template>
-  <UModal :open="props.visible">
+  <UModal fullscreen :open="props.visible">
     <template #header>
       <h2 class="text-lg">Confirm</h2> 
     </template>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { FormError } from '@nuxt/ui';
-import { AccountApi, Role, type AccountModel } from '~/lib/openapi';
+import { Role, type AccountModel } from '~/lib/openapi';
 import { accountData, AccountService } from '~/lib/services/accounts';
 import { useSignInState } from '~/lib/services/auth';
 import AccountUserManagementModal from '~/components/AccountUserManagementModal.vue';

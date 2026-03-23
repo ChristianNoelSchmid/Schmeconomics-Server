@@ -25,7 +25,7 @@ import {
     SignInRequestToJSON,
 } from '../models/index';
 
-export interface AuthSignInPostRequest {
+export interface ApiV1AuthSignInPostRequest {
     signInRequest: SignInRequest;
 }
 
@@ -36,13 +36,13 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async authRefreshPostRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInModel>> {
+    async apiV1AuthRefreshPostRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInModel>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Auth/Refresh`;
+        let urlPath = `/api/v1/Auth/Refresh`;
 
         const response = await this.request({
             path: urlPath,
@@ -56,18 +56,18 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async authRefreshPost(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignInModel> {
-        const response = await this.authRefreshPostRaw(initOverrides);
+    async apiV1AuthRefreshPost(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignInModel> {
+        const response = await this.apiV1AuthRefreshPostRaw(initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async authSignInPostRaw(requestParameters: AuthSignInPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInModel>> {
+    async apiV1AuthSignInPostRaw(requestParameters: ApiV1AuthSignInPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInModel>> {
         if (requestParameters['signInRequest'] == null) {
             throw new runtime.RequiredError(
                 'signInRequest',
-                'Required parameter "signInRequest" was null or undefined when calling authSignInPost().'
+                'Required parameter "signInRequest" was null or undefined when calling apiV1AuthSignInPost().'
             );
         }
 
@@ -78,7 +78,7 @@ export class AuthApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Auth/SignIn`;
+        let urlPath = `/api/v1/Auth/SignIn`;
 
         const response = await this.request({
             path: urlPath,
@@ -93,20 +93,20 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async authSignInPost(requestParameters: AuthSignInPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignInModel> {
-        const response = await this.authSignInPostRaw(requestParameters, initOverrides);
+    async apiV1AuthSignInPost(requestParameters: ApiV1AuthSignInPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SignInModel> {
+        const response = await this.apiV1AuthSignInPostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async authSignOutPostRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV1AuthSignOutPostRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Auth/SignOut`;
+        let urlPath = `/api/v1/Auth/SignOut`;
 
         const response = await this.request({
             path: urlPath,
@@ -120,8 +120,8 @@ export class AuthApi extends runtime.BaseAPI {
 
     /**
      */
-    async authSignOutPost(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.authSignOutPostRaw(initOverrides);
+    async apiV1AuthSignOutPost(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiV1AuthSignOutPostRaw(initOverrides);
     }
 
 }

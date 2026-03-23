@@ -11,7 +11,10 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      apiBase: 'http://localhost:5153/api/v1'
+      apiBase: 'http://localhost:5153'
     }
-  }
+  },
+  css: [
+    '@/styles.css'
+  ]
 })

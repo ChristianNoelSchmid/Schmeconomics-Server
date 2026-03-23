@@ -61,8 +61,10 @@ function handleInput(keyboardEvent: KeyboardEvent) {
 </script>
 
 <template>
-  <input :value="formattedValue" type="tel" :disabled="props.readonly"
-    class="border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" @keydown="handleInput"
+  <UInput 
+    type="number"
+    inputmode="numeric"
+    :value="formattedValue" :disabled="props.readonly" @keydown="handleInput"
   /> 
 </template>
 

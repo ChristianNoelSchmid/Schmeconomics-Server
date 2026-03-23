@@ -28,19 +28,19 @@ import {
     UpdateAccountRequestToJSON,
 } from '../models/index';
 
-export interface AccountCreatePostRequest {
+export interface ApiV1AccountCreatePostRequest {
     name?: string;
 }
 
-export interface AccountDeleteIdDeleteRequest {
+export interface ApiV1AccountDeleteIdDeleteRequest {
     id: string;
 }
 
-export interface AccountToggleUserPostRequest {
+export interface ApiV1AccountToggleUserPostRequest {
     toggleUserToAccountRequest: ToggleUserToAccountRequest;
 }
 
-export interface AccountUpdateIdPutRequest {
+export interface ApiV1AccountUpdateIdPutRequest {
     id: string;
     updateAccountRequest: UpdateAccountRequest;
 }
@@ -52,13 +52,13 @@ export class AccountApi extends runtime.BaseAPI {
 
     /**
      */
-    async accountAllGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AccountModel>>> {
+    async apiV1AccountAllGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AccountModel>>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Account/All`;
+        let urlPath = `/api/v1/Account/All`;
 
         const response = await this.request({
             path: urlPath,
@@ -72,14 +72,14 @@ export class AccountApi extends runtime.BaseAPI {
 
     /**
      */
-    async accountAllGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AccountModel>> {
-        const response = await this.accountAllGetRaw(initOverrides);
+    async apiV1AccountAllGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AccountModel>> {
+        const response = await this.apiV1AccountAllGetRaw(initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async accountCreatePostRaw(requestParameters: AccountCreatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccountModel>> {
+    async apiV1AccountCreatePostRaw(requestParameters: ApiV1AccountCreatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccountModel>> {
         const queryParameters: any = {};
 
         if (requestParameters['name'] != null) {
@@ -89,7 +89,7 @@ export class AccountApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Account/Create`;
+        let urlPath = `/api/v1/Account/Create`;
 
         const response = await this.request({
             path: urlPath,
@@ -103,18 +103,18 @@ export class AccountApi extends runtime.BaseAPI {
 
     /**
      */
-    async accountCreatePost(requestParameters: AccountCreatePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccountModel> {
-        const response = await this.accountCreatePostRaw(requestParameters, initOverrides);
+    async apiV1AccountCreatePost(requestParameters: ApiV1AccountCreatePostRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccountModel> {
+        const response = await this.apiV1AccountCreatePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async accountDeleteIdDeleteRaw(requestParameters: AccountDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV1AccountDeleteIdDeleteRaw(requestParameters: ApiV1AccountDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling accountDeleteIdDelete().'
+                'Required parameter "id" was null or undefined when calling apiV1AccountDeleteIdDelete().'
             );
         }
 
@@ -123,7 +123,7 @@ export class AccountApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Account/Delete/{id}`;
+        let urlPath = `/api/v1/Account/Delete/{id}`;
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         const response = await this.request({
@@ -138,17 +138,17 @@ export class AccountApi extends runtime.BaseAPI {
 
     /**
      */
-    async accountDeleteIdDelete(requestParameters: AccountDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.accountDeleteIdDeleteRaw(requestParameters, initOverrides);
+    async apiV1AccountDeleteIdDelete(requestParameters: ApiV1AccountDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiV1AccountDeleteIdDeleteRaw(requestParameters, initOverrides);
     }
 
     /**
      */
-    async accountToggleUserPostRaw(requestParameters: AccountToggleUserPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV1AccountToggleUserPostRaw(requestParameters: ApiV1AccountToggleUserPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['toggleUserToAccountRequest'] == null) {
             throw new runtime.RequiredError(
                 'toggleUserToAccountRequest',
-                'Required parameter "toggleUserToAccountRequest" was null or undefined when calling accountToggleUserPost().'
+                'Required parameter "toggleUserToAccountRequest" was null or undefined when calling apiV1AccountToggleUserPost().'
             );
         }
 
@@ -159,7 +159,7 @@ export class AccountApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Account/ToggleUser`;
+        let urlPath = `/api/v1/Account/ToggleUser`;
 
         const response = await this.request({
             path: urlPath,
@@ -174,24 +174,24 @@ export class AccountApi extends runtime.BaseAPI {
 
     /**
      */
-    async accountToggleUserPost(requestParameters: AccountToggleUserPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.accountToggleUserPostRaw(requestParameters, initOverrides);
+    async apiV1AccountToggleUserPost(requestParameters: ApiV1AccountToggleUserPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiV1AccountToggleUserPostRaw(requestParameters, initOverrides);
     }
 
     /**
      */
-    async accountUpdateIdPutRaw(requestParameters: AccountUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccountModel>> {
+    async apiV1AccountUpdateIdPutRaw(requestParameters: ApiV1AccountUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AccountModel>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling accountUpdateIdPut().'
+                'Required parameter "id" was null or undefined when calling apiV1AccountUpdateIdPut().'
             );
         }
 
         if (requestParameters['updateAccountRequest'] == null) {
             throw new runtime.RequiredError(
                 'updateAccountRequest',
-                'Required parameter "updateAccountRequest" was null or undefined when calling accountUpdateIdPut().'
+                'Required parameter "updateAccountRequest" was null or undefined when calling apiV1AccountUpdateIdPut().'
             );
         }
 
@@ -202,7 +202,7 @@ export class AccountApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Account/Update/{id}`;
+        let urlPath = `/api/v1/Account/Update/{id}`;
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         const response = await this.request({
@@ -218,8 +218,8 @@ export class AccountApi extends runtime.BaseAPI {
 
     /**
      */
-    async accountUpdateIdPut(requestParameters: AccountUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccountModel> {
-        const response = await this.accountUpdateIdPutRaw(requestParameters, initOverrides);
+    async apiV1AccountUpdateIdPut(requestParameters: ApiV1AccountUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AccountModel> {
+        const response = await this.apiV1AccountUpdateIdPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

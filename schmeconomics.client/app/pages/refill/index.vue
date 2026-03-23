@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { type CategoryRefillValueUpdate } from '../../lib/openapi';
 import { currencyFormat } from '~/formatters';
 import { showPrompt } from '~/components/prompt/prompt-state';
 import { accountCategoriesData } from '~/lib/services/categories';
+import type { CategoryRefillValueUpdate } from '~/lib/openapi';
 
 // State for categories and refill values
 const { $api, $defaultAccountId } = useNuxtApp();
@@ -55,7 +55,7 @@ async function applyChanges() {
             refillValue: editedValues.value[category.id]!
         })) : [];
     
-    await $api.category.categoryUpdateRefillValuesPut({
+    await $api.category.apiV1CategoryUpdateRefillValuesPut({
         updateCategoriesRefillValueRequest: {
             accountId: $defaultAccountId.value,
             refillValues: refillUpdates
@@ -77,7 +77,7 @@ async function refillCategories() {
             ["Yes", async () => {
                 if ($defaultAccountId.value == null) return;
 
-                await $api.category.categoryRefillAccountIdPost({ accountId: $defaultAccountId.value });
+                await $api.category.apiV1CategoryRefillAccountIdPost({ accountId: $defaultAccountId.value });
                 await refresh();
                 resetEditValues();
             }]

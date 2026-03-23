@@ -9,7 +9,7 @@ export function userData() {
     'users-list',
     async () => {
       if(signInState.value != null) {
-        return await $api.user.userAllGet();
+        return await $api.user.apiV1UserAllGet();
       }
       return [];
     },
@@ -24,22 +24,22 @@ export function userData() {
 export class UserService {
   async getAllUsers(): Promise<UserModel[]> {
     const { $api } = useNuxtApp();
-    return await $api.user.userAllGet();
+    return await $api.user.apiV1UserAllGet();
   }
 
   async getUserById(id: string): Promise<UserModel> {
     const { $api } = useNuxtApp();
-    return await $api.user.userByIdIdGet({ id });
+    return await $api.user.apiV1UserByIdIdGet({ id });
   }
 
   async getUserByName(name: string): Promise<UserModel> {
     const { $api } = useNuxtApp();
-    return await $api.user.userByNameNameGet({ name });
+    return await $api.user.apiV1UserByNameNameGet({ name });
   }
 
   async createUser(request: CreateUserRequest): Promise<UserModel> {
     const { $api } = useNuxtApp();
-    return await $api.user.userCreatePost({ createUserRequest: request });
+    return await $api.user.apiV1UserCreatePost({ createUserRequest: request });
   }
 
   async updateUser(_id: string, request: UpdateUserRequest): Promise<UserModel> {
@@ -50,16 +50,16 @@ export class UserService {
       ...request,
       userId: _id
     };
-    return await $api.user.userUpdatePut({ updateUserRequest });
+    return await $api.user.apiV1UserUpdatePut({ updateUserRequest });
   }
 
   async deleteUser(id: string): Promise<UserModel> {
     const { $api } = useNuxtApp();
-    return await $api.user.userDeleteUserIdDelete({ userId: id });
+    return await $api.user.apiV1UserDeleteUserIdDelete({ userId: id });
   }
 
   async toggleUserToAccount(userId: string, accountId: string): Promise<void> {
     const { $api } = useNuxtApp();
-    await $api.account.accountToggleUserPost({ toggleUserToAccountRequest: { accountId, userId }});
+    await $api.account.apiV1AccountToggleUserPost({ toggleUserToAccountRequest: { accountId, userId }});
   }
 }

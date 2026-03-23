@@ -25,7 +25,7 @@ const accountNames = computed<SelectMenuItem[]>(
 
 async function logout() {
   const { $api } = useNuxtApp();
-  await $api.auth.authSignOutPost();
+  await $api.auth.apiV1AuthSignOutPost();
   signInState.value = null;
   refresh();
 }

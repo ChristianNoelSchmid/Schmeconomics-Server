@@ -34,32 +34,32 @@ import {
     UpdateCategoryRequestToJSON,
 } from '../models/index';
 
-export interface CategoryCreatePostRequest {
+export interface ApiV1CategoryCreatePostRequest {
     createCategoryRequest: CreateCategoryRequest;
 }
 
-export interface CategoryDeleteIdDeleteRequest {
+export interface ApiV1CategoryDeleteIdDeleteRequest {
     id: string;
 }
 
-export interface CategoryForAccountAccountIdGetRequest {
+export interface ApiV1CategoryForAccountAccountIdGetRequest {
     accountId: string;
 }
 
-export interface CategoryRefillAccountIdPostRequest {
+export interface ApiV1CategoryRefillAccountIdPostRequest {
     accountId: string;
 }
 
-export interface CategoryUpdateIdPutRequest {
+export interface ApiV1CategoryUpdateIdPutRequest {
     id: string;
     updateCategoryRequest: UpdateCategoryRequest;
 }
 
-export interface CategoryUpdateOrderPutRequest {
+export interface ApiV1CategoryUpdateOrderPutRequest {
     updateCategoriesOrderRequest: UpdateCategoriesOrderRequest;
 }
 
-export interface CategoryUpdateRefillValuesPutRequest {
+export interface ApiV1CategoryUpdateRefillValuesPutRequest {
     updateCategoriesRefillValueRequest: UpdateCategoriesRefillValueRequest;
 }
 
@@ -70,11 +70,11 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryCreatePostRaw(requestParameters: CategoryCreatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryModel>> {
+    async apiV1CategoryCreatePostRaw(requestParameters: ApiV1CategoryCreatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryModel>> {
         if (requestParameters['createCategoryRequest'] == null) {
             throw new runtime.RequiredError(
                 'createCategoryRequest',
-                'Required parameter "createCategoryRequest" was null or undefined when calling categoryCreatePost().'
+                'Required parameter "createCategoryRequest" was null or undefined when calling apiV1CategoryCreatePost().'
             );
         }
 
@@ -85,7 +85,7 @@ export class CategoryApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Category/Create`;
+        let urlPath = `/api/v1/Category/Create`;
 
         const response = await this.request({
             path: urlPath,
@@ -100,18 +100,18 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryCreatePost(requestParameters: CategoryCreatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryModel> {
-        const response = await this.categoryCreatePostRaw(requestParameters, initOverrides);
+    async apiV1CategoryCreatePost(requestParameters: ApiV1CategoryCreatePostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryModel> {
+        const response = await this.apiV1CategoryCreatePostRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async categoryDeleteIdDeleteRaw(requestParameters: CategoryDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV1CategoryDeleteIdDeleteRaw(requestParameters: ApiV1CategoryDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling categoryDeleteIdDelete().'
+                'Required parameter "id" was null or undefined when calling apiV1CategoryDeleteIdDelete().'
             );
         }
 
@@ -120,7 +120,7 @@ export class CategoryApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Category/Delete/{id}`;
+        let urlPath = `/api/v1/Category/Delete/{id}`;
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         const response = await this.request({
@@ -135,17 +135,17 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryDeleteIdDelete(requestParameters: CategoryDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.categoryDeleteIdDeleteRaw(requestParameters, initOverrides);
+    async apiV1CategoryDeleteIdDelete(requestParameters: ApiV1CategoryDeleteIdDeleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiV1CategoryDeleteIdDeleteRaw(requestParameters, initOverrides);
     }
 
     /**
      */
-    async categoryForAccountAccountIdGetRaw(requestParameters: CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
+    async apiV1CategoryForAccountAccountIdGetRaw(requestParameters: ApiV1CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
         if (requestParameters['accountId'] == null) {
             throw new runtime.RequiredError(
                 'accountId',
-                'Required parameter "accountId" was null or undefined when calling categoryForAccountAccountIdGet().'
+                'Required parameter "accountId" was null or undefined when calling apiV1CategoryForAccountAccountIdGet().'
             );
         }
 
@@ -154,7 +154,7 @@ export class CategoryApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Category/ForAccount/{accountId}`;
+        let urlPath = `/api/v1/Category/ForAccount/{accountId}`;
         urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
 
         const response = await this.request({
@@ -169,18 +169,18 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryForAccountAccountIdGet(requestParameters: CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
-        const response = await this.categoryForAccountAccountIdGetRaw(requestParameters, initOverrides);
+    async apiV1CategoryForAccountAccountIdGet(requestParameters: ApiV1CategoryForAccountAccountIdGetRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
+        const response = await this.apiV1CategoryForAccountAccountIdGetRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async categoryRefillAccountIdPostRaw(requestParameters: CategoryRefillAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async apiV1CategoryRefillAccountIdPostRaw(requestParameters: ApiV1CategoryRefillAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters['accountId'] == null) {
             throw new runtime.RequiredError(
                 'accountId',
-                'Required parameter "accountId" was null or undefined when calling categoryRefillAccountIdPost().'
+                'Required parameter "accountId" was null or undefined when calling apiV1CategoryRefillAccountIdPost().'
             );
         }
 
@@ -189,7 +189,7 @@ export class CategoryApi extends runtime.BaseAPI {
         const headerParameters: runtime.HTTPHeaders = {};
 
 
-        let urlPath = `/Category/Refill/{accountId}`;
+        let urlPath = `/api/v1/Category/Refill/{accountId}`;
         urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters['accountId'])));
 
         const response = await this.request({
@@ -204,24 +204,24 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryRefillAccountIdPost(requestParameters: CategoryRefillAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.categoryRefillAccountIdPostRaw(requestParameters, initOverrides);
+    async apiV1CategoryRefillAccountIdPost(requestParameters: ApiV1CategoryRefillAccountIdPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.apiV1CategoryRefillAccountIdPostRaw(requestParameters, initOverrides);
     }
 
     /**
      */
-    async categoryUpdateIdPutRaw(requestParameters: CategoryUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryModel>> {
+    async apiV1CategoryUpdateIdPutRaw(requestParameters: ApiV1CategoryUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CategoryModel>> {
         if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
                 'id',
-                'Required parameter "id" was null or undefined when calling categoryUpdateIdPut().'
+                'Required parameter "id" was null or undefined when calling apiV1CategoryUpdateIdPut().'
             );
         }
 
         if (requestParameters['updateCategoryRequest'] == null) {
             throw new runtime.RequiredError(
                 'updateCategoryRequest',
-                'Required parameter "updateCategoryRequest" was null or undefined when calling categoryUpdateIdPut().'
+                'Required parameter "updateCategoryRequest" was null or undefined when calling apiV1CategoryUpdateIdPut().'
             );
         }
 
@@ -232,7 +232,7 @@ export class CategoryApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Category/Update/{id}`;
+        let urlPath = `/api/v1/Category/Update/{id}`;
         urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         const response = await this.request({
@@ -248,18 +248,18 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryUpdateIdPut(requestParameters: CategoryUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryModel> {
-        const response = await this.categoryUpdateIdPutRaw(requestParameters, initOverrides);
+    async apiV1CategoryUpdateIdPut(requestParameters: ApiV1CategoryUpdateIdPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CategoryModel> {
+        const response = await this.apiV1CategoryUpdateIdPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async categoryUpdateOrderPutRaw(requestParameters: CategoryUpdateOrderPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
+    async apiV1CategoryUpdateOrderPutRaw(requestParameters: ApiV1CategoryUpdateOrderPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
         if (requestParameters['updateCategoriesOrderRequest'] == null) {
             throw new runtime.RequiredError(
                 'updateCategoriesOrderRequest',
-                'Required parameter "updateCategoriesOrderRequest" was null or undefined when calling categoryUpdateOrderPut().'
+                'Required parameter "updateCategoriesOrderRequest" was null or undefined when calling apiV1CategoryUpdateOrderPut().'
             );
         }
 
@@ -270,7 +270,7 @@ export class CategoryApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Category/UpdateOrder`;
+        let urlPath = `/api/v1/Category/UpdateOrder`;
 
         const response = await this.request({
             path: urlPath,
@@ -285,18 +285,18 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryUpdateOrderPut(requestParameters: CategoryUpdateOrderPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
-        const response = await this.categoryUpdateOrderPutRaw(requestParameters, initOverrides);
+    async apiV1CategoryUpdateOrderPut(requestParameters: ApiV1CategoryUpdateOrderPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
+        const response = await this.apiV1CategoryUpdateOrderPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
     /**
      */
-    async categoryUpdateRefillValuesPutRaw(requestParameters: CategoryUpdateRefillValuesPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
+    async apiV1CategoryUpdateRefillValuesPutRaw(requestParameters: ApiV1CategoryUpdateRefillValuesPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<CategoryModel>>> {
         if (requestParameters['updateCategoriesRefillValueRequest'] == null) {
             throw new runtime.RequiredError(
                 'updateCategoriesRefillValueRequest',
-                'Required parameter "updateCategoriesRefillValueRequest" was null or undefined when calling categoryUpdateRefillValuesPut().'
+                'Required parameter "updateCategoriesRefillValueRequest" was null or undefined when calling apiV1CategoryUpdateRefillValuesPut().'
             );
         }
 
@@ -307,7 +307,7 @@ export class CategoryApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/Category/UpdateRefillValues`;
+        let urlPath = `/api/v1/Category/UpdateRefillValues`;
 
         const response = await this.request({
             path: urlPath,
@@ -322,8 +322,8 @@ export class CategoryApi extends runtime.BaseAPI {
 
     /**
      */
-    async categoryUpdateRefillValuesPut(requestParameters: CategoryUpdateRefillValuesPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
-        const response = await this.categoryUpdateRefillValuesPutRaw(requestParameters, initOverrides);
+    async apiV1CategoryUpdateRefillValuesPut(requestParameters: ApiV1CategoryUpdateRefillValuesPutRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<CategoryModel>> {
+        const response = await this.apiV1CategoryUpdateRefillValuesPutRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

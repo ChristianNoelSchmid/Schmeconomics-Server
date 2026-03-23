@@ -9,7 +9,7 @@ export function accountData() {
 
     const { data: accounts, refresh: refreshAccounts } = useAsyncData<AccountModel[]>(
         'accounts-list',
-        async () => await $api.account.accountAllGet(),
+        async () => await $api.account.apiV1AccountAllGet(),
         {
             watch: [
                 () => signInState.value,
@@ -24,11 +24,11 @@ export function accountData() {
 export class AccountService {
     async createAccount(name: string) {
         const { $api } = useNuxtApp();
-        await $api.account.accountCreatePost({ name });
+        await $api.account.apiV1AccountCreatePost({ name });
     }
 
     async deleteAccount(id: string) {
         const { $api } = useNuxtApp();
-        await $api.account.accountDeleteIdDelete({ id });
+        await $api.account.apiV1AccountDeleteIdDelete({ id });
     }
 }

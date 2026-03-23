@@ -28,7 +28,7 @@ import type { AccountModel } from '~/lib/openapi';
 </script>
 
 <template>
-  <UModal :open="visible">
+  <UModal fullscreen :open="visible">
     <template #content>
       <UCard>
         <template #header>

@@ -7,7 +7,7 @@ export function accountCategoriesData() {
 
     return useAsyncData<CategoryModel[]>(
         'categories-list',
-        async () => await $api.category.categoryForAccountAccountIdGet({
+        async () => await $api.category.apiV1CategoryForAccountAccountIdGet({
             accountId: $defaultAccountId.value
         }),
         {
@@ -30,7 +30,7 @@ export class CategoryService {
                 refillValue: state.refillValue
             };
 
-            await $api.category.categoryCreatePost({ createCategoryRequest: request });
+            await $api.category.apiV1CategoryCreatePost({ createCategoryRequest: request });
         } catch (error) {
             console.error('Failed to create category:', error);
         }
@@ -38,7 +38,7 @@ export class CategoryService {
     async updateCategory(categoryId: string, request: UpdateCategoryRequest) {
         const { $api } = useNuxtApp();
         try {
-            await $api.category.categoryUpdateIdPut({ id: categoryId, updateCategoryRequest: request });
+            await $api.category.apiV1CategoryUpdateIdPut({ id: categoryId, updateCategoryRequest: request });
         } catch (error) {
             console.error('Failed to update category:', error);
         }
@@ -46,7 +46,7 @@ export class CategoryService {
     async deleteCategory(categoryId: string) {
         const { $api } = useNuxtApp();
         try {
-            await $api.category.categoryDeleteIdDelete({ id: categoryId });
+            await $api.category.apiV1CategoryDeleteIdDelete({ id: categoryId });
         } catch (error) {
             console.error('Failed to delete category:', error);
             alert('Failed to delete category');
