@@ -62,8 +62,7 @@ function handleInput(keyboardEvent: KeyboardEvent) {
 
 <template>
   <UInput 
-    type="number"
-    inputmode="numeric"
+    type="text"
     :value="formattedValue" :disabled="props.readonly" @keydown="handleInput"
   /> 
 </template>
