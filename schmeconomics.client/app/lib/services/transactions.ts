@@ -66,7 +66,7 @@ export class TransactionService {
         const { $api, $defaultAccountId } = useNuxtApp();
 
         if($defaultAccountId != null) {
-            await $api.transaction.accountIdTransactionIdDelete({ 
+            await $api.transaction.apiV1TransactionAccountIdTransactionIdDelete({ 
                 accountId: $defaultAccountId.value, 
                 transactionId: txId 
             });
