@@ -10,6 +10,7 @@ using Schmeconomics.Api.Tokens.RefreshTokens;
 using Schmeconomics.Api.Accounts;
 using Schmeconomics.Api.Categories;
 using Schmeconomics.Api.Transactions;
+using Schmeconomics.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 

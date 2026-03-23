@@ -1,9 +1,8 @@
-
-
 using Microsoft.EntityFrameworkCore;
 using Schmeconomics.Api.Users;
 using Schmeconomics.Entities;
 
+namespace Schmeconomics.Api;
 public class CreateAdminStartupService(
     IServiceScopeFactory _scopeFactory
 ) : IHostedService {
@@ -13,7 +12,7 @@ public class CreateAdminStartupService(
         var (db, userService) = (scope.ServiceProvider.GetRequiredService<SchmeconomicsDbContext>(), scope.ServiceProvider.GetRequiredService<IUserService>());
 
         var adminUser = await db.Users.Where(u => u.Role == Role.Admin).FirstOrDefaultAsync(cancellationToken);
-        if(adminUser == null)
+        if (adminUser == null)
         {
             await userService.CreateAdminUser();
         }
