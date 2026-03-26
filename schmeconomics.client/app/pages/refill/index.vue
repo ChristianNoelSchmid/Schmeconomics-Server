@@ -174,7 +174,7 @@ watch(categories, (newCategories) => {
               </li>
             </ul>
                 
-            <div class="mb-4 p-3 bg-gray-100 rounded">
+            <div class="my-4 p-3 rounded border-1 border-solid">
               <p>Total Difference: 
                 <span :class="{ 'text-red-600': calculateTotalDifference()  < 0, 'text-green-600': calculateTotalDifference() > 0 }">
                   {{ currencyFormat(calculateTotalDifference()) }}

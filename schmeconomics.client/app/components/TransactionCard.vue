@@ -15,7 +15,7 @@ const signInState = useSignInState();
 </script>
 
 <template>
-  <div class="border rounded-lg p-4 mb-3 bg-white shadow-sm relative">
+  <UCard class="relative">
     <button 
       v-if="signInState?.userModel.id === transaction.creatorId || signInState?.userModel?.role === 'Admin'"
       class="absolute top-0 right-0 text-red-700 hover:text-red-700"
@@ -41,5 +41,5 @@ const signInState = useSignInState();
       <p class="text-sm text-gray-600">Category: {{ transaction.categoryName }}</p>
       <p v-if="transaction.notes" class="text-sm text-gray-500 italic">{{ transaction.notes }}</p>
     </div>
-  </div>
+  </UCard>
 </template>
