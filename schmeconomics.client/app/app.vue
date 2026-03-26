@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PromptModal from './components/prompt/PromptModal.vue';
 import GlobalLoadingIndicator from './components/GlobalLoadingIndicator.vue';
+import AppFooter from './components/AppFooter.vue';
 import { useSignInState } from './lib/services/auth';
 
 const signInState = useSignInState();
@@ -20,6 +21,7 @@ onMounted(() => {
         <NuxtLoadingIndicator :height="3" />
         <NuxtPage />
       </UMain>
+      <AppFooter />
     </UContainer>
     <PromptModal />
     <GlobalLoadingIndicator />
