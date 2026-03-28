@@ -6,11 +6,10 @@ import { accountCategoriesData } from "~/lib/services/categories";
 import { TransactionService, txData } from "~/lib/services/transactions";
 
 const txService = new TransactionService();
-const hasMore = ref(true);
 
 const route = useRoute();
 const categoryId = ref<string | null>(route.query.categoryId as string);
-const { txs, loadNextPageTxs } = txData(computed(() => categoryId.value));
+const { txs, loadNextPageTxs, refresh, isLastPage } = txData(computed(() => categoryId.value));
 const { data: categories } = accountCategoriesData();
 const categoryName = computed(() => categories.value?.find(c => c.id == categoryId.value)?.name || null);
 
@@ -27,7 +26,7 @@ function onDeleteTransaction(txId: string) {
 }
 
 onMounted(async () => {
-  await loadNextPageTxs()
+  await refresh();
 });
 </script>
 
@@ -47,7 +46,7 @@ onMounted(async () => {
         @deleteclicked="onDeleteTransaction(tx.id)"
       />
       
-      <div v-if="hasMore" class="mt-4 text-center">
+      <div v-if="!isLastPage.value" class="mt-4 text-center">
         <UButton @click="async () => await loadNextPageTxs()" color="primary" variant="solid">
           Load More
         </UButton>
