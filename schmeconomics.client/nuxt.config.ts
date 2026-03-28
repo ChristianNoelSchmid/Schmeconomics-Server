@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/hints',
     '@nuxt/eslint',
-    '@nuxt/image'
+    '@nuxt/image',
+    '@vite-pwa/nuxt'
   ],
   runtimeConfig: {
     public: {
@@ -16,5 +17,33 @@ export default defineNuxtConfig({
   },
   css: [
     '@/styles.css'
-  ]
+  ],
+  pwa: {
+    registerType: 'autoUpdate',
+    manifest: {
+      name: 'Schmeconomics',
+      short_name: 'Schm',
+      theme_color: '#ffffff',
+      icons: [
+        /*{
+          src: 'pwa-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },*/
+        {
+          src: 'pwa-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+    },
+    workbox: {
+      navigateFallback: '/',
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    devOptions: {
+      enabled: true, // Allows you to test PWA features in dev mode
+      type: 'module',
+    }
+  }
 })
