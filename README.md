@@ -1,64 +1,161 @@
-# Schmeconomics - Containerized Setup
+# Schmeconomics
 
-This project contains both the backend API and frontend client applications, containerized for easy deployment.
+Schmeconomics is a self-hosted personal finance and budget tracking web app. Users create **accounts**, define **categories** (budget envelopes), and log **transactions** that debit a category's balance. A **refill** operation replenishes all categories in an account by their configured refill values.
 
-## Project Structure
+## Tech stack
 
-- `Schmeconomics.Api/` - ASP.NET Core Web API backend
-- `schmeconomics.client/` - Nuxt.js frontend application  
-- `Dockerfile.api` - Docker configuration for the API
-- `Dockerfile.client` - Docker configuration for the client
-- `docker-compose.yml` - Orchestration file for both services
+| Layer | Technology |
+|---|---|
+| API | ASP.NET Core (.NET 9), Entity Framework Core |
+| Database | SQLite |
+| Frontend | Nuxt 4, Vue 3, Nuxt UI, Tailwind CSS |
+| Auth | JWT (access) + HTTP-only refresh token cookies |
+| Deployment | Docker + Docker Compose |
+| PWA | `@vite-pwa/nuxt` with auto-update |
 
-## Running with Docker Compose
+## Project structure
 
-To run both applications together in containers:
-
-```bash
-docker-compose up
+```
+Schmeconomics_CSharp/
+├── Schmeconomics.Api/          # ASP.NET Core Web API
+│   ├── Accounts/               # Account management
+│   ├── Auth/                   # JWT middleware, auth service
+│   ├── Categories/             # Category CRUD + refill logic
+│   ├── Controllers/            # HTTP endpoints
+│   ├── Secrets/                # Rotating JWT signing keys (DB-backed)
+│   ├── Tokens/                 # JWT + refresh token providers
+│   ├── Transactions/           # Transaction CRUD
+│   └── Users/                  # User management
+├── Schmeconomics.Entities/     # EF Core models, DbContext, migrations
+├── Schmeconomics.Api.UnitTests/ # MSTest unit tests
+├── schmeconomics.client/       # Nuxt.js frontend
+└── compose/                    # Docker Compose + Dockerfiles
 ```
 
-This will:
-1. Build and start the database container
-2. Build and start the API container, which will:
-   - Run database migrations using EF Core
-   - Start the ASP.NET Core application on port 5153
-3. Build and start the client container, which will:
-   - Build the Nuxt.js application
-   - Serve it on port 3000
+## Core concepts
 
-## Environment Variables
+**Accounts** are shared budget workspaces. An admin creates accounts and assigns users to them. Multiple users can belong to the same account.
 
-### API Configuration
-The API supports these environment variables:
-- `ASPNETCORE_ENVIRONMENT` - Set to "Production" or "Development"
-- `AllowedOrigins` - CORS policy origins (default: "*")
+**Categories** are budget envelopes within an account. Each category has:
+- `Balance` — current available funds
+- `RefillValue` — how much to add when a refill is triggered
+- `Order` — display order (drag-and-drop sortable)
 
-### Client Configuration  
-The client supports this environment variable:
-- `NUXT_PUBLIC_API_BASE_URL` - Base URL for API calls (default: "http://localhost:5153")
+**Transactions** debit a category's balance. They record the amount, category, creator, timestamp, and optional notes. Refill events are also stored as transactions (`IsRefill = true`).
 
-## Accessing the Applications
+**Refill** adds each category's `RefillValue` to its current balance and records one refill transaction per category.
+
+## Running locally (Docker)
+
+All Docker files live in `compose/`. Create a `compose/.env` file:
+
+```env
+SERVER_PORT=5153
+CLIENT_PORT=3000
+DATABASE_DIRECTORY_PATH=/path/to/your/db/folder
+NUXT_PUBLIC_API_BASE=[public-facing URL, if applicable. Used for CORS validation]
+```
+
+Then start the stack:
+
+```bash
+cd compose
+docker compose up
+```
 
 - **API**: http://localhost:5153
-- **Client**: http://localhost:3000
+- **Frontend**: http://localhost:3000
 
-## Development Mode
+Database migrations run automatically on API startup. A default admin account (`Admin` / `admin`) is created if no admin exists.
 
-For development, you can run each component separately:
+## Running locally (without Docker)
 
-### Running API Only
+### API
+
 ```bash
-docker-compose up api
+cd Schmeconomics.Api
+dotnet run
 ```
 
-### Running Client Only  
+The API reads its connection string from `appsettings.json` (`Data Source=./db/app.db`) and runs on port 5153 by default.
+
+### Frontend
+
 ```bash
-docker-compose up client
+cd schmeconomics.client
+npm install
+npm run dev
 ```
 
-The client will connect to the API at `http://localhost:5153` by default.
+See [`schmeconomics.client/README.md`](schmeconomics.client/README.md) for more frontend details.
 
-## Database Migration
+## Authentication
 
-Database migrations are automatically handled when starting the API container. The Dockerfile.api includes a step to run `dotnet ef database update` before starting the application.
+The API uses a two-token scheme:
+
+- **Access token** — short-lived JWT (15 minutes), signed with a rotating DB-backed secret, returned in the response body.
+- **Refresh token** — long-lived (30 days), stored in the database, sent and received as an HTTP-only `Secure` cookie. On each refresh, the old token is rotated (new token issued, old one invalidated). Token families detect reuse attacks.
+
+The signing secret itself is rotated every 15 minutes and stored in the database, so both old and new secrets are valid during the overlap window.
+
+## Roles
+
+| Role | Capabilities |
+|---|---|
+| `Admin` | Full access: create/delete accounts, categories, users; assign users to accounts |
+| `User` | Read accounts, view/create/delete transactions, trigger refills, update their own profile |
+
+## API endpoints
+
+| Method | Route | Auth | Description |
+|---|---|---|---|
+| POST | `/Auth/SignIn` | None | Sign in, get JWT + refresh cookie |
+| POST | `/Auth/Refresh` | Refresh cookie | Rotate refresh token, get new JWT |
+| POST | `/Auth/SignOut` | Refresh cookie | Revoke refresh token |
+| GET | `/Account/All` | User | List accounts for current user |
+| POST | `/Account/Create` | Admin | Create an account |
+| POST | `/Account/ToggleUser` | Admin | Add/remove user from account |
+| PUT | `/Account/Update/{id}` | Admin | Rename account |
+| DELETE | `/Account/Delete/{id}` | Admin | Delete account |
+| GET | `/Category/ForAccount/{accountId}` | User | List categories for account |
+| POST | `/Category/Create` | Admin | Create category |
+| PUT | `/Category/Update/{id}` | Admin | Update category name/balance/refill |
+| PUT | `/Category/UpdateOrder` | Admin | Reorder categories |
+| PUT | `/Category/UpdateRefillValues` | User | Update refill values for categories |
+| POST | `/Category/Refill/{accountId}` | User | Trigger a refill for all categories |
+| DELETE | `/Category/Delete/{id}` | Admin | Delete category |
+| GET | `/Transaction/{accountId}` | User | Paginated transaction list (filter by `?categoryId=`) |
+| POST | `/Transaction/{accountId}` | User | Log one or more transactions |
+| PUT | `/Transaction/{transactionId}` | User | Update a transaction |
+| DELETE | `/Transaction/{accountId}/{transactionId}` | User | Delete a transaction |
+| GET | `/User/All` | Admin | List all users |
+| GET | `/User/Current` | User | Get current user |
+| POST | `/User/Create` | Admin | Create user |
+| PUT | `/User/Update` | User | Update own profile (admin can target any user) |
+| DELETE | `/User/Delete/{userId}` | Admin | Delete user |
+
+## Database migrations
+
+Migrations are in `Schmeconomics.Entities/Migrations/`. To add or apply them manually from the solution root:
+
+```bash
+# Add a new migration
+dotnet ef migrations add <MigrationName> \
+  --project Schmeconomics.Entities \
+  --startup-project Schmeconomics.Api
+
+# Apply pending migrations
+dotnet ef database update \
+  --project Schmeconomics.Entities \
+  --startup-project Schmeconomics.Api
+```
+
+Migrations are also applied automatically on startup (both locally and in Docker).
+
+## Running tests
+
+```bash
+dotnet test
+```
+
+Unit tests cover the auth service, token providers, account/category services, and secret rotation logic.

@@ -1,75 +1,51 @@
-# Nuxt Minimal Starter
+# schmeconomics-client
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Nuxt 4 frontend for Schmeconomics. Built with Nuxt UI (Tailwind CSS) and installable as a PWA.
 
-## Setup
+## Stack
 
-Make sure to install dependencies:
+- **Nuxt 4** + Vue 3
+- **Nuxt UI** (component library, Tailwind CSS)
+- **@vite-pwa/nuxt** — PWA with auto-update
+- TypeScript
+
+## Pages
+
+| Route | Description |
+|---|---|
+| `/login` | Sign-in form |
+| `/` | Dashboard — lists accounts and their categories |
+| `/accounts` | Account management (admin) |
+| `/transactions` | Paginated transaction history, filterable by category |
+| `/refill` | Trigger a refill for the current account |
+| `/users` | User management (admin) |
+
+## Configuration
+
+The only runtime config value is the API base URL, set via environment variable:
+
+```env
+NUXT_PUBLIC_API_BASE=http://localhost:5153
+```
+
+The default (in `nuxt.config.ts`) is `http://localhost:5153`.
+
+## Development
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
+npm run dev       # http://localhost:3000
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+## Production build
 
 ```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+npm run preview   # preview the production build locally
 ```
 
-Locally preview production build:
+In Docker the client is built with `npm run build` and served with `npm run preview`. See the root [`README.md`](../README.md) for the full Docker Compose setup.
 
-```bash
-# npm
-npm run preview
+## PWA
 
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+The app registers a service worker with auto-update and ships with 192×192 and 512×512 icons (`public/pwa-192x192.png`, `public/pwa-512x512.png`). The PWA short name is `Schm`.
